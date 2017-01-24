@@ -10,6 +10,15 @@ using namespace glm;
 
 namespace Graphics {
 
+	GLFWwindow *window;
+	GLuint frameBuffer;
+	GLuint texColorBuffer;
+	GLuint vaoQuad;
+	GLuint rboDepthStencil;
+	MyShader frameBufferShader;
+	MyShader shader;
+	MyGeometry geometry;
+
 	void QueryGLVersion();
 	bool CheckGLErrors();
 
@@ -17,11 +26,11 @@ namespace Graphics {
 	GLuint CompileShader(GLenum shaderType, const string &source);
 	GLuint LinkProgram(GLuint vertexShader, GLuint fragmentShader);
 
-	bool InitializeShaders(MyShader *shader)
+	bool InitializeShaders(MyShader *shader, const string vertex, const string fragment)
 	{
 		// load shader source from files
-		string vertexSource = LoadSource("vertex.glsl");
-		string fragmentSource = LoadSource("fragment.glsl");
+		string vertexSource = LoadSource(vertex);
+		string fragmentSource = LoadSource(fragment);
 		if (vertexSource.empty() || fragmentSource.empty()) return false;
 
 		// compile shader source into shader objects
@@ -157,14 +166,30 @@ namespace Graphics {
 
 	void RenderScene(MyGeometry *geometry, MyShader *shader)
 	{
+		glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
+		glBindTexture(GL_TEXTURE_2D, texColorBuffer);
+
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, WINDOW_WIDTH, WINDOW_HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texColorBuffer, 0);
+
+		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rboDepthStencil);
+
 		// clear screen to a dark grey colour
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		// enable gl depth test
+		glEnable(GL_DEPTH_TEST);
 
 		// bind our shader program and the vertex array object containing our
 		// scene geometry, then tell OpenGL to draw our geometry
 		glUseProgram(shader->program);
 		glBindVertexArray(geometry->vertexArray);
+
 
 		Viewport::update();
 		Light::update();
@@ -174,6 +199,7 @@ namespace Graphics {
 		// reset state to default (no shader or geometry bound)
 		glBindVertexArray(0);
 		glUseProgram(0);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 		// check for an report any OpenGL errors
 		CheckGLErrors();
@@ -310,9 +336,16 @@ namespace Graphics {
 			glfwSetWindowShouldClose(window, GL_TRUE);
 	}
 
-	GLFWwindow *window;
-	MyShader shader;
-	MyGeometry geometry;
+	GLfloat quadVertices[] = {
+		-1.0f,  1.0f,  0.0f, 1.0f,
+		1.0f,  1.0f,  1.0f, 1.0f,
+		1.0f, -1.0f,  1.0f, 0.0f,
+
+		1.0f, -1.0f,  1.0f, 0.0f,
+		-1.0f, -1.0f,  0.0f, 0.0f,
+		-1.0f,  1.0f,  0.0f, 1.0f
+	};
+
 
 	int init() {
 		// initialize the GLFW windowing system
@@ -330,11 +363,7 @@ namespace Graphics {
 		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-		// anti aliasing
-		glfwWindowHint(GLFW_SAMPLES, 4);
-
-		int width = 1024, height = 1024;
-		window = glfwCreateWindow(width, height, "CPSC 453 OpenGL Boilerplate", 0, 0);
+		window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "CPSC 453 OpenGL Boilerplate", 0, 0);
 		if (!window) {
 			cout << "Program failed to create GLFW window, TERMINATING" << endl;
 			glfwTerminate();
@@ -357,23 +386,45 @@ namespace Graphics {
 		// query and print out information about our OpenGL environment
 		QueryGLVersion();
 
-		// enable gl depth test
-		glEnable(GL_DEPTH_TEST);
-		glDisable(GL_CULL_FACE);
-
 		// call function to load and compile shader programs
 
-		if (!InitializeShaders(&shader)) {
+		if (!InitializeShaders(&shader, "vertex.glsl", "fragment.glsl")) {
 			cout << "Program could not initialize shaders, TERMINATING" << endl;
 			return -1;
 		}
 
-		// call function to create and fill buffers with geometry data
 
-	//	if (!InitializeGeometry(&geometry))
-	//		cout << "Program failed to intialize geometry!" << endl;
 
 		loadGeometry(&geometry, "aventador.obj");
+
+		// frame buffer objects
+		glUseProgram(frameBufferShader.program);
+		glGenFramebuffers(1, &frameBuffer);
+		glGenTextures(1, &texColorBuffer);
+		if (!InitializeShaders(&frameBufferShader, "framebuffervertex.glsl", "framebufferfragment.glsl")) {
+			cout << "Program could not initialize shaders, TERMINATING" << endl;
+			return -1;
+		}
+		glGenVertexArrays(1, &vaoQuad);
+		GLuint vboQuad;
+		glGenBuffers(1, &vboQuad);
+		glBindBuffer(GL_ARRAY_BUFFER, vboQuad);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), quadVertices, GL_STATIC_DRAW);
+		glBindVertexArray(vaoQuad);
+		glBindBuffer(GL_ARRAY_BUFFER, vboQuad);
+		glUniform1i(glGetUniformLocation(frameBufferShader.program, "texFramebuffer"), 0);
+
+		GLint posAttrib = glGetAttribLocation(frameBufferShader.program, "position");
+		glEnableVertexAttribArray(posAttrib);
+		glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), 0);
+
+		GLint texAttrib = glGetAttribLocation(frameBufferShader.program, "texcoord");
+		glEnableVertexAttribArray(texAttrib);
+		glVertexAttribPointer(texAttrib, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (void*)(2 * sizeof(GLfloat)));
+
+		glGenRenderbuffers(1, &rboDepthStencil);
+		glBindRenderbuffer(GL_RENDERBUFFER, rboDepthStencil);
+		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, WINDOW_WIDTH, WINDOW_HEIGHT);
 
 		return 0;
 	}
@@ -384,14 +435,25 @@ namespace Graphics {
 		return glfwWindowShouldClose(window);
 	}
 
-	float lasttime = 0;
+	void renderFrameBuffer() {
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glBindVertexArray(vaoQuad);
+		glDisable(GL_DEPTH_TEST);
+		glUseProgram(frameBufferShader.program);
 
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, texColorBuffer);
+
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+		CheckGLErrors();
+	}
+
+	float lasttime = 0;
 	void update() {
 		cout << glfwGetTime() - lasttime << endl;
 		lasttime = glfwGetTime();
-
-		for (int i = 0; i < 1; i++)
-			RenderScene(&geometry, &shader);
+		RenderScene(&geometry, &shader);
+		renderFrameBuffer();
 
 		glfwSwapBuffers(window);
 
@@ -401,6 +463,8 @@ namespace Graphics {
 	void destroy() {
 		DestroyGeometry(&geometry);
 		DestroyShaders(&shader);
+		glDeleteFramebuffers(1, &frameBuffer);
+		glDeleteRenderbuffers(1, &rboDepthStencil);
 		glfwDestroyWindow(window);
 		glfwTerminate();
 

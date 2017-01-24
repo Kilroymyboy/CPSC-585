@@ -27,6 +27,9 @@
 #define LIGHT_LOCATION 4
 #define AMBIENT_LOCATION 5
 
+#define WINDOW_WIDTH 1024
+#define WINDOW_HEIGHT 1024
+
 namespace Graphics {
 	int init();
 	int shouldClose();
