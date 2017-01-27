@@ -169,14 +169,8 @@ namespace Graphics {
 		glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
 		glBindTexture(GL_TEXTURE_2D, texColorBuffer);
 
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, WINDOW_WIDTH, WINDOW_HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
 
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texColorBuffer, 0);
-
-		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rboDepthStencil);
 
 		// clear screen to a dark grey colour
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -398,13 +392,33 @@ namespace Graphics {
 		loadGeometry(&geometry, "aventador.obj");
 
 		// frame buffer objects
-		glUseProgram(frameBufferShader.program);
+
 		glGenFramebuffers(1, &frameBuffer);
+		glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
+
 		glGenTextures(1, &texColorBuffer);
-		if (!InitializeShaders(&frameBufferShader, "framebuffervertex.glsl", "framebufferfragment.glsl")) {
-			cout << "Program could not initialize shaders, TERMINATING" << endl;
+		glBindTexture(GL_TEXTURE_2D, texColorBuffer);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, WINDOW_WIDTH, WINDOW_HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+		glGenRenderbuffers(1, &rboDepthStencil);
+		glBindRenderbuffer(GL_RENDERBUFFER, rboDepthStencil);
+		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, WINDOW_WIDTH, WINDOW_HEIGHT);
+		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rboDepthStencil);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texColorBuffer, 0);
+
+		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+			cout << "Frame buffer is dead" << endl;
 			return -1;
 		}
+
+		if (!InitializeShaders(&frameBufferShader, "framebuffervertex.glsl", "framebufferfragment.glsl")) {
+			cout << "Program could not initialize framebuffer shaders, TERMINATING" << endl;
+			return -1;
+		}
+		glUseProgram(frameBufferShader.program);
 		glGenVertexArrays(1, &vaoQuad);
 		GLuint vboQuad;
 		glGenBuffers(1, &vboQuad);
@@ -422,10 +436,6 @@ namespace Graphics {
 		glEnableVertexAttribArray(texAttrib);
 		glVertexAttribPointer(texAttrib, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (void*)(2 * sizeof(GLfloat)));
 
-		glGenRenderbuffers(1, &rboDepthStencil);
-		glBindRenderbuffer(GL_RENDERBUFFER, rboDepthStencil);
-		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, WINDOW_WIDTH, WINDOW_HEIGHT);
-
 		return 0;
 	}
 
@@ -436,13 +446,11 @@ namespace Graphics {
 	}
 
 	void renderFrameBuffer() {
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glBindVertexArray(vaoQuad);
 		glDisable(GL_DEPTH_TEST);
 		glUseProgram(frameBufferShader.program);
 
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, texColorBuffer);
 
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 		CheckGLErrors();
@@ -450,7 +458,7 @@ namespace Graphics {
 
 	float lasttime = 0;
 	void update() {
-		cout << glfwGetTime() - lasttime << endl;
+	//	cout << glfwGetTime() - lasttime << endl;
 		lasttime = glfwGetTime();
 		RenderScene(&geometry, &shader);
 		renderFrameBuffer();
