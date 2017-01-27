@@ -556,7 +556,7 @@ namespace Viewport {
 	}
 
 	void update() {
-		transform = lookAt(vec3(cos(glfwGetTime() / 3) * 5, 2, sin(glfwGetTime() / 3) * 5), vec3(0, 0, 0), vec3(0, 1, 0));
+		transform = lookAt(vec3(cos(glfwGetTime() / 3) * 5, 1, sin(glfwGetTime() / 3) * 5), vec3(0, 0, 0), vec3(0, 1, 0));
 		glUniformMatrix4fv(MODELVIEW_LOCATION, 1, false, &transform[0][0]);
 		glUniformMatrix4fv(PROJECTION_LOCATION, 1, false, &projection[0][0]);
 	}
@@ -569,8 +569,8 @@ namespace Light {
 
 	void init() {
 		color = vec3(.1f, .1f, .1f);
-		direction = vec3(1, -1, -2);
-		ambient = vec3(0.2, 0.2, 0.2);
+		direction = vec3(0, -1, 0);
+		ambient = vec3(0.1, 0.1, 0.1);
 	}
 
 	void update() {
