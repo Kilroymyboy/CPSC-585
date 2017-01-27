@@ -1,3 +1,12 @@
-*.sdf
-*.opensdf
-dontSubmit
+# Ignore everything
+/*
+
+
+# Except these
+!.gitignore
+!middleware
+!middleware/**
+!boilerplate
+!boilerplate/**
+!boilerplate.sln
+!README.txt
