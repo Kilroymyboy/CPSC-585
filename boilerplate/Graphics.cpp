@@ -16,8 +16,6 @@ namespace Graphics {
 	GLuint vaoQuad;
 	GLuint rboDepthStencil;
 	MyShader frameBufferShader;
-	MyShader shader;
-	MyGeometry geometry;
 
 	void QueryGLVersion();
 	bool CheckGLErrors();
@@ -383,17 +381,6 @@ namespace Graphics {
 		// query and print out information about our OpenGL environment
 		QueryGLVersion();
 
-		// call function to load and compile shader programs
-
-		if (!InitializeShaders(&shader, "vertex.glsl", "fragment.glsl")) {
-			cout << "Program could not initialize shaders, TERMINATING" << endl;
-			return -1;
-		}
-
-
-
-		loadGeometry(&geometry, "aventador.obj");
-
 		// frame buffer objects
 
 		glGenFramebuffers(1, &frameBuffer);
@@ -459,11 +446,7 @@ namespace Graphics {
 		CheckGLErrors();
 	}
 
-	float lasttime = 0;
 	void update() {
-		//	cout << glfwGetTime() - lasttime << endl;
-		lasttime = glfwGetTime();
-		//	RenderScene(&geometry, &shader);
 		renderFrameBuffer();
 
 		glfwSwapBuffers(window);
@@ -472,8 +455,6 @@ namespace Graphics {
 	}
 
 	void destroy() {
-		DestroyGeometry(&geometry);
-		DestroyShaders(&shader);
 		glDeleteFramebuffers(1, &frameBuffer);
 		glDeleteRenderbuffers(1, &rboDepthStencil);
 		glfwDestroyWindow(window);
@@ -559,7 +540,7 @@ namespace Viewport {
 	}
 
 	void update() {
-		transform = lookAt(vec3(cos(glfwGetTime() / 3) * 5, 1, sin(glfwGetTime() / 3) * 5), vec3(0, 0, 0), vec3(0, 1, 0));
+		transform = lookAt(vec3(cos(glfwGetTime() / 3) * 6, 1, sin(glfwGetTime() / 3) * 6), vec3(0, 0, 0), vec3(0, 1, 0));
 		glUniformMatrix4fv(MODELVIEW_LOCATION, 1, false, &transform[0][0]);
 		glUniformMatrix4fv(PROJECTION_LOCATION, 1, false, &projection[0][0]);
 	}
