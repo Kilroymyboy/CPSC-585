@@ -21,6 +21,9 @@ layout(location = 3) uniform mat4 ModelView;
 layout(location = 4) uniform vec3 LightDirection;
 layout(location = 5) uniform vec3 AmbientLight;
 
+layout(location = 6) uniform vec3 Color;
+layout(location = 7) uniform vec3 EmissionColor;
+
 
 //layout(location = 5) uniform vec3 LightDirection;
 

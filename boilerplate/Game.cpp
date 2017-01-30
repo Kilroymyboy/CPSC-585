@@ -3,9 +3,9 @@
 using namespace std;
 
 void Aventador::update() {
-	Graphics::RenderScene(&Resources::aventadorBody, &Resources::standardShader);
-	Graphics::RenderScene(&Resources::aventadorBodyGlow, &Resources::standardShader);
-	Graphics::RenderScene(&Resources::aventadorUnder, &Resources::standardShader);
+	Graphics::RenderScene(&Resources::aventadorBody, &Resources::standardShader, &(Resources::darkGreyMaterial));
+	Graphics::RenderScene(&Resources::aventadorBodyGlow, &Resources::standardShader, &Resources::emmisiveMaterial);
+	Graphics::RenderScene(&Resources::aventadorUnder, &Resources::standardShader, &Resources::pureBlackMaterial);
 }
 
 namespace Game {

@@ -174,7 +174,7 @@ namespace Graphics {
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 
-	void RenderScene(MyGeometry *geometry, MyShader *shader)
+	void RenderScene(MyGeometry *geometry, MyShader *shader, void (*material)())
 	{
 		glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
 		glBindTexture(GL_TEXTURE_2D, texColorBuffer);
@@ -187,7 +187,7 @@ namespace Graphics {
 		glUseProgram(shader->program);
 		glBindVertexArray(geometry->vertexArray);
 
-
+		material();
 		Viewport::update();
 		Light::update();
 

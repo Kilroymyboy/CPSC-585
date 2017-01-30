@@ -14,6 +14,9 @@ in vec3 Normal;
 layout(location = 4) uniform vec3 LightDirection;
 layout(location = 5) uniform vec3 AmbientLight;
 
+layout(location = 6) uniform vec3 Color;
+layout(location = 7) uniform vec3 EmissionColor;
+
 // first output is mapped to the framebuffer's colour index by default
 out vec4 FragmentColour;
 
@@ -24,4 +27,6 @@ void main(void)
     if(FragmentColour.y<0)FragmentColour.y=0;
     if(FragmentColour.z<0)FragmentColour.z=0;
     FragmentColour.xyz+=AmbientLight;
+	FragmentColour.xyz*=Color;
+	FragmentColour.syz+=EmissionColor;
 }

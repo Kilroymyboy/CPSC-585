@@ -27,6 +27,8 @@
 #define MODELVIEW_LOCATION 3
 #define LIGHT_LOCATION 4
 #define AMBIENT_LOCATION 5
+#define COLOR_LOCATION 6
+#define EMISSION_COLOR_LOCATION 7
 
 #define WINDOW_WIDTH 1024
 #define WINDOW_HEIGHT 1024
@@ -77,7 +79,7 @@ namespace Graphics {
 
 	void clearFrameBuffer();
 	void loadGeometry(MyGeometry* geometry, char* path);
-	void RenderScene(MyGeometry *geometry, MyShader *shader);
+	void RenderScene(MyGeometry *geometry, MyShader *shader, void(*material)());
 	bool InitializeShaders(MyShader *shader, const std::string vertex, const std::string fragment);
 }
 

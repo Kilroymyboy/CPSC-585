@@ -7,4 +7,12 @@ namespace Resources {
 	extern Graphics::MyShader standardShader;
 
 	void init();
+
+	void nullMaterial();
+
+	void darkGreyMaterial();
+
+	void pureBlackMaterial();
+
+	void emmisiveMaterial();
 }
