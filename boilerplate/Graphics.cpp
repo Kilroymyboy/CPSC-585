@@ -164,17 +164,20 @@ namespace Graphics {
 		glDeleteBuffers(1, &geometry->normalBuffer);
 	}
 
+	void clearFrameBuffer() {
+		glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
+		glBindTexture(GL_TEXTURE_2D, texColorBuffer);
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		// not sure if i need to do this..
+		glBindTexture(GL_TEXTURE_2D, 0);
+	}
+
 	void RenderScene(MyGeometry *geometry, MyShader *shader)
 	{
 		glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
 		glBindTexture(GL_TEXTURE_2D, texColorBuffer);
-
-
-
-
-		// clear screen to a dark grey colour
-		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		// enable gl depth test
 		glEnable(GL_DEPTH_TEST);
@@ -458,9 +461,9 @@ namespace Graphics {
 
 	float lasttime = 0;
 	void update() {
-	//	cout << glfwGetTime() - lasttime << endl;
+		//	cout << glfwGetTime() - lasttime << endl;
 		lasttime = glfwGetTime();
-		RenderScene(&geometry, &shader);
+		//	RenderScene(&geometry, &shader);
 		renderFrameBuffer();
 
 		glfwSwapBuffers(window);

@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <string>
 #include <iterator>
+#include <string>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -74,7 +75,10 @@ namespace Graphics {
 		{}
 	};
 
+	void clearFrameBuffer();
 	void loadGeometry(MyGeometry* geometry, char* path);
+	void RenderScene(MyGeometry *geometry, MyShader *shader);
+	bool InitializeShaders(MyShader *shader, const std::string vertex, const std::string fragment);
 }
 
 namespace Viewport {
