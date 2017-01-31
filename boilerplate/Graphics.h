@@ -77,10 +77,21 @@ namespace Graphics {
 		{}
 	};
 
+	struct MyFrameBuffer {
+		GLuint fbo;
+		GLuint texture;
+		GLuint vbo;
+		GLuint vao;
+		GLuint rbo;
+
+		MyFrameBuffer() :fbo(0), texture(0), vbo(0), vao(0), rbo(0) {}
+	};
+
 	void clearFrameBuffer();
 	void loadGeometry(MyGeometry* geometry, char* path);
 	void RenderScene(MyGeometry *geometry, MyShader *shader, void(*material)());
 	bool InitializeShaders(MyShader *shader, const std::string vertex, const std::string fragment);
+	bool InitializeFrameBuffer(MyFrameBuffer* frameBuffer);
 }
 
 namespace Viewport {

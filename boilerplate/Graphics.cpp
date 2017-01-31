@@ -11,11 +11,9 @@ using namespace glm;
 namespace Graphics {
 
 	GLFWwindow *window;
-	GLuint frameBuffer;
-	GLuint texColorBuffer;
-	GLuint vaoQuad;
-	GLuint rboDepthStencil;
 	MyShader frameBufferShader;
+
+	MyFrameBuffer defaultFbo;
 
 	void QueryGLVersion();
 	bool CheckGLErrors();
@@ -163,8 +161,8 @@ namespace Graphics {
 	}
 
 	void clearFrameBuffer() {
-		glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
-		glBindTexture(GL_TEXTURE_2D, texColorBuffer);
+		glBindFramebuffer(GL_FRAMEBUFFER, defaultFbo.fbo);
+		glBindTexture(GL_TEXTURE_2D, defaultFbo.texture);
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -174,8 +172,8 @@ namespace Graphics {
 
 	void RenderScene(MyGeometry *geometry, MyShader *shader, void (*material)())
 	{
-		glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
-		glBindTexture(GL_TEXTURE_2D, texColorBuffer);
+		glBindFramebuffer(GL_FRAMEBUFFER, defaultFbo.fbo);
+		glBindTexture(GL_TEXTURE_2D, defaultFbo.texture);
 
 		// enable gl depth test
 		glEnable(GL_DEPTH_TEST);
@@ -382,40 +380,47 @@ namespace Graphics {
 		QueryGLVersion();
 
 		// frame buffer objects
+		if (!InitializeFrameBuffer(&defaultFbo)) {
+			return -1;
+		}
 
-		glGenFramebuffers(1, &frameBuffer);
-		glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
+		return 0;
+	}
 
-		glGenTextures(1, &texColorBuffer);
-		glBindTexture(GL_TEXTURE_2D, texColorBuffer);
+	bool InitializeFrameBuffer(MyFrameBuffer* frameBuffer) {
+		glGenFramebuffers(1, &frameBuffer->fbo);
+		glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer->fbo);
+
+		glGenTextures(1, &frameBuffer->texture);
+		glBindTexture(GL_TEXTURE_2D, frameBuffer->texture);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, WINDOW_WIDTH, WINDOW_HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
 
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-		glGenRenderbuffers(1, &rboDepthStencil);
-		glBindRenderbuffer(GL_RENDERBUFFER, rboDepthStencil);
+		glGenRenderbuffers(1, &frameBuffer->rbo);
+		glBindRenderbuffer(GL_RENDERBUFFER, frameBuffer->rbo);
 		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, WINDOW_WIDTH, WINDOW_HEIGHT);
-		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rboDepthStencil);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texColorBuffer, 0);
+		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, frameBuffer->rbo);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, frameBuffer->texture, 0);
 
 		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
 			cout << "Frame buffer is dead" << endl;
-			return -1;
+			return false;
 		}
 
 		if (!InitializeShaders(&frameBufferShader, "framebuffervertex.glsl", "framebufferfragment.glsl")) {
 			cout << "Program could not initialize framebuffer shaders, TERMINATING" << endl;
-			return -1;
+			return false;
 		}
+
 		glUseProgram(frameBufferShader.program);
-		glGenVertexArrays(1, &vaoQuad);
-		GLuint vboQuad;
-		glGenBuffers(1, &vboQuad);
-		glBindBuffer(GL_ARRAY_BUFFER, vboQuad);
+		glGenVertexArrays(1, &frameBuffer->vao);
+		glGenBuffers(1, &frameBuffer->vbo);
+		glBindBuffer(GL_ARRAY_BUFFER, frameBuffer->vbo);
 		glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), quadVertices, GL_STATIC_DRAW);
-		glBindVertexArray(vaoQuad);
-		glBindBuffer(GL_ARRAY_BUFFER, vboQuad);
+		glBindVertexArray(frameBuffer->vao);
+		glBindBuffer(GL_ARRAY_BUFFER, frameBuffer->vbo);
 		glUniform1i(glGetUniformLocation(frameBufferShader.program, "texFramebuffer"), 0);
 
 		GLint posAttrib = glGetAttribLocation(frameBufferShader.program, "position");
@@ -426,17 +431,15 @@ namespace Graphics {
 		glEnableVertexAttribArray(texAttrib);
 		glVertexAttribPointer(texAttrib, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (void*)(2 * sizeof(GLfloat)));
 
-		return 0;
+		return true;
 	}
-
-
 
 	int shouldClose() {
 		return glfwWindowShouldClose(window);
 	}
 
 	void renderFrameBuffer() {
-		glBindVertexArray(vaoQuad);
+		glBindVertexArray(defaultFbo.vao);
 		glDisable(GL_DEPTH_TEST);
 		glUseProgram(frameBufferShader.program);
 
@@ -455,8 +458,8 @@ namespace Graphics {
 	}
 
 	void destroy() {
-		glDeleteFramebuffers(1, &frameBuffer);
-		glDeleteRenderbuffers(1, &rboDepthStencil);
+		glDeleteFramebuffers(1, &defaultFbo.fbo);
+		glDeleteRenderbuffers(1, &defaultFbo.rbo);
 		glfwDestroyWindow(window);
 		glfwTerminate();
 
