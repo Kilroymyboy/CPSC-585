@@ -134,6 +134,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\middleware\glad\src\glad.c" />
+    <ClCompile Include="Gamepad.cpp" />
     <ClCompile Include="Graphics.cpp" />
     <ClCompile Include="Main.cpp" />
   </ItemGroup>
@@ -142,6 +143,7 @@
     <None Include="vertex.glsl" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Gamepad.h" />
     <ClInclude Include="Graphics.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

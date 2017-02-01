@@ -387,7 +387,7 @@ namespace Graphics {
 	float lasttime = 0;
 
 	void update() {
-		cout << glfwGetTime() - lasttime << endl;
+		//cout << glfwGetTime() - lasttime << endl;
 		lasttime = glfwGetTime();
 
 		for (int i = 0; i < 1; i++)

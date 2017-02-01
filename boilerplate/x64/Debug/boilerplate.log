@@ -1,0 +1,11 @@
+﻿Build started 1/31/2017 4:45:31 PM.
+     1>Project "U:\c585\project\CPSC-585\boilerplate\boilerplate.vcxproj" on node 2 (Build target(s)).
+     1>ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\x86_amd64\CL.exe /c /ZI /nologo /W3 /WX- /sdl /Od /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"x64\Debug\\" /Fd"x64\Debug\vc140.pdb" /Gd /TC /errorReport:prompt ..\middleware\glad\src\glad.c
+         glad.c
+     1>u:\c585\project\cpsc-585\middleware\glad\src\glad.c(24): fatal error C1083: Cannot open include file: 'glad.h': No such file or directory
+     1>Done Building Project "U:\c585\project\CPSC-585\boilerplate\boilerplate.vcxproj" (Build target(s)) -- FAILED.
+
+Build FAILED.
+
+Time Elapsed 00:00:00.91
