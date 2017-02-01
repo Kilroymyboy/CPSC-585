@@ -11,9 +11,9 @@ using namespace glm;
 namespace Graphics {
 
 	GLFWwindow *window;
-	MyShader frameBufferShader;
+//	MyShader frameBufferShader;
 
-	MyFrameBuffer defaultFbo;
+//	MyFrameBuffer defaultFbo;
 
 	void QueryGLVersion();
 	bool CheckGLErrors();
@@ -161,19 +161,19 @@ namespace Graphics {
 	}
 
 	void clearFrameBuffer() {
-		glBindFramebuffer(GL_FRAMEBUFFER, defaultFbo.fbo);
+	/*	glBindFramebuffer(GL_FRAMEBUFFER, defaultFbo.fbo);
 		glBindTexture(GL_TEXTURE_2D, defaultFbo.texture);
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		// not sure if i need to do this..
-		glBindTexture(GL_TEXTURE_2D, 0);
+		glBindTexture(GL_TEXTURE_2D, 0);*/
 	}
 
 	void RenderScene(MyGeometry *geometry, MyShader *shader, void (*material)())
 	{
-		glBindFramebuffer(GL_FRAMEBUFFER, defaultFbo.fbo);
-		glBindTexture(GL_TEXTURE_2D, defaultFbo.texture);
+	//	glBindFramebuffer(GL_FRAMEBUFFER, defaultFbo.fbo);
+	//	glBindTexture(GL_TEXTURE_2D, defaultFbo.texture);
 
 		// enable gl depth test
 		glEnable(GL_DEPTH_TEST);
@@ -192,7 +192,7 @@ namespace Graphics {
 		// reset state to default (no shader or geometry bound)
 		glBindVertexArray(0);
 		glUseProgram(0);
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	//	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 		// check for an report any OpenGL errors
 		CheckGLErrors();
@@ -380,14 +380,14 @@ namespace Graphics {
 		QueryGLVersion();
 
 		// frame buffer objects
-		if (!InitializeFrameBuffer(&defaultFbo)) {
+	/*	if (!InitializeFrameBuffer(&defaultFbo)) {
 			return -1;
-		}
+		}*/
 
 		return 0;
 	}
 
-	bool InitializeFrameBuffer(MyFrameBuffer* frameBuffer) {
+/*	bool InitializeFrameBuffer(MyFrameBuffer* frameBuffer) {
 		glGenFramebuffers(1, &frameBuffer->fbo);
 		glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer->fbo);
 
@@ -430,23 +430,23 @@ namespace Graphics {
 		GLint texAttrib = glGetAttribLocation(frameBufferShader.program, "texcoord");
 		glEnableVertexAttribArray(texAttrib);
 		glVertexAttribPointer(texAttrib, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (void*)(2 * sizeof(GLfloat)));
-
+		
 		return true;
 	}
-
+	*/
 	int shouldClose() {
 		return glfwWindowShouldClose(window);
 	}
 
 	void renderFrameBuffer() {
-		glBindVertexArray(defaultFbo.vao);
+/*		glBindVertexArray(defaultFbo.vao);
 		glDisable(GL_DEPTH_TEST);
 		glUseProgram(frameBufferShader.program);
 
 		glActiveTexture(GL_TEXTURE0);
 
 		glDrawArrays(GL_TRIANGLES, 0, 6);
-		CheckGLErrors();
+		CheckGLErrors();*/
 	}
 
 	void update() {
@@ -455,11 +455,13 @@ namespace Graphics {
 		glfwSwapBuffers(window);
 
 		glfwPollEvents();
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
 
 	void destroy() {
-		glDeleteFramebuffers(1, &defaultFbo.fbo);
-		glDeleteRenderbuffers(1, &defaultFbo.rbo);
+	//	glDeleteFramebuffers(1, &defaultFbo.fbo);
+	//	glDeleteRenderbuffers(1, &defaultFbo.rbo);
 		glfwDestroyWindow(window);
 		glfwTerminate();
 
