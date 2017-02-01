@@ -14,17 +14,17 @@ out vec4 outColor;
 uniform sampler2D texFramebuffer;
 void main()
 {
-    float redAberration = 16.0;
+    float redAberration = .08;
     float greenAberration = 0.0;
-    float blueAberration = -16.0;
+    float blueAberration = -.08;
 
-    vec3 aberration = vec3(redAberration / 1024, greenAberration / 1024, blueAberration / 1024);
-	aberration*=abs(Texcoord.x-.5)*abs(Texcoord.y-.5);
+    vec3 aberration = vec3(redAberration, greenAberration, blueAberration);
+	aberration*=abs(Texcoord.x-.5f)*abs(Texcoord.y-.5f);
 
     vec3 col;
-    col.r = texture2D(texFramebuffer,vec2(Texcoord.x+aberration.x,Texcoord.y)).x;
-    col.g = texture2D(texFramebuffer,vec2(Texcoord.x+aberration.y,Texcoord.y)).y;
-    col.b = texture2D(texFramebuffer,vec2(Texcoord.x+aberration.z,Texcoord.y)).z;
+    col.x = texture2D(texFramebuffer,vec2(Texcoord.x+aberration.x,Texcoord.y+100)).x;
+    col.y = texture2D(texFramebuffer,vec2(Texcoord.x+aberration.y,Texcoord.y+100)).y;
+    col.z = texture2D(texFramebuffer,vec2(Texcoord.x+aberration.z,Texcoord.y+100)).z;
 
 	outColor=vec4(col, 1);
 }

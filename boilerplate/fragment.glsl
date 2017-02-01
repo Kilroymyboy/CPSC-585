@@ -28,5 +28,5 @@ void main(void)
     if(FragmentColour.z<0)FragmentColour.z=0;
     FragmentColour.xyz+=AmbientLight;
 	FragmentColour.xyz*=Color;
-	FragmentColour.syz+=EmissionColor;
+	FragmentColour.xyz+=EmissionColor;
 }
