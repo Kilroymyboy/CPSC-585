@@ -170,7 +170,7 @@ namespace Graphics {
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 
-	void RenderScene(MyGeometry *geometry, MyShader *shader, void (*material)())
+	void RenderScene(MyGeometry *geometry, MyShader *shader, void(*material)(), mat4 transform)
 	{
 		glBindFramebuffer(GL_FRAMEBUFFER, defaultFbo.fbo);
 		glBindTexture(GL_TEXTURE_2D, defaultFbo.texture);
@@ -184,7 +184,7 @@ namespace Graphics {
 		glBindVertexArray(geometry->vertexArray);
 
 		material();
-		Viewport::update();
+		Viewport::update(transform);
 		Light::update();
 
 		glDrawArrays(GL_TRIANGLES, 0, geometry->elementCount);
@@ -502,6 +502,7 @@ namespace Graphics {
 		}
 
 		geometry->elementCount = bufferVertices.size();
+		cout << geometry->elementCount << endl;
 
 		glGenBuffers(1, &geometry->vertexBuffer);
 		glBindBuffer(GL_ARRAY_BUFFER, geometry->vertexBuffer);
@@ -542,8 +543,8 @@ namespace Viewport {
 		projection = perspective(PI / 3, 1.0, 0.1, 1000.0);
 	}
 
-	void update() {
-		transform = lookAt(vec3(cos(glfwGetTime() / 3) * 6, 1, sin(glfwGetTime() / 3) * 6), vec3(0, 0, 0), vec3(0, 1, 0));
+	void update(mat4 obj) {
+		transform = lookAt(vec3(cos(glfwGetTime() / 3) * 6, 1, sin(glfwGetTime() / 3) * 6), vec3(0, 0, 0), vec3(0, 1, 0))*obj;
 		glUniformMatrix4fv(MODELVIEW_LOCATION, 1, false, &transform[0][0]);
 		glUniformMatrix4fv(PROJECTION_LOCATION, 1, false, &projection[0][0]);
 	}

@@ -6,6 +6,7 @@
 
 class Entity {
 public:
+	glm::mat4 transform;
 	virtual void update() {}
 };
 

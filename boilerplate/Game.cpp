@@ -1,11 +1,12 @@
 #include "Game.h"
 #include "Resources.h"
 using namespace std;
-
+using namespace glm;
 void Aventador::update() {
-	Graphics::RenderScene(&Resources::aventadorBody, &Resources::standardShader, &(Resources::darkGreyMaterial));
-	Graphics::RenderScene(&Resources::aventadorBodyGlow, &Resources::standardShader, &Resources::emmisiveBlueMaterial);
-	Graphics::RenderScene(&Resources::aventadorUnder, &Resources::standardShader, &Resources::pureBlackMaterial);
+	transform = translate(transform, vec3(0.0f, -.001f, 0.0f));
+	Graphics::RenderScene(&Resources::aventadorBody, &Resources::standardShader, &(Resources::darkGreyMaterial), transform);
+	Graphics::RenderScene(&Resources::aventadorBodyGlow, &Resources::standardShader, &Resources::emmisiveBlueMaterial, transform);
+	Graphics::RenderScene(&Resources::aventadorUnder, &Resources::standardShader, &Resources::pureBlackMaterial, transform);
 }
 
 namespace Game {
