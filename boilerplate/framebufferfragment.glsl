@@ -14,9 +14,9 @@ out vec4 outColor;
 uniform sampler2D texFramebuffer;
 void main()
 {
-    float redAberration = .01;
+    float redAberration = .002;
     float greenAberration = 0.0;
-    float blueAberration = -.01;
+    float blueAberration = -.002;
 
     vec3 aberration = vec3(redAberration, greenAberration, blueAberration);
 	aberration*=abs(Texcoord.x-.5f);

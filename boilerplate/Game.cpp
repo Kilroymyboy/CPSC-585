@@ -2,11 +2,41 @@
 #include "Resources.h"
 using namespace std;
 using namespace glm;
-void Aventador::update() {
-	transform = translate(transform, vec3(0.0f, -.001f, 0.0f));
-	Graphics::RenderScene(&Resources::aventadorBody, &Resources::standardShader, &(Resources::darkGreyMaterial), transform);
-	Graphics::RenderScene(&Resources::aventadorBodyGlow, &Resources::standardShader, &Resources::emmisiveBlueMaterial, transform);
-	Graphics::RenderScene(&Resources::aventadorUnder, &Resources::standardShader, &Resources::pureBlackMaterial, transform);
+
+Aventador::Aventador() {
+	wheel1 = std::unique_ptr<AventadorWheel>(new AventadorWheel);
+	wheel1.get()->transform = translate(mat4(1), vec3(.851f, .331f, 1.282f));
+	wheel2 = std::unique_ptr<AventadorWheel>(new AventadorWheel);
+	wheel2.get()->transform = scale(translate(mat4(1), vec3(.858f, .356f, -1.427f)), vec3(1.07f, 1.07f, 1.07f));
+
+	wheel1.get()->rotateSpeed = .1f;
+	wheel2.get()->rotateSpeed = .1f;
+
+	wheel0 = std::unique_ptr<AventadorWheel>(new AventadorWheel);
+	wheel0.get()->transform = rotate(translate(mat4(1), vec3(-.851f, .331f, 1.282f)), (float)PI, vec3(0, 1, 0));
+	wheel3 = std::unique_ptr<AventadorWheel>(new AventadorWheel);
+	wheel3.get()->transform = scale(rotate(translate(mat4(1), vec3(-.858f, .356f, -1.427f)), (float)PI, vec3(0, 1, 0)), vec3(1.07f, 1.07f, 1.07f));
+
+	wheel0.get()->rotateSpeed = -.1f;
+	wheel3.get()->rotateSpeed = -.1f;
+}
+
+void Aventador::update(glm::mat4 parentTransform) {
+	//	transform = rotate(transform, 0.005f, vec3(0.0f, 0.0f, 1.0f));
+	Graphics::RenderScene(&Resources::aventadorBody, &Resources::standardShader, &(Resources::darkGreyMaterial), parentTransform* transform);
+	Graphics::RenderScene(&Resources::aventadorBodyGlow, &Resources::standardShader, &Resources::emmisiveBlueMaterial, parentTransform*transform);
+	Graphics::RenderScene(&Resources::aventadorUnder, &Resources::standardShader, &Resources::pureBlackMaterial, parentTransform*transform);
+
+	wheel1.get()->update(parentTransform*transform);
+	wheel2.get()->update(parentTransform*transform);
+	wheel0.get()->update(parentTransform*transform);
+	wheel3.get()->update(parentTransform*transform);
+}
+
+void AventadorWheel::update(glm::mat4 parentTransform) {
+	transform = rotate(transform, rotateSpeed, vec3(1.0f, 0.0f, 0.0f));
+	Graphics::RenderScene(&Resources::aventadorWheel, &Resources::standardShader, &Resources::darkGreyMaterial, parentTransform*transform);
+	Graphics::RenderScene(&Resources::aventadorWheelGlow, &Resources::standardShader, &Resources::emmisiveBlueMaterial, parentTransform*transform);
 }
 
 namespace Game {
@@ -19,7 +49,7 @@ namespace Game {
 
 	void update() {
 		for (int i = 0; i < entities.size(); i++) {
-			entities[i].get()->update();
+			entities[i].get()->update(mat4(1));
 		}
 	}
 }

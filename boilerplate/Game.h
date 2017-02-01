@@ -7,12 +7,20 @@
 class Entity {
 public:
 	glm::mat4 transform;
-	virtual void update() {}
+	virtual void update(glm::mat4 parentTransform) {}
+};
+
+class AventadorWheel :public Entity {
+public:
+	float rotateSpeed;
+	void update(glm::mat4 parentTransform)override;
 };
 
 class Aventador : public Entity {
 public:
-	void update()override;
+	std::unique_ptr<AventadorWheel> wheel1, wheel2, wheel3, wheel0;
+	void update(glm::mat4 parentTransform)override;
+	Aventador();
 };
 
 namespace Game {
