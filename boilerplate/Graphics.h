@@ -30,8 +30,8 @@
 #define COLOR_LOCATION 6
 #define EMISSION_COLOR_LOCATION 7
 
-#define WINDOW_WIDTH 1024
-#define WINDOW_HEIGHT 1024
+#define WINDOW_WIDTH 1280
+#define WINDOW_HEIGHT 720
 
 namespace Graphics {
 	int init();

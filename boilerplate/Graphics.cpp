@@ -544,7 +544,8 @@ namespace Viewport {
 	}
 
 	void update(mat4 obj) {
-		transform = lookAt(vec3(cos(glfwGetTime() / 3) * 6, 1, sin(glfwGetTime() / 3) * 6), vec3(0, 0, 0), vec3(0, 1, 0))*obj;
+	//	transform = lookAt(vec3(cos(glfwGetTime() / 3) * 6, 1, sin(glfwGetTime() / 3) * 6), vec3(0, 0, 0), vec3(0, 1, 0))*obj;
+		transform = lookAt(vec3(0, 2, -6.5f), vec3(0, 2, 0), vec3(0, 1, 0))*obj;
 		glUniformMatrix4fv(MODELVIEW_LOCATION, 1, false, &transform[0][0]);
 		glUniformMatrix4fv(PROJECTION_LOCATION, 1, false, &projection[0][0]);
 	}
