@@ -540,7 +540,7 @@ namespace Viewport {
 
 	void init() {
 		transform = lookAt(vec3(5, 2, 5), vec3(0, 0, 0), vec3(0, 1, 0));
-		projection = perspective(PI / 3, 1.0, 0.1, 1000.0);
+		projection = perspective(PI / 3, (double)WINDOW_WIDTH / WINDOW_HEIGHT, 0.1, 1000.0);
 	}
 
 	void update(mat4 obj) {
