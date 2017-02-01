@@ -10,6 +10,11 @@ using namespace glm;
 
 namespace Graphics {
 
+	GLFWwindow *window;
+	MyShader frameBufferShader;
+
+	MyFrameBuffer defaultFbo;
+
 	void QueryGLVersion();
 	bool CheckGLErrors();
 
@@ -17,11 +22,11 @@ namespace Graphics {
 	GLuint CompileShader(GLenum shaderType, const string &source);
 	GLuint LinkProgram(GLuint vertexShader, GLuint fragmentShader);
 
-	bool InitializeShaders(MyShader *shader)
+	bool InitializeShaders(MyShader *shader, const string vertex, const string fragment)
 	{
 		// load shader source from files
-		string vertexSource = LoadSource("vertex.glsl");
-		string fragmentSource = LoadSource("fragment.glsl");
+		string vertexSource = LoadSource(vertex);
+		string fragmentSource = LoadSource(fragment);
 		if (vertexSource.empty() || fragmentSource.empty()) return false;
 
 		// compile shader source into shader objects
@@ -155,18 +160,31 @@ namespace Graphics {
 		glDeleteBuffers(1, &geometry->normalBuffer);
 	}
 
-	void RenderScene(MyGeometry *geometry, MyShader *shader)
-	{
-		// clear screen to a dark grey colour
+	void clearFrameBuffer() {
+		glBindFramebuffer(GL_FRAMEBUFFER, defaultFbo.fbo);
+		glBindTexture(GL_TEXTURE_2D, defaultFbo.texture);
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		// not sure if i need to do this..
+		glBindTexture(GL_TEXTURE_2D, 0);
+	}
+
+	void RenderScene(MyGeometry *geometry, MyShader *shader, void(*material)(), mat4 transform)
+	{
+		glBindFramebuffer(GL_FRAMEBUFFER, defaultFbo.fbo);
+		glBindTexture(GL_TEXTURE_2D, defaultFbo.texture);
+
+		// enable gl depth test
+		glEnable(GL_DEPTH_TEST);
 
 		// bind our shader program and the vertex array object containing our
 		// scene geometry, then tell OpenGL to draw our geometry
 		glUseProgram(shader->program);
 		glBindVertexArray(geometry->vertexArray);
 
-		Viewport::update();
+		material();
+		Viewport::update(transform);
 		Light::update();
 
 		glDrawArrays(GL_TRIANGLES, 0, geometry->elementCount);
@@ -174,6 +192,7 @@ namespace Graphics {
 		// reset state to default (no shader or geometry bound)
 		glBindVertexArray(0);
 		glUseProgram(0);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 		// check for an report any OpenGL errors
 		CheckGLErrors();
@@ -310,9 +329,16 @@ namespace Graphics {
 			glfwSetWindowShouldClose(window, GL_TRUE);
 	}
 
-	GLFWwindow *window;
-	MyShader shader;
-	MyGeometry geometry;
+	GLfloat quadVertices[] = {
+		-1.0f,  1.0f,  0.0f, 1.0f,
+		1.0f,  1.0f,  1.0f, 1.0f,
+		1.0f, -1.0f,  1.0f, 0.0f,
+
+		1.0f, -1.0f,  1.0f, 0.0f,
+		-1.0f, -1.0f,  0.0f, 0.0f,
+		-1.0f,  1.0f,  0.0f, 1.0f
+	};
+
 
 	int init() {
 		// initialize the GLFW windowing system
@@ -330,11 +356,7 @@ namespace Graphics {
 		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-		// anti aliasing
-		glfwWindowHint(GLFW_SAMPLES, 4);
-
-		int width = 1024, height = 1024;
-		window = glfwCreateWindow(width, height, "CPSC 453 OpenGL Boilerplate", 0, 0);
+		window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "CPSC 453 OpenGL Boilerplate", 0, 0);
 		if (!window) {
 			cout << "Program failed to create GLFW window, TERMINATING" << endl;
 			glfwTerminate();
@@ -357,41 +379,78 @@ namespace Graphics {
 		// query and print out information about our OpenGL environment
 		QueryGLVersion();
 
-		// enable gl depth test
-		glEnable(GL_DEPTH_TEST);
-		glDisable(GL_CULL_FACE);
-
-		// call function to load and compile shader programs
-
-		if (!InitializeShaders(&shader)) {
-			cout << "Program could not initialize shaders, TERMINATING" << endl;
+		// frame buffer objects
+		if (!InitializeFrameBuffer(&defaultFbo)) {
 			return -1;
 		}
-
-		// call function to create and fill buffers with geometry data
-
-	//	if (!InitializeGeometry(&geometry))
-	//		cout << "Program failed to intialize geometry!" << endl;
-
-		loadGeometry(&geometry, "aventador.obj");
 
 		return 0;
 	}
 
+	bool InitializeFrameBuffer(MyFrameBuffer* frameBuffer) {
+		glGenFramebuffers(1, &frameBuffer->fbo);
+		glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer->fbo);
 
+		glGenTextures(1, &frameBuffer->texture);
+		glBindTexture(GL_TEXTURE_2D, frameBuffer->texture);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, WINDOW_WIDTH, WINDOW_HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+		glGenRenderbuffers(1, &frameBuffer->rbo);
+		glBindRenderbuffer(GL_RENDERBUFFER, frameBuffer->rbo);
+		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, WINDOW_WIDTH, WINDOW_HEIGHT);
+		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, frameBuffer->rbo);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, frameBuffer->texture, 0);
+
+		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+			cout << "Frame buffer is dead" << endl;
+			return false;
+		}
+
+		if (!InitializeShaders(&frameBufferShader, "framebuffervertex.glsl", "framebufferfragment.glsl")) {
+			cout << "Program could not initialize framebuffer shaders, TERMINATING" << endl;
+			return false;
+		}
+
+		glUseProgram(frameBufferShader.program);
+		glGenVertexArrays(1, &frameBuffer->vao);
+		glGenBuffers(1, &frameBuffer->vbo);
+		glBindBuffer(GL_ARRAY_BUFFER, frameBuffer->vbo);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), quadVertices, GL_STATIC_DRAW);
+		glBindVertexArray(frameBuffer->vao);
+		glBindBuffer(GL_ARRAY_BUFFER, frameBuffer->vbo);
+		glUniform1i(glGetUniformLocation(frameBufferShader.program, "texFramebuffer"), 0);
+
+		GLint posAttrib = glGetAttribLocation(frameBufferShader.program, "position");
+		glEnableVertexAttribArray(posAttrib);
+		glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), 0);
+
+		GLint texAttrib = glGetAttribLocation(frameBufferShader.program, "texcoord");
+		glEnableVertexAttribArray(texAttrib);
+		glVertexAttribPointer(texAttrib, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (void*)(2 * sizeof(GLfloat)));
+
+		return true;
+	}
 
 	int shouldClose() {
 		return glfwWindowShouldClose(window);
 	}
 
-	float lasttime = 0;
+	void renderFrameBuffer() {
+		glBindVertexArray(defaultFbo.vao);
+		glDisable(GL_DEPTH_TEST);
+		glUseProgram(frameBufferShader.program);
+
+		glActiveTexture(GL_TEXTURE0);
+
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+		CheckGLErrors();
+	}
 
 	void update() {
-		cout << glfwGetTime() - lasttime << endl;
-		lasttime = glfwGetTime();
-
-		for (int i = 0; i < 1; i++)
-			RenderScene(&geometry, &shader);
+		renderFrameBuffer();
 
 		glfwSwapBuffers(window);
 
@@ -399,8 +458,8 @@ namespace Graphics {
 	}
 
 	void destroy() {
-		DestroyGeometry(&geometry);
-		DestroyShaders(&shader);
+		glDeleteFramebuffers(1, &defaultFbo.fbo);
+		glDeleteRenderbuffers(1, &defaultFbo.rbo);
 		glfwDestroyWindow(window);
 		glfwTerminate();
 
@@ -443,6 +502,7 @@ namespace Graphics {
 		}
 
 		geometry->elementCount = bufferVertices.size();
+		cout << geometry->elementCount << endl;
 
 		glGenBuffers(1, &geometry->vertexBuffer);
 		glBindBuffer(GL_ARRAY_BUFFER, geometry->vertexBuffer);
@@ -480,11 +540,12 @@ namespace Viewport {
 
 	void init() {
 		transform = lookAt(vec3(5, 2, 5), vec3(0, 0, 0), vec3(0, 1, 0));
-		projection = perspective(PI / 3, 1.0, 0.1, 1000.0);
+		projection = perspective(PI / 3, (double)WINDOW_WIDTH / WINDOW_HEIGHT, 0.1, 1000.0);
 	}
 
-	void update() {
-		transform = lookAt(vec3(cos(glfwGetTime() / 3) * 5, 2, sin(glfwGetTime() / 3) * 5), vec3(0, 0, 0), vec3(0, 1, 0));
+	void update(mat4 obj) {
+	//	transform = lookAt(vec3(cos(glfwGetTime() / 3) * 6, 1, sin(glfwGetTime() / 3) * 6), vec3(0, 0, 0), vec3(0, 1, 0))*obj;
+		transform = lookAt(vec3(0, 2, -6.5f), vec3(0, 2, 0), vec3(0, 1, 0))*obj;
 		glUniformMatrix4fv(MODELVIEW_LOCATION, 1, false, &transform[0][0]);
 		glUniformMatrix4fv(PROJECTION_LOCATION, 1, false, &projection[0][0]);
 	}
@@ -497,8 +558,8 @@ namespace Light {
 
 	void init() {
 		color = vec3(.1f, .1f, .1f);
-		direction = vec3(1, -1, -2);
-		ambient = vec3(0.2, 0.2, 0.2);
+		direction = vec3(0, -1, 0);
+		ambient = vec3(0.1, 0.1, 0.1);
 	}
 
 	void update() {

@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <string>
 #include <iterator>
+#include <string>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -26,6 +27,11 @@
 #define MODELVIEW_LOCATION 3
 #define LIGHT_LOCATION 4
 #define AMBIENT_LOCATION 5
+#define COLOR_LOCATION 6
+#define EMISSION_COLOR_LOCATION 7
+
+#define WINDOW_WIDTH 1280
+#define WINDOW_HEIGHT 720
 
 namespace Graphics {
 	int init();
@@ -71,7 +77,21 @@ namespace Graphics {
 		{}
 	};
 
+	struct MyFrameBuffer {
+		GLuint fbo;
+		GLuint texture;
+		GLuint vbo;
+		GLuint vao;
+		GLuint rbo;
+
+		MyFrameBuffer() :fbo(0), texture(0), vbo(0), vao(0), rbo(0) {}
+	};
+
+	void clearFrameBuffer();
 	void loadGeometry(MyGeometry* geometry, char* path);
+	void RenderScene(MyGeometry *geometry, MyShader *shader, void(*material)(), glm::mat4 transform);
+	bool InitializeShaders(MyShader *shader, const std::string vertex, const std::string fragment);
+	bool InitializeFrameBuffer(MyFrameBuffer* frameBuffer);
 }
 
 namespace Viewport {
@@ -79,7 +99,7 @@ namespace Viewport {
 	extern glm::mat4 projection;
 
 	void init();
-	void update();
+	void update(glm::mat4);
 }
 
 namespace Light {
