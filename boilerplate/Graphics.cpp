@@ -177,6 +177,8 @@ namespace Graphics {
 
 		// enable gl depth test
 		glEnable(GL_DEPTH_TEST);
+		glScissor(0, 0, WINDOW_WIDTH * MSAA, WINDOW_HEIGHT * MSAA);
+		glViewport(0, 0, WINDOW_WIDTH * MSAA, WINDOW_HEIGHT * MSAA);
 
 		// bind our shader program and the vertex array object containing our
 		// scene geometry, then tell OpenGL to draw our geometry
@@ -330,13 +332,13 @@ namespace Graphics {
 	}
 
 	GLfloat quadVertices[] = {
-		-1.0f,  1.0f,  0.0f, WINDOW_HEIGHT,
-		1.0f,  1.0f,  WINDOW_WIDTH, WINDOW_HEIGHT,
-		1.0f, -1.0f,  WINDOW_WIDTH, 0.0f,
+		-1.0f,  1.0f,  0.0f, 1,
+		1.0f,  1.0f,  1, 1,
+		1.0f, -1.0f,  1, 0.0f,
 
-		1.0f, -1.0f,  WINDOW_WIDTH, 0.0f,
+		1.0f, -1.0f, 1, 0.0f,
 		-1.0f, -1.0f,  0.0f, 0.0f,
-		-1.0f,  1.0f,  0.0f, WINDOW_HEIGHT
+		-1.0f,  1.0f,  0.0f, 1
 	};
 
 
@@ -393,14 +395,14 @@ namespace Graphics {
 
 		glGenTextures(1, &frameBuffer->texture);
 		glBindTexture(GL_TEXTURE_2D, frameBuffer->texture);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, WINDOW_WIDTH, WINDOW_HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, WINDOW_WIDTH*MSAA, WINDOW_HEIGHT*MSAA, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
 
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 		glGenRenderbuffers(1, &frameBuffer->rbo);
 		glBindRenderbuffer(GL_RENDERBUFFER, frameBuffer->rbo);
-		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, WINDOW_WIDTH, WINDOW_HEIGHT);
+		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, WINDOW_WIDTH*MSAA, WINDOW_HEIGHT*MSAA);
 		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, frameBuffer->rbo);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, frameBuffer->texture, 0);
 
@@ -439,6 +441,8 @@ namespace Graphics {
 	}
 
 	void renderFrameBuffer() {
+		glScissor(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+		glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 		glBindVertexArray(defaultFbo.vao);
 		glDisable(GL_DEPTH_TEST);
 		glUseProgram(frameBufferShader.program);
@@ -545,7 +549,7 @@ namespace Viewport {
 
 	void update(mat4 obj) {
 		transform = lookAt(vec3(cos(glfwGetTime() / 1.5f) * 4.5f, 1, sin(glfwGetTime() / 1.5f) * 4.5f), vec3(0, 0, 0), vec3(0, 1, 0))*obj;
-	//	transform = lookAt(vec3(0, 2, -6.5f), vec3(0, 2, 0), vec3(0, 1, 0))*obj;
+		//	transform = lookAt(vec3(0, 2, -6.5f), vec3(0, 2, 0), vec3(0, 1, 0))*obj;
 		glUniformMatrix4fv(MODELVIEW_LOCATION, 1, false, &transform[0][0]);
 		glUniformMatrix4fv(PROJECTION_LOCATION, 1, false, &projection[0][0]);
 	}
