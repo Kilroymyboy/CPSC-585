@@ -330,13 +330,13 @@ namespace Graphics {
 	}
 
 	GLfloat quadVertices[] = {
-		-1.0f,  1.0f,  0.0f, 1.0f,
-		1.0f,  1.0f,  1.0f, 1.0f,
-		1.0f, -1.0f,  1.0f, 0.0f,
+		-1.0f,  1.0f,  0.0f, WINDOW_HEIGHT,
+		1.0f,  1.0f,  WINDOW_WIDTH, WINDOW_HEIGHT,
+		1.0f, -1.0f,  WINDOW_WIDTH, 0.0f,
 
-		1.0f, -1.0f,  1.0f, 0.0f,
+		1.0f, -1.0f,  WINDOW_WIDTH, 0.0f,
 		-1.0f, -1.0f,  0.0f, 0.0f,
-		-1.0f,  1.0f,  0.0f, 1.0f
+		-1.0f,  1.0f,  0.0f, WINDOW_HEIGHT
 	};
 
 

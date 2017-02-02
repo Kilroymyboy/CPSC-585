@@ -22,9 +22,9 @@ void main()
 	aberration*=abs(Texcoord.x-.5f);
 
     vec3 col;
-    col.x = texture(texFramebuffer,vec2(Texcoord.x+aberration.x,Texcoord.y)).x;
-    col.y = texture(texFramebuffer,vec2(Texcoord.x+aberration.y,Texcoord.y)).y;
-    col.z = texture(texFramebuffer,vec2(Texcoord.x+aberration.z,Texcoord.y)).z;
-
+//    col.x = texture(texFramebuffer,vec2(Texcoord.x+aberration.x,Texcoord.y)).x;
+//    col.y = texture(texFramebuffer,vec2(Texcoord.x+aberration.y,Texcoord.y)).y;
+//    col.z = texture(texFramebuffer,vec2(Texcoord.x+aberration.z,Texcoord.y)).z;
+	col.xyz = texelFetch(texFramebuffer,ivec2(Texcoord.x,Texcoord.y), 0).xyz;
 	outColor=vec4(col, 1);
 }
