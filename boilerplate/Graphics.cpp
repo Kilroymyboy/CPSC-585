@@ -456,6 +456,8 @@ namespace Graphics {
 	void update() {
 		renderFrameBuffer();
 
+		// vertical sync
+		glfwSwapInterval(1);
 		glfwSwapBuffers(window);
 
 		glfwPollEvents();

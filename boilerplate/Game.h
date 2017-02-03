@@ -28,3 +28,10 @@ namespace Game {
 	void init();
 	void update();
 }
+
+namespace Time {
+	extern double time, deltaTime;
+	extern int fps;
+	void init();
+	void update();
+}

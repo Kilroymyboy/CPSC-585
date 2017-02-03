@@ -48,8 +48,36 @@ namespace Game {
 	}
 
 	void update() {
+	//	cout << Time::fps << "\t" << Time::deltaTime << endl;
 		for (int i = 0; i < entities.size(); i++) {
 			entities[i].get()->update(mat4(1));
+		}
+	}
+}
+
+namespace Time {
+	double time, prevTime, deltaTime, fpsTime;
+	int fps, tfps;
+
+	void init() {
+		time = glfwGetTime();
+		prevTime = 0;
+		deltaTime = 0;
+		fps = tfps = 0;
+		fpsTime = 0;
+	}
+
+	void update() {
+		time = glfwGetTime();
+		deltaTime = time - prevTime;
+		prevTime = time;
+		if (time > fpsTime + 1) {
+			fps = tfps;
+			tfps = 0;
+			fpsTime = time;
+		}
+		else {
+			tfps++;
 		}
 	}
 }
