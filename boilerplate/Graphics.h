@@ -33,6 +33,7 @@
 #define WINDOW_WIDTH 1280
 #define WINDOW_HEIGHT 720
 
+// hacky, currently only supports MSAA==1 = No AA< MSAA==2 = 4x MSAA
 #define MSAA 2
 
 namespace Graphics {
@@ -86,6 +87,8 @@ namespace Graphics {
 		GLuint vao;
 		GLuint rbo;
 
+		MyShader shader;
+
 		MyFrameBuffer() :fbo(0), texture(0), vbo(0), vao(0), rbo(0) {}
 	};
 
@@ -93,7 +96,7 @@ namespace Graphics {
 	void loadGeometry(MyGeometry* geometry, char* path);
 	void RenderScene(MyGeometry *geometry, MyShader *shader, void(*material)(), glm::mat4 transform);
 	bool InitializeShaders(MyShader *shader, const std::string vertex, const std::string fragment);
-	bool InitializeFrameBuffer(MyFrameBuffer* frameBuffer);
+	bool InitializeFrameBuffer(MyFrameBuffer* frameBuffer, const std::string& fragment, bool AA);
 }
 
 namespace Viewport {

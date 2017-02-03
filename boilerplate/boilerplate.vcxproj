@@ -142,6 +142,7 @@
   <ItemGroup>
     <None Include="fragment.glsl" />
     <None Include="framebufferfragment.glsl" />
+    <None Include="framebufferhblurfragment.glsl" />
     <None Include="framebuffervertex.glsl" />
     <None Include="vertex.glsl" />
   </ItemGroup>

@@ -11,9 +11,9 @@ using namespace glm;
 namespace Graphics {
 
 	GLFWwindow *window;
-	MyShader frameBufferShader;
 
 	MyFrameBuffer defaultFbo;
+	MyFrameBuffer hBlurFbo;
 
 	void QueryGLVersion();
 	bool CheckGLErrors();
@@ -382,27 +382,34 @@ namespace Graphics {
 		QueryGLVersion();
 
 		// frame buffer objects
-		if (!InitializeFrameBuffer(&defaultFbo)) {
+		if (!InitializeFrameBuffer(&defaultFbo, "framebufferfragment.glsl", 1)) {
+			return -1;
+		}
+
+		if (!InitializeFrameBuffer(&hBlurFbo, "framebufferhblurfragment.glsl", 0)) {
 			return -1;
 		}
 
 		return 0;
 	}
 
-	bool InitializeFrameBuffer(MyFrameBuffer* frameBuffer) {
+	bool InitializeFrameBuffer(MyFrameBuffer* frameBuffer, const string &fragment, bool AA) {
 		glGenFramebuffers(1, &frameBuffer->fbo);
 		glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer->fbo);
 
 		glGenTextures(1, &frameBuffer->texture);
 		glBindTexture(GL_TEXTURE_2D, frameBuffer->texture);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, WINDOW_WIDTH*MSAA, WINDOW_HEIGHT*MSAA, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+
+		int _MSAA = AA ? MSAA : 1;
+
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, WINDOW_WIDTH*_MSAA, WINDOW_HEIGHT*_MSAA, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
 
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 		glGenRenderbuffers(1, &frameBuffer->rbo);
 		glBindRenderbuffer(GL_RENDERBUFFER, frameBuffer->rbo);
-		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, WINDOW_WIDTH*MSAA, WINDOW_HEIGHT*MSAA);
+		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, WINDOW_WIDTH*_MSAA, WINDOW_HEIGHT*_MSAA);
 		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, frameBuffer->rbo);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, frameBuffer->texture, 0);
 
@@ -411,25 +418,25 @@ namespace Graphics {
 			return false;
 		}
 
-		if (!InitializeShaders(&frameBufferShader, "framebuffervertex.glsl", "framebufferfragment.glsl")) {
+		if (!InitializeShaders(&frameBuffer->shader, "framebuffervertex.glsl", fragment)) {
 			cout << "Program could not initialize framebuffer shaders, TERMINATING" << endl;
 			return false;
 		}
 
-		glUseProgram(frameBufferShader.program);
+		glUseProgram(frameBuffer->shader.program);
 		glGenVertexArrays(1, &frameBuffer->vao);
 		glGenBuffers(1, &frameBuffer->vbo);
 		glBindBuffer(GL_ARRAY_BUFFER, frameBuffer->vbo);
 		glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), quadVertices, GL_STATIC_DRAW);
 		glBindVertexArray(frameBuffer->vao);
 		glBindBuffer(GL_ARRAY_BUFFER, frameBuffer->vbo);
-		glUniform1i(glGetUniformLocation(frameBufferShader.program, "texFramebuffer"), 0);
+		glUniform1i(glGetUniformLocation(frameBuffer->shader.program, "texFramebuffer"), 0);
 
-		GLint posAttrib = glGetAttribLocation(frameBufferShader.program, "position");
+		GLint posAttrib = glGetAttribLocation(frameBuffer->shader.program, "position");
 		glEnableVertexAttribArray(posAttrib);
 		glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), 0);
 
-		GLint texAttrib = glGetAttribLocation(frameBufferShader.program, "texcoord");
+		GLint texAttrib = glGetAttribLocation(frameBuffer->shader.program, "texcoord");
 		glEnableVertexAttribArray(texAttrib);
 		glVertexAttribPointer(texAttrib, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (void*)(2 * sizeof(GLfloat)));
 
@@ -441,11 +448,28 @@ namespace Graphics {
 	}
 
 	void renderFrameBuffer() {
+		glBindFramebuffer(GL_FRAMEBUFFER, hBlurFbo.fbo);
+
 		glScissor(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 		glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 		glBindVertexArray(defaultFbo.vao);
 		glDisable(GL_DEPTH_TEST);
-		glUseProgram(frameBufferShader.program);
+		glUseProgram(defaultFbo.shader.program);
+
+		glActiveTexture(GL_TEXTURE0);
+
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+		CheckGLErrors();
+
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	}
+
+	void renderHBlurFrameBuffer() {
+		glScissor(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+		glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+		glBindVertexArray(hBlurFbo.vao);
+		glDisable(GL_DEPTH_TEST);
+		glUseProgram(hBlurFbo.shader.program);
 
 		glActiveTexture(GL_TEXTURE0);
 
@@ -455,6 +479,7 @@ namespace Graphics {
 
 	void update() {
 		renderFrameBuffer();
+		renderHBlurFrameBuffer();
 
 		// vertical sync
 		glfwSwapInterval(1);
