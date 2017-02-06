@@ -56,10 +56,10 @@ public:
 
 	//ThumbStick functions
 	//Return true if the stick is inside a deadzone
-
 	bool LStick_Dead();
 	bool RStick_Dead();
 
+	//Returns axis of corresponding stick in desired axis
 	float LeftStick_X();
 	float LeftStick_Y();
 	float RightStick_X();

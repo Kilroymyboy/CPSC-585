@@ -1,7 +1,37 @@
 #include "Gamepad.h"
+#include <iostream>
+
+using namespace std;
 
 //Link to the Xinput library
 #pragma comment(lib, "Xinput.lib")
+
+XButtonIDs Xbuttons;
+// 'XButtonIDs' - Default constructor
+XButtonIDs::XButtonIDs()
+{
+	// These values are used to index the XINPUT_Buttons array,
+	// accessing the matching XINPUT button value
+
+	A = 0;
+	B = 1;
+	X = 2;
+	Y = 3;
+
+	DPad_Up = 4;
+	DPad_Down = 5;
+	DPad_Left = 6;
+	DPad_Right = 7;
+
+	L_Shoulder = 8;
+	R_Shoulder = 9;
+
+	L_Thumbstick = 10;
+	R_Thumbstick = 11;
+
+	Start = 12;
+	Back = 13;
+}
 
 Gamepad::Gamepad()
 {
@@ -36,6 +66,7 @@ XINPUT_STATE Gamepad::GetState()
 
 int Gamepad::GetIndex()
 {
+	cout << m_iGamepadIndex << endl;;
 	return m_iGamepadIndex;
 }
 
@@ -104,7 +135,7 @@ float Gamepad::LeftStick_X()
 {
 	// Obtain X axis of left stick
 	short sX = m_State.Gamepad.sThumbLX;
-
+	cout << "left stick x" << endl;
 	// Return axis value, converted to a float
 	return (static_cast<float>(sX) / 32768.0f);
 }
@@ -114,7 +145,7 @@ float Gamepad::LeftStick_Y()
 {
 	// Obtain Y axis of left stick
 	short sY = m_State.Gamepad.sThumbLY;
-
+	cout << "left stick y" << endl;
 	// Return axis value, converted to a float
 	return (static_cast<float>(sY) / 32768.0f);
 }
@@ -124,7 +155,7 @@ float Gamepad::RightStick_X()
 {
 	// Obtain X axis of right stick
 	short sX = m_State.Gamepad.sThumbRX;
-
+	cout << "right stick x" << endl;
 	// Return axis value, converted to a float
 	return (static_cast<float>(sX) / 32768.0f);
 }
@@ -134,7 +165,7 @@ float Gamepad::RightStick_Y()
 {
 	// Obtain the Y axis of the left stick
 	short sY = m_State.Gamepad.sThumbRY;
-
+	cout << "right stick y" << endl;
 	// Return axis value, converted to a float
 	return (static_cast<float>(sY) / 32768.0f);
 }
@@ -147,6 +178,7 @@ float Gamepad::LeftTrigger()
 	BYTE Trigger = m_State.Gamepad.bLeftTrigger;
 
 	if (Trigger > XINPUT_GAMEPAD_TRIGGER_THRESHOLD)
+		cout << "Left trigger" << endl;
 		return Trigger / 255.0f;
 
 	return 0.0f; // Trigger was not pressed
@@ -159,6 +191,7 @@ float Gamepad::RightTrigger()
 	BYTE Trigger = m_State.Gamepad.bRightTrigger;
 
 	if (Trigger > XINPUT_GAMEPAD_TRIGGER_THRESHOLD)
+		cout << "Right trigger" << endl;
 		return Trigger / 255.0f;
 
 	return 0.0f; // Trigger was not pressed
@@ -196,30 +229,4 @@ bool Gamepad::GetButtonPressed(int a_iButton)
 bool Gamepad::GetButtonDown(int a_iButton)
 {
 	return bGamepad_ButtonsDown[a_iButton];
-}
-
-// 'XButtonIDs' - Default constructor
-XButtonIDs::XButtonIDs()
-{
-	// These values are used to index the XINPUT_Buttons array,
-	// accessing the matching XINPUT button value
-
-	A = 0;
-	B = 1;
-	X = 2;
-	Y = 3;
-
-	DPad_Up = 4;
-	DPad_Down = 5;
-	DPad_Left = 6;
-	DPad_Right = 7;
-
-	L_Shoulder = 8;
-	R_Shoulder = 9;
-
-	L_Thumbstick = 10;
-	R_Thumbstick = 11;
-
-	Start = 12;
-	Back = 13;
 }
