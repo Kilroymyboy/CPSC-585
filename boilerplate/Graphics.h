@@ -33,9 +33,6 @@
 #define WINDOW_WIDTH 1280
 #define WINDOW_HEIGHT 720
 
-// hacky, currently only supports MSAA==1 = No AA< MSAA==2 = 4x MSAA
-#define MSAA 2
-
 namespace Graphics {
 	int init();
 	int shouldClose();

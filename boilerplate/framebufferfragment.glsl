@@ -14,5 +14,8 @@ out vec4 outColor;
 uniform sampler2D texFramebuffer;
 void main()
 {
-	outColor=vec4(texture(texFramebuffer, Texcoord).xyz, 1);
+	vec3 t=texture(texFramebuffer, Texcoord).xyz;
+	t/=t+vec3(1);
+	t=pow(t, vec3(1/1.8));
+	outColor=vec4(t, 1);
 }

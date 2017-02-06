@@ -177,8 +177,8 @@ namespace Graphics {
 
 		// enable gl depth test
 		glEnable(GL_DEPTH_TEST);
-		glScissor(0, 0, WINDOW_WIDTH * MSAA, WINDOW_HEIGHT * MSAA);
-		glViewport(0, 0, WINDOW_WIDTH * MSAA, WINDOW_HEIGHT * MSAA);
+		glScissor(0, 0, WINDOW_WIDTH , WINDOW_HEIGHT );
+		glViewport(0, 0, WINDOW_WIDTH , WINDOW_HEIGHT);
 
 		// bind our shader program and the vertex array object containing our
 		// scene geometry, then tell OpenGL to draw our geometry
@@ -400,7 +400,7 @@ namespace Graphics {
 		glGenTextures(1, &frameBuffer->texture);
 		glBindTexture(GL_TEXTURE_2D, frameBuffer->texture);
 
-		int _MSAA = AA ? MSAA : 1;
+		int _MSAA = AA ? 1 : 1;
 
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, WINDOW_WIDTH*_MSAA, WINDOW_HEIGHT*_MSAA, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 
@@ -448,7 +448,8 @@ namespace Graphics {
 	}
 
 	void renderFrameBuffer() {
-		glBindFramebuffer(GL_FRAMEBUFFER, hBlurFbo.fbo);
+//		glBindFramebuffer(GL_FRAMEBUFFER, hBlurFbo.fbo);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 		glScissor(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 		glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
@@ -461,7 +462,7 @@ namespace Graphics {
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 		CheckGLErrors();
 
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+//		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 
 	void renderHBlurFrameBuffer() {
@@ -479,7 +480,7 @@ namespace Graphics {
 
 	void update() {
 		renderFrameBuffer();
-		renderHBlurFrameBuffer();
+	//	renderHBlurFrameBuffer();
 
 		// vertical sync
 		glfwSwapInterval(1);
@@ -591,7 +592,7 @@ namespace Light {
 	void init() {
 		color = vec3(.1f, .1f, .1f);
 		direction = vec3(0, -1, 0);
-		ambient = vec3(0.1, 0.1, 0.1);
+		ambient = vec3(0.05, 0.05, 0.05);
 	}
 
 	void update() {
