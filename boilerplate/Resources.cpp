@@ -31,6 +31,6 @@ namespace Resources {
 
 	void emmisiveBlueMaterial() {
 		glUniform3f(COLOR_LOCATION, 0.0f, 0.0f, 0.0f);
-		glUniform3f(EMISSION_COLOR_LOCATION, 2.0f, 3.0f, 6.0f);
+		glUniform3f(EMISSION_COLOR_LOCATION, 5.0f, 9.0f, 18.0f);
 	}
 }

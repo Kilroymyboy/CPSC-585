@@ -12,8 +12,8 @@ namespace Graphics {
 
 	GLFWwindow *window;
 
-	MyFrameBuffer defaultFbo;
-	MyFrameBuffer hBlurFbo;
+	MyFrameBuffer tonemappingFbo;
+	MyFrameBuffer msaaFbo;
 
 	void QueryGLVersion();
 	bool CheckGLErrors();
@@ -161,24 +161,30 @@ namespace Graphics {
 	}
 
 	void clearFrameBuffer() {
-		glBindFramebuffer(GL_FRAMEBUFFER, defaultFbo.fbo);
-		glBindTexture(GL_TEXTURE_2D, defaultFbo.texture);
+		glBindFramebuffer(GL_FRAMEBUFFER, tonemappingFbo.fbo);
+		glBindTexture(GL_TEXTURE_2D, tonemappingFbo.texture);
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		// not sure if i need to do this..
+		glBindTexture(GL_TEXTURE_2D, 0);
+
+		glBindFramebuffer(GL_FRAMEBUFFER, msaaFbo.fbo);
+		glBindTexture(GL_TEXTURE_2D, msaaFbo.texture);
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 
 	void RenderScene(MyGeometry *geometry, MyShader *shader, void(*material)(), mat4 transform)
 	{
-		glBindFramebuffer(GL_FRAMEBUFFER, defaultFbo.fbo);
-		glBindTexture(GL_TEXTURE_2D, defaultFbo.texture);
+		glBindFramebuffer(GL_FRAMEBUFFER, tonemappingFbo.fbo);
+		glBindTexture(GL_TEXTURE_2D, tonemappingFbo.texture);
 
 		// enable gl depth test
 		glEnable(GL_DEPTH_TEST);
-		glScissor(0, 0, WINDOW_WIDTH , WINDOW_HEIGHT );
-		glViewport(0, 0, WINDOW_WIDTH , WINDOW_HEIGHT);
+		glScissor(0, 0, WINDOW_WIDTH*MSAA, WINDOW_HEIGHT*MSAA);
+		glViewport(0, 0, WINDOW_WIDTH*MSAA, WINDOW_HEIGHT*MSAA);
 
 		// bind our shader program and the vertex array object containing our
 		// scene geometry, then tell OpenGL to draw our geometry
@@ -195,6 +201,7 @@ namespace Graphics {
 		glBindVertexArray(0);
 		glUseProgram(0);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glBindTexture(GL_TEXTURE_2D, 0);
 
 		// check for an report any OpenGL errors
 		CheckGLErrors();
@@ -382,34 +389,32 @@ namespace Graphics {
 		QueryGLVersion();
 
 		// frame buffer objects
-		if (!InitializeFrameBuffer(&defaultFbo, "framebufferfragment.glsl", 1)) {
+		if (!InitializeFrameBuffer(&tonemappingFbo, "tonemapping.glsl", vec2(WINDOW_WIDTH*MSAA, WINDOW_HEIGHT*MSAA), 1)) {
 			return -1;
 		}
 
-		if (!InitializeFrameBuffer(&hBlurFbo, "framebufferhblurfragment.glsl", 0)) {
+		if (!InitializeFrameBuffer(&msaaFbo, "downsample.glsl", vec2(WINDOW_WIDTH*MSAA, WINDOW_HEIGHT*MSAA), 0)) {
 			return -1;
 		}
 
 		return 0;
 	}
 
-	bool InitializeFrameBuffer(MyFrameBuffer* frameBuffer, const string &fragment, bool AA) {
+	bool InitializeFrameBuffer(MyFrameBuffer* frameBuffer, const string &fragment, vec2 dimension, bool HDR) {
 		glGenFramebuffers(1, &frameBuffer->fbo);
 		glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer->fbo);
 
 		glGenTextures(1, &frameBuffer->texture);
 		glBindTexture(GL_TEXTURE_2D, frameBuffer->texture);
 
-		int _MSAA = AA ? 1 : 1;
-
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, WINDOW_WIDTH*_MSAA, WINDOW_HEIGHT*_MSAA, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+		glTexImage2D(GL_TEXTURE_2D, 0, HDR ? GL_RGBA16F : GL_RGBA, dimension.x, dimension.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 		glGenRenderbuffers(1, &frameBuffer->rbo);
 		glBindRenderbuffer(GL_RENDERBUFFER, frameBuffer->rbo);
-		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, WINDOW_WIDTH*_MSAA, WINDOW_HEIGHT*_MSAA);
+		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, dimension.x, dimension.y);
 		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, frameBuffer->rbo);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, frameBuffer->texture, 0);
 
@@ -447,40 +452,47 @@ namespace Graphics {
 		return glfwWindowShouldClose(window);
 	}
 
-	void renderFrameBuffer() {
-//		glBindFramebuffer(GL_FRAMEBUFFER, hBlurFbo.fbo);
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	void renderTonemapping() {
+		glBindFramebuffer(GL_FRAMEBUFFER, msaaFbo.fbo);
+		glBindTexture(GL_TEXTURE_2D, msaaFbo.texture);
 
-		glScissor(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
-		glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
-		glBindVertexArray(defaultFbo.vao);
+		glScissor(0, 0, WINDOW_WIDTH*MSAA, WINDOW_HEIGHT*MSAA);
+		glViewport(0, 0, WINDOW_WIDTH*MSAA, WINDOW_HEIGHT*MSAA);
+
+		glBindVertexArray(tonemappingFbo.vao);
 		glDisable(GL_DEPTH_TEST);
-		glUseProgram(defaultFbo.shader.program);
+		glUseProgram(tonemappingFbo.shader.program);
 
 		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, tonemappingFbo.texture);
 
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 		CheckGLErrors();
 
-//		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 
-	void renderHBlurFrameBuffer() {
+	void renderMSAA() {
 		glScissor(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 		glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
-		glBindVertexArray(hBlurFbo.vao);
+
+		glBindVertexArray(msaaFbo.vao);
 		glDisable(GL_DEPTH_TEST);
-		glUseProgram(hBlurFbo.shader.program);
+		glUseProgram(msaaFbo.shader.program);
+
+	//	glUniform2f(glGetAttribLocation(msaaFbo.shader.program, "large"), WINDOW_WIDTH*MSAA, WINDOW_HEIGHT*MSAA);
+	//	glUniform2f(glGetAttribLocation(msaaFbo.shader.program, "small"), WINDOW_WIDTH, WINDOW_HEIGHT);
 
 		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, msaaFbo.texture);
 
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 		CheckGLErrors();
 	}
 
 	void update() {
-		renderFrameBuffer();
-	//	renderHBlurFrameBuffer();
+		renderTonemapping();
+		renderMSAA();
 
 		// vertical sync
 		glfwSwapInterval(1);
@@ -490,8 +502,8 @@ namespace Graphics {
 	}
 
 	void destroy() {
-		glDeleteFramebuffers(1, &defaultFbo.fbo);
-		glDeleteRenderbuffers(1, &defaultFbo.rbo);
+		glDeleteFramebuffers(1, &tonemappingFbo.fbo);
+		glDeleteRenderbuffers(1, &tonemappingFbo.rbo);
 		glfwDestroyWindow(window);
 		glfwTerminate();
 
@@ -576,9 +588,9 @@ namespace Viewport {
 	}
 
 	void update(mat4 obj) {
-			transform = lookAt(vec3(cos(6 / 1.5f) * 4.0f, 1, sin(6 / 1.5f) * 4.0f), vec3(0, 0, 0), vec3(0, 1, 0))*obj;
-	//	transform = lookAt(vec3(cos(glfwGetTime() / 1.5f) * 4.5f, 1, sin(glfwGetTime() / 1.5f) * 4.5f), vec3(0, 0, 0), vec3(0, 1, 0))*obj;
-		//	transform = lookAt(vec3(0, 2, -6.5f), vec3(0, 2, 0), vec3(0, 1, 0))*obj;
+		transform = lookAt(vec3(cos(6 / 1.5f) * 4.0f, 1, sin(6 / 1.5f) * 4.0f), vec3(0, 0, 0), vec3(0, 1, 0))*obj;
+		//	transform = lookAt(vec3(cos(glfwGetTime() / 1.5f) * 4.5f, 1, sin(glfwGetTime() / 1.5f) * 4.5f), vec3(0, 0, 0), vec3(0, 1, 0))*obj;
+			//	transform = lookAt(vec3(0, 2, -6.5f), vec3(0, 2, 0), vec3(0, 1, 0))*obj;
 		glUniformMatrix4fv(MODELVIEW_LOCATION, 1, false, &transform[0][0]);
 		glUniformMatrix4fv(PROJECTION_LOCATION, 1, false, &projection[0][0]);
 	}

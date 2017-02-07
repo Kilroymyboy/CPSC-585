@@ -11,11 +11,23 @@
 
 in vec2 Texcoord;
 out vec4 outColor;
+
+// large texture to downsample
 uniform sampler2D texFramebuffer;
+
+uniform vec2 large;
+uniform vec2 small;
+
 void main()
 {
-	vec3 t=texture(texFramebuffer, Texcoord).xyz;
-	t/=t+vec3(1);
-	t=pow(t, vec3(1/1.8));
-	outColor=vec4(t, 1);
+	outColor=vec4(0);
+	for(int i=0;i<2;i++){
+		for(int j=0;j<2;j++){
+			outColor+=texture(texFramebuffer, (Texcoord+vec2(i/1280.0/2, j/720.0/2))*2);
+		}
+	}
+	outColor.xyz/=vec3(4.0);
+	outColor.w=1;
+	
+	outColor=texture(texFramebuffer, Texcoord);
 }

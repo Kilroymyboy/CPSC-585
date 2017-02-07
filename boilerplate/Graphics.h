@@ -33,6 +33,8 @@
 #define WINDOW_WIDTH 1280
 #define WINDOW_HEIGHT 720
 
+#define MSAA 2
+
 namespace Graphics {
 	int init();
 	int shouldClose();
@@ -93,7 +95,7 @@ namespace Graphics {
 	void loadGeometry(MyGeometry* geometry, char* path);
 	void RenderScene(MyGeometry *geometry, MyShader *shader, void(*material)(), glm::mat4 transform);
 	bool InitializeShaders(MyShader *shader, const std::string vertex, const std::string fragment);
-	bool InitializeFrameBuffer(MyFrameBuffer* frameBuffer, const std::string& fragment, bool AA);
+	bool InitializeFrameBuffer(MyFrameBuffer* frameBuffer, const std::string& fragment, glm::vec2 dimension, bool HDR);
 }
 
 namespace Viewport {
