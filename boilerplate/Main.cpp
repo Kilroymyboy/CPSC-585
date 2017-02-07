@@ -5,85 +5,82 @@
 using namespace std;
 
 // create gamepad instance (controller no. 1)
-Gamepad MyGamepad = Gamepad(1);
-
+Gamepad gamepad;
 // A function to obtain input, called each frame
 void GetGamepadInput()
 {
 	//NOTE gamepad update() must be called BEFORE any pulling inputs
-	MyGamepad.Update(); // Update the gamepad
+	gamepad.Update(); // Update the gamepad
 
-	if (MyGamepad.GetButtonPressed(Xbuttons.A)) {
+	if (gamepad.GetButtonPressed(Xbuttons.A)) {
 		cout << "A pressed" << endl;
 	}
 
-	else if (MyGamepad.GetButtonDown(Xbuttons.X)) {
+	else if (gamepad.GetButtonDown(Xbuttons.X)) {
 		cout << "X pressed " << endl;
 	}
 
-	else if (MyGamepad.GetButtonDown(Xbuttons.Y)) {
+	else if (gamepad.GetButtonDown(Xbuttons.Y)) {
 		cout << "Y pressed" << endl;
 	}
+	gamepad.RightTrigger();
+	gamepad.LeftTrigger();
 
 	// Update the gamepad for next frame
-	MyGamepad.RefreshState();
+	gamepad.RefreshState();
+}
+
+void glfwJoystick()
+{
+	int present = glfwJoystickPresent(GLFW_JOYSTICK_1);
+	std::cout << "Joystick 1 status: " << present << std::endl;
+
+	if (1 == present)
+	{
+		int axesCount;
+		const float *axes = glfwGetJoystickAxes(GLFW_JOYSTICK_1, &axesCount);
+		cout << "Number of axes available" << axesCount << endl;
+
+		//figure out which slot in the axes array corresponds to each stick axis and trigger then comment
+		cout << "Left Stick X Axis" << axes[0] << endl;
+		cout << "Left Stick Y Axis" << axes[1] << endl;
+		cout << "Right Stick X Axis" << axes[2] << endl;
+		cout << "Right Stick Y Axis" << axes[3] << endl;
+		cout << "Left Trigger" << axes[4] << endl;
+		cout << "Rght Trigger" << axes[5] << endl;
+
+		int buttonCount;
+		const unsigned char *buttons = glfwGetJoystickButtons(GLFW_JOYSTICK_1, &buttonCount);
+
+		if (GLFW_PRESS == buttons[0])
+		{
+			cout << "Button Pressed" << endl;
+		}
+		else if (GLFW_RELEASE == buttons[1])
+		{
+			cout << "Button Released" << endl;
+		}
+
+		const char *name = glfwGetJoystickName(GLFW_JOYSTICK_1);
+		cout << "joystick is called: " << name << endl;
+	}
 }
 
 int main(int argc, char *argv[])
 {
-	Gamepad gamepad;
+
 	if (Graphics::init() == -1)return -1;
 	Light::init();
 	Viewport::init();
 
-	GetGamepadInput();
 	while (!Graphics::shouldClose()) {
 		Graphics::update();
-		GetGamepadInput();
+		glfwJoystick();
 	}
 	Graphics::destroy();
 }
 
-/*
-//has wasd and qe for keys mapped currently don't know where to put
-void keyboard(unsigned char key, int x, int y)
-{
-	float factor = 0.05f;
 
-	switch (key)
-	{
-	case (27) :
-		exit(EXIT_FAILURE);
-
-	case (GLFW_KEY_A) :
-		cout << " A pressed " << endl;
-		break;
-
-	case (GLFW_KEY_D) :
-		cout << " D pressed " << endl;
-		break;
-
-	case (GLFW_KEY_S) :
-		cout << " S pressed " << endl;
-		break;
-
-	case (GLFW_KEY_W) :
-		cout << " W pressed " << endl;
-		break;
-
-	case (GLFW_KEY_Q) :
-		cout << " Q pressed " << endl;
-		break;
-
-	case (GLFW_KEY_E) :
-		cout << " E pressed " << endl;
-		break;
-
-	default:
-		break;
-	}
-}
-*/
 
 /* Old mouse code currently unaware of what to do with it so storing it here for now
 void mouse(GLFWwindow* window, int button, int action, int mods)

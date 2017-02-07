@@ -17,6 +17,46 @@ namespace Graphics {
 	GLuint CompileShader(GLenum shaderType, const string &source);
 	GLuint LinkProgram(GLuint vertexShader, GLuint fragmentShader);
 
+
+//has wasd and qe for keys mapped currently don't know where to put
+void keyboard(unsigned char key, int x, int y)
+{
+	float factor = 0.05f;
+
+	switch (key)
+	{
+	case (27) :
+		exit(EXIT_FAILURE);
+
+	case (GLFW_KEY_A) :
+		cout << " A pressed " << endl;
+		break;
+
+	case (GLFW_KEY_D) :
+		cout << " D pressed " << endl;
+		break;
+
+	case (GLFW_KEY_S) :
+		cout << " S pressed " << endl;
+		break;
+
+	case (GLFW_KEY_W) :
+		cout << " W pressed " << endl;
+		break;
+
+	case (GLFW_KEY_Q) :
+		cout << " Q pressed " << endl;
+		break;
+
+	case (GLFW_KEY_E) :
+		cout << " E pressed " << endl;
+		break;
+
+	default:
+		break;
+	}
+}
+
 	bool InitializeShaders(MyShader *shader)
 	{
 		// load shader source from files
@@ -308,6 +348,8 @@ namespace Graphics {
 	{
 		if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 			glfwSetWindowShouldClose(window, GL_TRUE);
+
+		keyboard(key, 0, 0);
 	}
 
 	GLFWwindow *window;
