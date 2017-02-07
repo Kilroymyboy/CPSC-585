@@ -48,7 +48,6 @@ namespace Game {
 	}
 
 	void update() {
-	//	cout << Time::fps << "\t" << Time::deltaTime << endl;
 		for (int i = 0; i < entities.size(); i++) {
 			entities[i].get()->update(mat4(1));
 		}
@@ -73,6 +72,9 @@ namespace Time {
 		prevTime = time;
 		if (time > fpsTime + 1) {
 			fps = tfps;
+			if (PRINT_FPS) {
+				cout << "fps: " << fps << endl;
+			}
 			tfps = 0;
 			fpsTime = time;
 		}

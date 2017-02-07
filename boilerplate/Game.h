@@ -4,6 +4,8 @@
 #include <memory>
 #include "Graphics.h"
 
+#define PRINT_FPS true
+
 class Entity {
 public:
 	glm::mat4 transform;
