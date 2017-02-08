@@ -16,6 +16,12 @@
     <Filter Include="Source Files\External">
       <UniqueIdentifier>{3dc13694-cbab-43ed-94a7-7a9a9176ec37}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Physics">
+      <UniqueIdentifier>{d8969475-7b5e-49ab-9609-5ef170902765}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Physics">
+      <UniqueIdentifier>{9c7d6bbd-28dd-4cc2-afef-e635137993d8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\middleware\glad\src\glad.c">
@@ -33,6 +39,9 @@
     <ClCompile Include="Resources.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="PhysicsManager.cpp">
+      <Filter>Source Files\Physics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="framebufferfragment.glsl">
@@ -41,10 +50,10 @@
     <None Include="framebuffervertex.glsl">
       <Filter>Source Files</Filter>
     </None>
-    <None Include="fragment.glsl">
+    <None Include="vertex.glsl">
       <Filter>Source Files</Filter>
     </None>
-    <None Include="vertex.glsl">
+    <None Include="fragment.glsl">
       <Filter>Source Files</Filter>
     </None>
   </ItemGroup>
@@ -57,6 +66,9 @@
     </ClInclude>
     <ClInclude Include="Resources.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PhysicsManager.h">
+      <Filter>Header Files\Physics</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
