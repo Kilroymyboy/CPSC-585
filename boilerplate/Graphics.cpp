@@ -14,6 +14,7 @@ namespace Graphics {
 
 	MyFrameBuffer tonemappingFbo;
 	MyFrameBuffer msaaFbo;
+	MyFrameBuffer aberrationFbo;
 
 	void QueryGLVersion();
 	bool CheckGLErrors();
@@ -397,6 +398,10 @@ namespace Graphics {
 			return -1;
 		}
 
+		if (!InitializeFrameBuffer(&aberrationFbo, "aberration.glsl", vec2(WINDOW_WIDTH, WINDOW_HEIGHT), 0)) {
+			return -1;
+		}
+
 		return 0;
 	}
 
@@ -467,12 +472,14 @@ namespace Graphics {
 		glBindTexture(GL_TEXTURE_2D, tonemappingFbo.texture);
 
 		glDrawArrays(GL_TRIANGLES, 0, 6);
-		CheckGLErrors();
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 
 	void renderMSAA() {
+		glBindFramebuffer(GL_FRAMEBUFFER, aberrationFbo.fbo);
+		glBindTexture(GL_TEXTURE_2D, aberrationFbo.texture);
+
 		glScissor(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 		glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 
@@ -487,12 +494,30 @@ namespace Graphics {
 		glBindTexture(GL_TEXTURE_2D, msaaFbo.texture);
 
 		glDrawArrays(GL_TRIANGLES, 0, 6);
-		CheckGLErrors();
+
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	}
+
+	void renderAberration() {
+		glScissor(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+		glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+
+		glBindVertexArray(aberrationFbo.vao);
+		glDisable(GL_DEPTH_TEST);
+		glUseProgram(aberrationFbo.shader.program);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, aberrationFbo.texture);
+
+		glDrawArrays(GL_TRIANGLES, 0, 6);
 	}
 
 	void update() {
 		renderTonemapping();
 		renderMSAA();
+		renderAberration();
+
+		CheckGLErrors();
 
 		// vertical sync
 		glfwSwapInterval(1);
