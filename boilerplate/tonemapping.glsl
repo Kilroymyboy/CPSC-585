@@ -16,6 +16,6 @@ void main()
 {
 	vec3 t=texture(texFramebuffer, Texcoord).xyz;
 	t/=t+vec3(1);
-	t=pow(t, vec3(1/1.8));
+	t=pow(t, vec3(1/1.4));
 	outColor=vec4(t, 1);
 }

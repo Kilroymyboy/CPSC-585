@@ -34,6 +34,7 @@
 #define WINDOW_HEIGHT 720
 
 #define MSAA 2
+#define VSYNC 0
 
 namespace Graphics {
 	int init();

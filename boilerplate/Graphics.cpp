@@ -477,8 +477,8 @@ namespace Graphics {
 	}
 
 	void renderMSAA() {
-		glBindFramebuffer(GL_FRAMEBUFFER, aberrationFbo.fbo);
-		glBindTexture(GL_TEXTURE_2D, aberrationFbo.texture);
+	//	glBindFramebuffer(GL_FRAMEBUFFER, aberrationFbo.fbo);
+	//	glBindTexture(GL_TEXTURE_2D, aberrationFbo.texture);
 
 		glScissor(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 		glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
@@ -487,15 +487,15 @@ namespace Graphics {
 		glDisable(GL_DEPTH_TEST);
 		glUseProgram(msaaFbo.shader.program);
 
-	//	glUniform2f(glGetAttribLocation(msaaFbo.shader.program, "large"), WINDOW_WIDTH*MSAA, WINDOW_HEIGHT*MSAA);
-	//	glUniform2f(glGetAttribLocation(msaaFbo.shader.program, "small"), WINDOW_WIDTH, WINDOW_HEIGHT);
+		glUniform2f(1, WINDOW_WIDTH*MSAA, WINDOW_HEIGHT*MSAA);
+		glUniform1i(2, MSAA);
 
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, msaaFbo.texture);
 
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	//	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 
 	void renderAberration() {
@@ -515,12 +515,12 @@ namespace Graphics {
 	void update() {
 		renderTonemapping();
 		renderMSAA();
-		renderAberration();
+	//	renderAberration();
 
 		CheckGLErrors();
 
 		// vertical sync
-		glfwSwapInterval(1);
+		glfwSwapInterval(VSYNC);
 		glfwSwapBuffers(window);
 
 		glfwPollEvents();
