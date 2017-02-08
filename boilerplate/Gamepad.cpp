@@ -78,9 +78,15 @@ bool Gamepad::Connected()
 	DWORD Result = XInputGetState(m_iGamepadIndex, &m_State);
 
 	if (Result == ERROR_SUCCESS)
+	{
+		cout << "connected " << endl;
 		return true;
+	}
 	else
-		return false;
+	{
+		cout << "not connected " << endl;
+ 		return false;
+	}
 }
 
 void Gamepad::Update()

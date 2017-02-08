@@ -5,29 +5,31 @@
 using namespace std;
 
 // create gamepad instance (controller no. 1)
-Gamepad gamepad;
+Gamepad myGamepad = Gamepad(1);
 // A function to obtain input, called each frame
 void GetGamepadInput()
 {
 	//NOTE gamepad update() must be called BEFORE any pulling inputs
-	gamepad.Update(); // Update the gamepad
-
-	if (gamepad.GetButtonPressed(Xbuttons.A)) {
+	myGamepad.Update(); // Update the gamepad
+	myGamepad.GetIndex();
+	if (myGamepad.GetButtonPressed(Xbuttons.A) == true) {
 		cout << "A pressed" << endl;
 	}
 
-	else if (gamepad.GetButtonDown(Xbuttons.X)) {
+	else if (myGamepad.GetButtonDown(Xbuttons.X) == true) {
 		cout << "X pressed " << endl;
 	}
 
-	else if (gamepad.GetButtonDown(Xbuttons.Y)) {
+	else if (myGamepad.GetButtonDown(Xbuttons.Y) == true) {
 		cout << "Y pressed" << endl;
 	}
-	gamepad.RightTrigger();
-	gamepad.LeftTrigger();
+	else if (myGamepad.LeftTrigger() > 0)
+	{
+		cout << "TRIGGERED" << endl;
+	}
 
 	// Update the gamepad for next frame
-	gamepad.RefreshState();
+	myGamepad.RefreshState();
 }
 
 int main(int argc, char *argv[])
@@ -39,7 +41,8 @@ int main(int argc, char *argv[])
 	
 	while (!Graphics::shouldClose()) {
 		Graphics::update();
-		gamepad.glfwJoystick();
+		myGamepad.glfwJoystick();
+		//GetGamepadInput();
 	}
 	Graphics::destroy();
 }
