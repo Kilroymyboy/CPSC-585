@@ -477,8 +477,8 @@ namespace Graphics {
 	}
 
 	void renderMSAA() {
-	//	glBindFramebuffer(GL_FRAMEBUFFER, aberrationFbo.fbo);
-	//	glBindTexture(GL_TEXTURE_2D, aberrationFbo.texture);
+		glBindFramebuffer(GL_FRAMEBUFFER, aberrationFbo.fbo);
+		glBindTexture(GL_TEXTURE_2D, aberrationFbo.texture);
 
 		glScissor(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 		glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
@@ -495,7 +495,7 @@ namespace Graphics {
 
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 
-	//	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 
 	void renderAberration() {
@@ -515,7 +515,7 @@ namespace Graphics {
 	void update() {
 		renderTonemapping();
 		renderMSAA();
-	//	renderAberration();
+		renderAberration();
 
 		CheckGLErrors();
 
