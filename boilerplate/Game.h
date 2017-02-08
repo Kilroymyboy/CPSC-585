@@ -37,3 +37,8 @@ namespace Time {
 	void init();
 	void update();
 }
+
+class Plane :public Entity {
+public:
+	void update(glm::mat4 parentTransform)override;
+};

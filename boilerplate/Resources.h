@@ -4,11 +4,14 @@
 
 namespace Resources {
 	extern Graphics::MyGeometry aventadorBody, aventadorBodyGlow, aventadorUnder, aventadorWheel, aventadorWheelGlow;
+	extern Graphics::MyGeometry plane;
 	extern Graphics::MyShader standardShader;
 
 	void init();
 
 	void nullMaterial();
+
+	void defaultMaterial();
 
 	void darkGreyMaterial();
 

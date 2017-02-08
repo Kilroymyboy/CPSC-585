@@ -45,6 +45,7 @@ namespace Game {
 	// we can customize this function as much as we want for now for debugging
 	void init() {
 		entities.push_back(unique_ptr<Aventador>(new Aventador));
+		entities.push_back(unique_ptr<Plane>(new Plane));
 	}
 
 	void update() {
@@ -82,4 +83,8 @@ namespace Time {
 			tfps++;
 		}
 	}
+}
+
+void Plane::update(glm::mat4 parentTransform) {
+	Graphics::RenderScene(&Resources::plane, &Resources::standardShader, &Resources::defaultMaterial, parentTransform*transform);
 }
