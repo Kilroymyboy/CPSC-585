@@ -37,6 +37,7 @@ Gamepad::Gamepad()
 {
 }
 
+// constructor for gamepad for joystick index
 Gamepad::Gamepad(int a_iIndex)
 {
 	m_iGamepadIndex = a_iIndex - 1;
@@ -229,4 +230,78 @@ bool Gamepad::GetButtonPressed(int a_iButton)
 bool Gamepad::GetButtonDown(int a_iButton)
 {
 	return bGamepad_ButtonsDown[a_iButton];
+}
+
+
+void Gamepad::glfwJoystick()
+{
+	int present = glfwJoystickPresent(GLFW_JOYSTICK_1);
+	//std::cout << "Joystick 1 status: " << present << std::endl;
+
+	if (1 == present)
+	{
+		int axesCount;
+		const float *axes = glfwGetJoystickAxes(GLFW_JOYSTICK_1, &axesCount);
+		
+		//large amount of spaces to clarify inputs
+		cout << " " << endl;
+		cout << " " << endl;
+		cout << " " << endl;
+		cout << " " << endl;
+		cout << " " << endl;
+		cout << " " << endl;
+		cout << " " << endl;
+
+		cout << "Number of axes available" << axesCount << endl;
+
+		//figure out which slot in the axes array corresponds to each stick axis and trigger then comment
+		cout << "Left Stick X Axis" << axes[0] << endl;
+		cout << "Left Stick Y Axis" << axes[1] << endl;
+		cout << "Right Stick X Axis" << axes[2] << endl;
+		cout << "Right Stick Y Axis" << axes[3] << endl;
+		cout << "Left Trigger" << axes[4] << endl;
+		cout << "Rght Trigger" << axes[5] << endl;
+		
+		int buttonCount;
+		const unsigned char *buttons = glfwGetJoystickButtons(GLFW_JOYSTICK_1, &buttonCount);
+		//0 is A button
+		if (GLFW_PRESS == buttons[0])
+		{
+			cout << "Button Pressed" << endl;
+		}
+		else if (GLFW_RELEASE == buttons[0])
+		{
+			cout << "Button Released" << endl;
+		}
+		//1 is B button
+		if (GLFW_PRESS == buttons[1])
+		{
+			cout << "Button Pressed" << endl;
+		}
+		else if (GLFW_RELEASE == buttons[1])
+		{
+			cout << "Button Released" << endl;
+		}
+		//2 is X button
+		if (GLFW_PRESS == buttons[2])
+		{
+			cout << "Button Pressed" << endl;
+		}
+		else if (GLFW_RELEASE == buttons[2])
+		{
+			cout << "Button Released" << endl;
+		}
+		//3 is Y button
+		if (GLFW_PRESS == buttons[3])
+		{
+			cout << "Button Pressed" << endl;
+		}
+		else if (GLFW_RELEASE == buttons[3])
+		{
+			cout << "Button Released" << endl;
+		}
+		
+		const char *name = glfwGetJoystickName(GLFW_JOYSTICK_1);
+		cout << "joystick is called: " << name << endl;
+	}
 }

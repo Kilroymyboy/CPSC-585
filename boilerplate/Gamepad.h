@@ -4,6 +4,7 @@
 
 #include <windows.h>
 #include <Xinput.h>
+#include <GLFW/glfw3.h>
 
 // XInput Button values
 static const WORD XINPUT_Buttons[] = {
@@ -81,6 +82,9 @@ public:
 
 	//Vibration function should be (0.0f cancel, 1.0 max speed)
 	void Rumble(float a_fLeftMotor, float a_fRightMotor);
+
+	//glfw joystick input because current xinput tests are not working
+	void glfwJoystick();
 
 private:
 	//member variables
