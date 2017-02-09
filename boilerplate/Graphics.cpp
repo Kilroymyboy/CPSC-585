@@ -568,7 +568,7 @@ namespace Graphics {
 		glDisable(GL_DEPTH_TEST);
 		glUseProgram(hBlurFbo.shader.program);
 
-		glUniform2f(0, 1.5f / (WINDOW_WIDTH / BLOOM_DOWNSAMPLE), 0.00f);
+		glUniform2f(0, 1.0f / (WINDOW_WIDTH / BLOOM_DOWNSAMPLE), 0.00f);
 		glUniform1f(1, 1.0f);
 
 		glActiveTexture(GL_TEXTURE0);
@@ -590,7 +590,7 @@ namespace Graphics {
 		glDisable(GL_DEPTH_TEST);
 		glUseProgram(vBlurFbo.shader.program);
 
-		glUniform2f(0, 0.0f, 1.5f / (WINDOW_WIDTH / BLOOM_DOWNSAMPLE));
+		glUniform2f(0, 0.0f, 1.0f / (WINDOW_WIDTH / BLOOM_DOWNSAMPLE));
 		glUniform1f(1, 0.0f);
 
 		glActiveTexture(GL_TEXTURE0);
