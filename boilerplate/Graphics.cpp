@@ -16,6 +16,8 @@ namespace Graphics {
 	MyFrameBuffer msaaFbo;
 	MyFrameBuffer aberrationFbo;
 
+	MyFrameBuffer shadowFbo;
+
 	void QueryGLVersion();
 	bool CheckGLErrors();
 
@@ -101,56 +103,7 @@ namespace Graphics {
 		glBindTexture(texture->target, 0);
 		glDeleteTextures(1, &texture->textureID);
 	}
-	/*
-	bool InitializeGeometry(MyGeometry *geometry)
-	{
-		// three vertex positions and assocated colours of a triangle
-		const GLfloat vertices[][3] = {
-			{ -.6f, -.4f,0.0f },
-			{ .0f,  .6f,0.0f },
-			{ .6f, -.4f,0.0f }
-		};
 
-		const GLfloat colours[][3] = {
-			{ -1.0f, 0.0f, 0.0f },
-			{ -1.0f, 0.0f, 0.0f },
-			{ -1.0f, 0.0f, 0.0f }
-		};
-
-		geometry->elementCount = 3;
-
-		// create an array buffer object for storing our vertices
-		glGenBuffers(1, &geometry->vertexBuffer);
-		glBindBuffer(GL_ARRAY_BUFFER, geometry->vertexBuffer);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-		// create another one for storing our colours
-		glGenBuffers(1, &geometry->normalBuffer);
-		glBindBuffer(GL_ARRAY_BUFFER, geometry->normalBuffer);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(colours), colours, GL_STATIC_DRAW);
-
-		// create a vertex array object encapsulating all our vertex attributes
-		glGenVertexArrays(1, &geometry->vertexArray);
-		glBindVertexArray(geometry->vertexArray);
-
-		// associate the position array with the vertex array object
-		glBindBuffer(GL_ARRAY_BUFFER, geometry->vertexBuffer);
-		glVertexAttribPointer(VERTEX_POSITION_LOCATION, 3, GL_FLOAT, GL_FALSE, 0, 0);
-		glEnableVertexAttribArray(VERTEX_POSITION_LOCATION);
-
-		// assocaite the colour array with the vertex array object
-		glBindBuffer(GL_ARRAY_BUFFER, geometry->normalBuffer);
-		glVertexAttribPointer(VERTEX_NORMAL_LOCATION, 3, GL_FLOAT, GL_FALSE, 0, 0);
-		glEnableVertexAttribArray(VERTEX_NORMAL_LOCATION);
-
-		// unbind our buffers, resetting to default state
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		glBindVertexArray(0);
-
-		// check for OpenGL errors and return false if error occurred
-		return !CheckGLErrors();
-	}
-	*/
 	// deallocate geometry-related objects
 	void DestroyGeometry(MyGeometry *geometry)
 	{
@@ -402,6 +355,10 @@ namespace Graphics {
 			return -1;
 		}
 
+		if (!InitializeShadowMap(&shadowFbo, vec2(SHADOWMAP_SIZE, SHADOWMAP_SIZE))) {
+			return -1;
+		}
+
 		return 0;
 	}
 
@@ -450,6 +407,32 @@ namespace Graphics {
 		glEnableVertexAttribArray(texAttrib);
 		glVertexAttribPointer(texAttrib, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (void*)(2 * sizeof(GLfloat)));
 
+		return true;
+	}
+
+	bool InitializeShadowMap(MyFrameBuffer* frameBuffer, vec2 dimension) {
+		glGenFramebuffers(1, &frameBuffer->fbo);
+		glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer->fbo);
+
+		glGenTextures(1, &frameBuffer->texture);
+		glBindTexture(GL_TEXTURE_2D, frameBuffer->texture);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, 1024, 1024, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+		glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, frameBuffer->texture, 0);
+
+		if (!InitializeShaders(&frameBuffer->shader, "shadowmapvertex.glsl", "shadowmapfragment.glsl")) {
+			cout << "Program could not initialize shadow map shaders, TERMINATING" << endl;
+			return false;
+		}
+
+		glDrawBuffer(GL_NONE);
+
+		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+			return false;
 		return true;
 	}
 
@@ -623,15 +606,24 @@ namespace Viewport {
 }
 
 namespace Light {
+	glm::mat4 biasMatrix(
+		0.5, 0.0, 0.0, 0.0,
+		0.0, 0.5, 0.0, 0.0,
+		0.0, 0.0, 0.5, 0.0,
+		0.5, 0.5, 0.5, 1.0
+	);
+
 	glm::vec3 color;
 	glm::vec3 direction;
 	glm::vec3 ambient;
 	glm::mat4 transform;
+	glm::mat4 projection;
 
 	void init() {
 		color = vec3(.1f, .1f, .1f);
 		direction = vec3(0, -1, 0);
 		ambient = vec3(0.05, 0.05, 0.05);
+		projection = ortho<float>(-10, 10, -10, 10, -10, 20);
 		transform = lookAt(vec3(10, 10, 10), vec3(0, 0, 0), vec3(0, 1, 0));
 	}
 
@@ -641,7 +633,24 @@ namespace Light {
 		glUniform3f(AMBIENT_LOCATION, ambient.x, ambient.y, ambient.z);
 	}
 
-	void renderShadowMap() {
+	void renderShadowMap(Graphics::MyGeometry* geometry, mat4 obj) {
+		glBindFramebuffer(GL_FRAMEBUFFER, Graphics::shadowFbo.fbo);
+		glBindTexture(GL_TEXTURE_2D, Graphics::shadowFbo.texture);
 
+		// enable gl depth test
+		glEnable(GL_DEPTH_TEST);
+		glScissor(0, 0, SHADOWMAP_SIZE, SHADOWMAP_SIZE);
+		glViewport(0, 0, SHADOWMAP_SIZE, SHADOWMAP_SIZE);
+
+		// bind our shader program and the vertex array object containing our
+		// scene geometry, then tell OpenGL to draw our geometry
+		glUseProgram(Graphics::shadowFbo.shader.program);
+		glBindVertexArray(geometry->vertexArray);
+
+		mat4 mvp = projection*transform*obj;
+		glUniformMatrix4fv(1, 1, GL_FALSE, &mvp[0][0]);
+
+		glDrawArrays(GL_TRIANGLES, 0, geometry->elementCount);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 }

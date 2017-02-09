@@ -36,6 +36,7 @@
 
 #define MSAA 2
 #define VSYNC 1
+#define SHADOWMAP_SIZE 1024
 
 namespace Graphics {
 	int init();
@@ -98,6 +99,7 @@ namespace Graphics {
 	void RenderScene(MyGeometry *geometry, MyShader *shader, void(*material)(), glm::mat4 transform);
 	bool InitializeShaders(MyShader *shader, const std::string vertex, const std::string fragment);
 	bool InitializeFrameBuffer(MyFrameBuffer* frameBuffer, const std::string& fragment, glm::vec2 dimension, bool HDR);
+	bool InitializeShadowMap(MyFrameBuffer* frameBuffer, glm::vec2 dimension);
 }
 
 namespace Viewport {
@@ -109,10 +111,13 @@ namespace Viewport {
 }
 
 namespace Light {
+	extern glm::mat4 biasMatrix;
+
 	extern glm::vec3 color;
 	extern glm::vec3 direction;
 	extern glm::vec3 ambient;
 
 	void init();
 	void update();
+	void renderShadowMap(Graphics::MyGeometry* geometry, glm::mat4 obj);
 }
