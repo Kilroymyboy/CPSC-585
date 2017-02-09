@@ -613,10 +613,11 @@ namespace Viewport {
 	}
 
 	void update(mat4 obj) {
-		transform = lookAt(vec3(cos(6 / 1.5f) * 4.0f, 1, sin(6 / 1.5f) * 4.0f), vec3(0, 0, 0), vec3(0, 1, 0))*obj;
-			transform = lookAt(vec3(cos(glfwGetTime() / 1.5f) * 4.5f, 1, sin(glfwGetTime() / 1.5f) * 4.5f), vec3(0, 0, 0), vec3(0, 1, 0))*obj;
-			//	transform = lookAt(vec3(0, 2, -6.5f), vec3(0, 2, 0), vec3(0, 1, 0))*obj;
-		glUniformMatrix4fv(MODELVIEW_LOCATION, 1, false, &transform[0][0]);
+		transform = lookAt(vec3(cos(6 / 1.5f) * 4.0f, 1, sin(6 / 1.5f) * 4.0f), vec3(0, 0, 0), vec3(0, 1, 0));
+		transform = lookAt(vec3(cos(glfwGetTime() / 1.5f) * 4.5f, 1, sin(glfwGetTime() / 1.5f) * 4.5f), vec3(0, 0, 0), vec3(0, 1, 0));
+		//	transform = lookAt(vec3(0, 2, -6.5f), vec3(0, 2, 0), vec3(0, 1, 0));
+		glUniformMatrix4fv(MODEL_LOCATION, 1, false, &obj[0][0]);
+		glUniformMatrix4fv(VIEW_LOCATION, 1, false, &transform[0][0]);
 		glUniformMatrix4fv(PROJECTION_LOCATION, 1, false, &projection[0][0]);
 	}
 }
@@ -625,16 +626,22 @@ namespace Light {
 	glm::vec3 color;
 	glm::vec3 direction;
 	glm::vec3 ambient;
+	glm::mat4 transform;
 
 	void init() {
 		color = vec3(.1f, .1f, .1f);
 		direction = vec3(0, -1, 0);
 		ambient = vec3(0.05, 0.05, 0.05);
+		transform = lookAt(vec3(10, 10, 10), vec3(0, 0, 0), vec3(0, 1, 0));
 	}
 
 	void update() {
-		direction = vec3(cos(glfwGetTime()), -0.8, sin(glfwGetTime()));
+		direction = mat3(transform)* vec3(0, 0, 1);
 		glUniform3f(LIGHT_LOCATION, direction.x, direction.y, direction.z);
 		glUniform3f(AMBIENT_LOCATION, ambient.x, ambient.y, ambient.z);
+	}
+
+	void renderShadowMap() {
+
 	}
 }

@@ -16,13 +16,14 @@ layout(location = 0) in vec3 VertexPosition;
 layout(location = 1) in vec3 VertexNormal;
 
 layout(location = 2) uniform mat4 Projection;
-layout(location = 3) uniform mat4 ModelView;
+layout(location = 3) uniform mat4 View;
+layout(location = 4) uniform mat4 Model;
 
-layout(location = 4) uniform vec3 LightDirection;
-layout(location = 5) uniform vec3 AmbientLight;
+layout(location = 5) uniform vec3 LightDirection;
+layout(location = 6) uniform vec3 AmbientLight;
 
-layout(location = 6) uniform vec3 Color;
-layout(location = 7) uniform vec3 EmissionColor;
+layout(location = 7) uniform vec3 Color;
+layout(location = 8) uniform vec3 EmissionColor;
 
 
 //layout(location = 5) uniform vec3 LightDirection;
@@ -33,6 +34,6 @@ out vec3 Normal;
 
 void main()
 {
-    gl_Position = Projection * ModelView * vec4(VertexPosition, 1.0);
-	Normal=mat3(ModelView)*VertexNormal;
+    gl_Position = Projection * View * Model * vec4(VertexPosition, 1.0);
+	Normal=mat3(View * Model)*VertexNormal;
 }
