@@ -10,3 +10,12 @@
 !boilerplate/**
 !boilerplate.sln
 !README.txt
+
+#Allow dll in the bin folder, kinda hacky
+!dontSubmit
+dontSubmit/*
+!/dontSubmit/bin
+/dontSubmit/bin/*
+!/dontSubmit/bin/Debug
+/dontSubmit/bin/Debug/*
+!/dontSubmit/bin/Debug/*.dll
