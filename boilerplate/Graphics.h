@@ -36,10 +36,10 @@
 #define WINDOW_HEIGHT 720
 
 #define MSAA 2
-#define VSYNC 0
+#define VSYNC 1
 #define SHADOWMAP_SIZE 1024
 
-#define BLOOM_DOWNSAMPLE 4
+#define BLOOM_DOWNSAMPLE 2
 
 namespace Graphics {
 	int init();
@@ -103,6 +103,7 @@ namespace Graphics {
 	bool InitializeShaders(MyShader *shader, const std::string vertex, const std::string fragment);
 	bool InitializeFrameBuffer(MyFrameBuffer* frameBuffer, const std::string& fragment, glm::vec2 dimension, bool HDR);
 	bool InitializeShadowMap(MyFrameBuffer* frameBuffer, glm::vec2 dimension);
+	bool InitializeAdditiveFrameBuffer(MyFrameBuffer* frameBuffer, const std::string &fragment, glm::vec2 dimension, bool HDR);
 }
 
 namespace Viewport {
