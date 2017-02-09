@@ -18,6 +18,7 @@ namespace Graphics {
 
 	MyFrameBuffer shadowFbo;
 
+	MyFrameBuffer downsampleFbo;
 	MyFrameBuffer hBlurFbo;
 
 	void QueryGLVersion();
@@ -374,7 +375,11 @@ namespace Graphics {
 			return -1;
 		}
 
-		if (!InitializeFrameBuffer(&hBlurFbo, "downsample.glsl", vec2(WINDOW_WIDTH / BLOOM_DOWNSAMPLE, WINDOW_HEIGHT / BLOOM_DOWNSAMPLE), 1)) {
+		if (!InitializeFrameBuffer(&downsampleFbo, "downsample.glsl", vec2(WINDOW_WIDTH / BLOOM_DOWNSAMPLE, WINDOW_HEIGHT / BLOOM_DOWNSAMPLE), 1)) {
+			return -1;
+		}
+
+		if (!InitializeFrameBuffer(&hBlurFbo, "blur.glsl", vec2(WINDOW_WIDTH / BLOOM_DOWNSAMPLE, WINDOW_HEIGHT / BLOOM_DOWNSAMPLE), 1)) {
 			return -1;
 		}
 
@@ -477,11 +482,12 @@ namespace Graphics {
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-		glBindFramebuffer(GL_FRAMEBUFFER, hBlurFbo.fbo);
-		glBindTexture(GL_TEXTURE_2D, hBlurFbo.texture);
+		// render hdr image into downsample fbo for bloom gaussian blur
+		glBindFramebuffer(GL_FRAMEBUFFER, downsampleFbo.fbo);
+		glBindTexture(GL_TEXTURE_2D, downsampleFbo.texture);
 
-		glScissor(0, 0, WINDOW_WIDTH/ BLOOM_DOWNSAMPLE, WINDOW_HEIGHT/ BLOOM_DOWNSAMPLE);
-		glViewport(0, 0, WINDOW_WIDTH/ BLOOM_DOWNSAMPLE, WINDOW_HEIGHT/ BLOOM_DOWNSAMPLE);
+		glScissor(0, 0, WINDOW_WIDTH / BLOOM_DOWNSAMPLE, WINDOW_HEIGHT / BLOOM_DOWNSAMPLE);
+		glViewport(0, 0, WINDOW_WIDTH / BLOOM_DOWNSAMPLE, WINDOW_HEIGHT / BLOOM_DOWNSAMPLE);
 
 		glBindVertexArray(tonemappingFbo.vao);
 		glDisable(GL_DEPTH_TEST);
@@ -495,7 +501,29 @@ namespace Graphics {
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 
-	void renderHBlur() {
+	void renderDownsample() {
+		glBindFramebuffer(GL_FRAMEBUFFER, hBlurFbo.fbo);
+		glBindTexture(GL_TEXTURE_2D, hBlurFbo.texture);
+
+		glScissor(0, 0, WINDOW_WIDTH / BLOOM_DOWNSAMPLE, WINDOW_HEIGHT / BLOOM_DOWNSAMPLE);
+		glViewport(0, 0, WINDOW_WIDTH / BLOOM_DOWNSAMPLE, WINDOW_HEIGHT / BLOOM_DOWNSAMPLE);
+
+		glBindVertexArray(downsampleFbo.vao);
+		glDisable(GL_DEPTH_TEST);
+		glUseProgram(downsampleFbo.shader.program);
+
+		glUniform2f(1, WINDOW_WIDTH*MSAA, WINDOW_HEIGHT*MSAA);
+		glUniform1i(2, BLOOM_DOWNSAMPLE*MSAA);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, downsampleFbo.texture);
+
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	}
+
+	void renderBloom() {
 		glBindFramebuffer(GL_FRAMEBUFFER, aberrationFbo.fbo);
 		glBindTexture(GL_TEXTURE_2D, aberrationFbo.texture);
 
@@ -506,8 +534,8 @@ namespace Graphics {
 		glDisable(GL_DEPTH_TEST);
 		glUseProgram(hBlurFbo.shader.program);
 
-		glUniform2f(1, WINDOW_WIDTH*MSAA, WINDOW_HEIGHT*MSAA);
-		glUniform1i(2, BLOOM_DOWNSAMPLE*MSAA);
+		glUniform2f(0, 1.0f/ (WINDOW_WIDTH/BLOOM_DOWNSAMPLE), 0.00f);
+		glUniform1f(1, 1.0f);
 
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, hBlurFbo.texture);
@@ -516,6 +544,7 @@ namespace Graphics {
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
+
 
 	void renderMSAA() {
 		glBindFramebuffer(GL_FRAMEBUFFER, aberrationFbo.fbo);
@@ -556,8 +585,9 @@ namespace Graphics {
 	void update() {
 
 		renderTonemapping();
-		renderHBlur();
-	//	renderMSAA();
+		renderDownsample();
+		renderBloom();
+		//	renderMSAA();
 		renderAberration();
 
 		CheckGLErrors();
@@ -657,8 +687,8 @@ namespace Viewport {
 
 	void update(mat4 obj) {
 		//	transform = lookAt(vec3(cos(6 / 1.5f) * 4.0f, 1, sin(6 / 1.5f) * 4.0f), vec3(0, 0, 0), vec3(0, 1, 0));
-			transform = lookAt(vec3(cos(glfwGetTime() / 1.5f) * 4.5f, 3, sin(glfwGetTime() / 1.5f) * 4.5f), vec3(0, 0, 0), vec3(0, 1, 0));
-	//	transform = lookAt(vec3(0, 1.5f, -5.5f), vec3(0, 1.5f, 0), vec3(0, 1, 0));
+		transform = lookAt(vec3(cos(glfwGetTime() / 1.5f) * 4.5f, 3, sin(glfwGetTime() / 1.5f) * 4.5f), vec3(0, 0, 0), vec3(0, 1, 0));
+		//	transform = lookAt(vec3(0, 1.5f, -5.5f), vec3(0, 1.5f, 0), vec3(0, 1, 0));
 		glUniformMatrix4fv(MODEL_LOCATION, 1, false, &obj[0][0]);
 		glUniformMatrix4fv(VIEW_LOCATION, 1, false, &transform[0][0]);
 		glUniformMatrix4fv(PROJECTION_LOCATION, 1, false, &projection[0][0]);

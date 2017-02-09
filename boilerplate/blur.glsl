@@ -15,17 +15,16 @@ out vec4 outColor;
 // large texture to downsample
 uniform sampler2D texFramebuffer;
 
-layout(location = 1) uniform vec2 large;
-layout(location = 2) uniform int samples;
+layout(location = 0) uniform vec2 direction;
+layout(location = 1) uniform float size;
 
 void main()
 {
 	outColor=vec4(0);
-	for(int i=0;i<samples;i++){
-		for(int j=0;j<samples;j++){
-			outColor+=texture(texFramebuffer, (Texcoord+vec2(i/large.x, j/large.y)));
-		}
-	}
-	outColor.xyz/=vec3(samples*samples);
+	float mask[11]=float[](
+0.0093,	0.028002,	0.065984,	0.121703,	0.175713,	0.198596,	0.175713,	0.121703,	0.065984,	0.028002,	0.0093
+);
+	for(int i=0;i<11;i++)
+		outColor.xyz+=mask[i]*(texture(texFramebuffer, Texcoord+(i-5)*size*direction).xyz-vec3(1));
 	outColor.w=1;
 }
