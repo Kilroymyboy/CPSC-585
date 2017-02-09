@@ -33,13 +33,6 @@ out vec3 Normal;
 
 void main()
 {
-    // assign vertex position without modification
-    vec4 position = ModelView * vec4(VertexPosition, 1.0);
-    position = Projection * position;
-    
-	gl_Position = vec4(position.x/position.w, position.y/position.w, position.z/position.w, 1.0);
+    gl_Position = Projection * ModelView * vec4(VertexPosition, 1.0);
 	Normal=mat3(ModelView)*VertexNormal;
-
-//	gl_Position = vec4(VertexPosition.x, VertexPosition.y, 0, 1);	Colour=vec3(1,1,1);
-    // assign output colour to be interpolated
 }
