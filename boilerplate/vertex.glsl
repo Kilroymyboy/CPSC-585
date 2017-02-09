@@ -31,6 +31,6 @@ out vec4 ShadowCoord;
 void main()
 {
     gl_Position = Projection * View * Model * vec4(VertexPosition, 1.0);
-	Normal=mat3(View * Model)*VertexNormal;
+	Normal=mat3(View) * mat3(Model)*VertexNormal;
 	ShadowCoord = shadowMVP * Model * vec4(VertexPosition, 1.0);
 }

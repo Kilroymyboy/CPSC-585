@@ -609,9 +609,9 @@ namespace Viewport {
 	}
 
 	void update(mat4 obj) {
-		transform = lookAt(vec3(cos(6 / 1.5f) * 4.0f, 1, sin(6 / 1.5f) * 4.0f), vec3(0, 0, 0), vec3(0, 1, 0));
-		transform = lookAt(vec3(cos(glfwGetTime() / 1.5f) * 4.5f, 1, sin(glfwGetTime() / 1.5f) * 4.5f), vec3(0, 0, 0), vec3(0, 1, 0));
-		//	transform = lookAt(vec3(0, 2, -6.5f), vec3(0, 2, 0), vec3(0, 1, 0));
+	//	transform = lookAt(vec3(cos(6 / 1.5f) * 4.0f, 1, sin(6 / 1.5f) * 4.0f), vec3(0, 0, 0), vec3(0, 1, 0));
+	//	transform = lookAt(vec3(cos(glfwGetTime() / 1.5f) * 4.5f, 1, sin(glfwGetTime() / 1.5f) * 4.5f), vec3(0, 0, 0), vec3(0, 1, 0));
+		transform = lookAt(vec3(0, 1.5f, -5.5f), vec3(0, 1.5f, 0), vec3(0, 1, 0));
 		glUniformMatrix4fv(MODEL_LOCATION, 1, false, &obj[0][0]);
 		glUniformMatrix4fv(VIEW_LOCATION, 1, false, &transform[0][0]);
 		glUniformMatrix4fv(PROJECTION_LOCATION, 1, false, &projection[0][0]);
@@ -636,11 +636,12 @@ namespace Light {
 		color = vec3(.1f, .1f, .1f);
 		direction = vec3(0, -1, 0);
 		ambient = vec3(0.05, 0.05, 0.05);
-		projection = ortho<float>(-5, 5, -5, 5, -5, 20);
-		transform = lookAt(vec3(5, 5, 5), vec3(0, 0, 0), vec3(0, 1, 0));
+		projection = ortho<float>(-5, 5, -5, 5, -5, 30);
+		transform = lookAt(vec3(5, 10, 5), vec3(0, 0, 0), vec3(0, 1, 0));
 	}
 
 	void update() {
+		transform = lookAt(vec3(cos(glfwGetTime() / 3.5f) * 5.5f, 5, sin(glfwGetTime() / 3.5f) * 5.5f), vec3(0, 0, 0), vec3(0, 1, 0));
 		direction = mat3(transform)* vec3(0, 0, 1);
 		glUniform3f(LIGHT_LOCATION, direction.x, direction.y, direction.z);
 		glUniform3f(AMBIENT_LOCATION, ambient.x, ambient.y, ambient.z);
