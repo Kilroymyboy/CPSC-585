@@ -1,4 +1,5 @@
 #include "Graphics.h"
+#include "InputManager.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
@@ -327,6 +328,8 @@ namespace Graphics {
 	{
 		if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 			glfwSetWindowShouldClose(window, GL_TRUE);
+
+		InputManager::keyBoard(key, 0, 0);
 	}
 
 	GLfloat quadVertices[] = {
