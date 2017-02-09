@@ -19,6 +19,6 @@ uniform sampler2D tex1;
 
 void main()
 {
-	outColor=texture(tex0, Texcoord)+texture(tex1, Texcoord);
+	outColor=texture(tex0, Texcoord)*1+1*texture(tex1, Texcoord);
 	outColor.w=1;
 }

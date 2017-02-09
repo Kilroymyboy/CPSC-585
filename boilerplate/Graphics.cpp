@@ -121,6 +121,13 @@ namespace Graphics {
 	}
 
 	void clearFrameBuffer() {
+		glBindFramebuffer(GL_FRAMEBUFFER, defaultFbo.fbo);
+		glBindTexture(GL_TEXTURE_2D, defaultFbo.texture);
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glBindTexture(GL_TEXTURE_2D, 0);
+
 		glBindFramebuffer(GL_FRAMEBUFFER, tonemappingFbo.fbo);
 		glBindTexture(GL_TEXTURE_2D, tonemappingFbo.texture);
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -145,8 +152,8 @@ namespace Graphics {
 
 	void RenderScene(MyGeometry *geometry, MyShader *shader, void(*material)(), mat4 transform)
 	{
-		glBindFramebuffer(GL_FRAMEBUFFER, tonemappingFbo.fbo);
-		glBindTexture(GL_TEXTURE_2D, tonemappingFbo.texture);
+		glBindFramebuffer(GL_FRAMEBUFFER, defaultFbo.fbo);
+		glBindTexture(GL_TEXTURE_2D, defaultFbo.texture);
 
 		// enable gl depth test
 		glEnable(GL_DEPTH_TEST);
@@ -362,6 +369,10 @@ namespace Graphics {
 		QueryGLVersion();
 
 		// frame buffer objects
+		if (!InitializeFrameBuffer(&defaultFbo, "tonemapping.glsl", vec2(WINDOW_WIDTH*MSAA, WINDOW_HEIGHT*MSAA), 1)) {
+			return -1;
+		}
+
 		if (!InitializeFrameBuffer(&tonemappingFbo, "tonemapping.glsl", vec2(WINDOW_WIDTH*MSAA, WINDOW_HEIGHT*MSAA), 1)) {
 			return -1;
 		}
@@ -524,7 +535,6 @@ namespace Graphics {
 		return glfwWindowShouldClose(window);
 	}
 
-
 	void renderDownsample() {
 		glBindFramebuffer(GL_FRAMEBUFFER, hBlurFbo.fbo);
 		glBindTexture(GL_TEXTURE_2D, hBlurFbo.texture);
@@ -540,7 +550,7 @@ namespace Graphics {
 		glUniform1i(2, BLOOM_DOWNSAMPLE*MSAA);
 
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, tonemappingFbo.texture);
+		glBindTexture(GL_TEXTURE_2D, defaultFbo.texture);
 
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 
@@ -558,7 +568,7 @@ namespace Graphics {
 		glDisable(GL_DEPTH_TEST);
 		glUseProgram(hBlurFbo.shader.program);
 
-		glUniform2f(0, 2.0f / (WINDOW_WIDTH / BLOOM_DOWNSAMPLE), 0.00f);
+		glUniform2f(0, 1.5f / (WINDOW_WIDTH / BLOOM_DOWNSAMPLE), 0.00f);
 		glUniform1f(1, 1.0f);
 
 		glActiveTexture(GL_TEXTURE0);
@@ -580,7 +590,7 @@ namespace Graphics {
 		glDisable(GL_DEPTH_TEST);
 		glUseProgram(vBlurFbo.shader.program);
 
-		glUniform2f(0, 0.0f, 2.0f / (WINDOW_WIDTH / BLOOM_DOWNSAMPLE));
+		glUniform2f(0, 0.0f, 1.5f / (WINDOW_WIDTH / BLOOM_DOWNSAMPLE));
 		glUniform1f(1, 0.0f);
 
 		glActiveTexture(GL_TEXTURE0);
@@ -592,8 +602,8 @@ namespace Graphics {
 	}
 
 	void renderAdditive() {
-		glBindFramebuffer(GL_FRAMEBUFFER, aberrationFbo.fbo);
-		glBindTexture(GL_TEXTURE_2D, aberrationFbo.texture);
+		glBindFramebuffer(GL_FRAMEBUFFER, tonemappingFbo.fbo);
+		glBindTexture(GL_TEXTURE_2D, tonemappingFbo.texture);
 
 		glScissor(0, 0, WINDOW_WIDTH*MSAA, WINDOW_HEIGHT*MSAA);
 		glViewport(0, 0, WINDOW_WIDTH*MSAA, WINDOW_HEIGHT*MSAA);
@@ -605,7 +615,7 @@ namespace Graphics {
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, hBlurFbo.texture);
 		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, tonemappingFbo.texture);
+		glBindTexture(GL_TEXTURE_2D, defaultFbo.texture);
 
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 
@@ -624,13 +634,12 @@ namespace Graphics {
 		glUseProgram(tonemappingFbo.shader.program);
 
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, aberrationFbo.texture);
+		glBindTexture(GL_TEXTURE_2D, tonemappingFbo.texture);
 
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
-
 
 	void renderMSAA() {
 		glBindFramebuffer(GL_FRAMEBUFFER, aberrationFbo.fbo);
