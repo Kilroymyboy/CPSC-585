@@ -162,7 +162,7 @@ float Gamepad::RightStick_X()
 {
 	// Obtain X axis of right stick
 	short sX = m_State.Gamepad.sThumbRX;
-	cout << "right stick x: " << endl;
+	cout << "right stick x: " << static_cast<float>(sX) / 32768.0f << endl;
 	// Return axis value, converted to a float
 	return (static_cast<float>(sX) / 32768.0f);
 }
