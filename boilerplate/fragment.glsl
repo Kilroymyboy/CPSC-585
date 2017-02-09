@@ -11,6 +11,9 @@
 
 // interpolated colour received from vertex stage
 in vec3 Normal;
+
+layout(location = 3) uniform mat4 View;
+
 layout(location = 5) uniform vec3 LightDirection;
 layout(location = 6) uniform vec3 AmbientLight;
 
@@ -22,7 +25,7 @@ out vec4 FragmentColour;
 
 void main(void)
 {
-    FragmentColour = vec4(1, 1, 1, 0)*dot(-LightDirection, Normal);
+    FragmentColour = vec4(1, 1, 1, 0)*dot(mat3(View)*(-LightDirection), Normal);
     if(FragmentColour.x<0)FragmentColour.x=0;
     if(FragmentColour.y<0)FragmentColour.y=0;
     if(FragmentColour.z<0)FragmentColour.z=0;

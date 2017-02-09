@@ -10,8 +10,6 @@
 #extension GL_ARB_explicit_uniform_location : enable
 #extension GL_ARB_explicit_attrib_location : enable
 
-// location indices for these attributes correspond to those specified in the
-// InitializeGeometry() function of the main program
 layout(location = 0) in vec3 VertexPosition;
 layout(location = 1) in vec3 VertexNormal;
 
@@ -25,11 +23,6 @@ layout(location = 6) uniform vec3 AmbientLight;
 layout(location = 7) uniform vec3 Color;
 layout(location = 8) uniform vec3 EmissionColor;
 
-
-//layout(location = 5) uniform vec3 LightDirection;
-
-
-// output to be interpolated between vertices and passed to the fragment stage
 out vec3 Normal;
 
 void main()
