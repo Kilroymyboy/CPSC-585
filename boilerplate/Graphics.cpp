@@ -20,6 +20,7 @@ namespace Graphics {
 
 	MyFrameBuffer downsampleFbo;
 	MyFrameBuffer hBlurFbo;
+	MyFrameBuffer vBlurFbo;
 
 	void QueryGLVersion();
 	bool CheckGLErrors();
@@ -382,6 +383,9 @@ namespace Graphics {
 		if (!InitializeFrameBuffer(&hBlurFbo, "blur.glsl", vec2(WINDOW_WIDTH / BLOOM_DOWNSAMPLE, WINDOW_HEIGHT / BLOOM_DOWNSAMPLE), 1)) {
 			return -1;
 		}
+		if (!InitializeFrameBuffer(&vBlurFbo, "blur.glsl", vec2(WINDOW_WIDTH / BLOOM_DOWNSAMPLE, WINDOW_HEIGHT / BLOOM_DOWNSAMPLE), 1)) {
+			return -1;
+		}
 
 		return 0;
 	}
@@ -523,12 +527,12 @@ namespace Graphics {
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 
-	void renderBloom() {
-		glBindFramebuffer(GL_FRAMEBUFFER, aberrationFbo.fbo);
-		glBindTexture(GL_TEXTURE_2D, aberrationFbo.texture);
+	void renderHBlur() {
+		glBindFramebuffer(GL_FRAMEBUFFER, vBlurFbo.fbo);
+		glBindTexture(GL_TEXTURE_2D, vBlurFbo.texture);
 
-		glScissor(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
-		glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+		glScissor(0, 0, WINDOW_WIDTH/ BLOOM_DOWNSAMPLE, WINDOW_HEIGHT/ BLOOM_DOWNSAMPLE);
+		glViewport(0, 0, WINDOW_WIDTH/ BLOOM_DOWNSAMPLE, WINDOW_HEIGHT/ BLOOM_DOWNSAMPLE);
 
 		glBindVertexArray(hBlurFbo.vao);
 		glDisable(GL_DEPTH_TEST);
@@ -545,6 +549,27 @@ namespace Graphics {
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 
+	void renderVBlur() {
+		glBindFramebuffer(GL_FRAMEBUFFER, aberrationFbo.fbo);
+		glBindTexture(GL_TEXTURE_2D, aberrationFbo.texture);
+
+		glScissor(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+		glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+
+		glBindVertexArray(vBlurFbo.vao);
+		glDisable(GL_DEPTH_TEST);
+		glUseProgram(vBlurFbo.shader.program);
+
+		glUniform2f(0, 0.0f, 1.0f / (WINDOW_WIDTH / BLOOM_DOWNSAMPLE));
+		glUniform1f(1, 0.0f);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, vBlurFbo.texture);
+
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	}
 
 	void renderMSAA() {
 		glBindFramebuffer(GL_FRAMEBUFFER, aberrationFbo.fbo);
@@ -586,7 +611,8 @@ namespace Graphics {
 
 		renderTonemapping();
 		renderDownsample();
-		renderBloom();
+		renderHBlur();
+		renderVBlur();
 		//	renderMSAA();
 		renderAberration();
 
