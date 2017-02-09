@@ -30,6 +30,7 @@
 #define AMBIENT_LOCATION 6
 #define COLOR_LOCATION 7
 #define EMISSION_COLOR_LOCATION 8
+#define SHADOW_MVP_LOCATION 9
 
 #define WINDOW_WIDTH 1280
 #define WINDOW_HEIGHT 720
@@ -116,6 +117,9 @@ namespace Light {
 	extern glm::vec3 color;
 	extern glm::vec3 direction;
 	extern glm::vec3 ambient;
+
+	extern glm::mat4 transform;
+	extern glm::mat4 projection;
 
 	void init();
 	void update();

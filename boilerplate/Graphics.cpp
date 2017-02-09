@@ -128,6 +128,13 @@ namespace Graphics {
 		glClear(GL_COLOR_BUFFER_BIT);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glBindTexture(GL_TEXTURE_2D, 0);
+
+		glBindFramebuffer(GL_FRAMEBUFFER, shadowFbo.fbo);
+		glBindTexture(GL_TEXTURE_2D, shadowFbo.texture);
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 
 	void RenderScene(MyGeometry *geometry, MyShader *shader, void(*material)(), mat4 transform)
@@ -148,6 +155,12 @@ namespace Graphics {
 		material();
 		Viewport::update(transform);
 		Light::update();
+
+		mat4 shadowMvp = Light::biasMatrix*Light::projection*Light::transform;
+		glUniformMatrix4fv(SHADOW_MVP_LOCATION, 1, GL_FALSE, &shadowMvp[0][0]);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, shadowFbo.texture);
 
 		glDrawArrays(GL_TRIANGLES, 0, geometry->elementCount);
 
@@ -416,7 +429,7 @@ namespace Graphics {
 
 		glGenTextures(1, &frameBuffer->texture);
 		glBindTexture(GL_TEXTURE_2D, frameBuffer->texture);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, 1024, 1024, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, SHADOWMAP_SIZE, SHADOWMAP_SIZE, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -623,8 +636,8 @@ namespace Light {
 		color = vec3(.1f, .1f, .1f);
 		direction = vec3(0, -1, 0);
 		ambient = vec3(0.05, 0.05, 0.05);
-		projection = ortho<float>(-10, 10, -10, 10, -10, 20);
-		transform = lookAt(vec3(10, 10, 10), vec3(0, 0, 0), vec3(0, 1, 0));
+		projection = ortho<float>(-5, 5, -5, 5, -5, 20);
+		transform = lookAt(vec3(5, 5, 5), vec3(0, 0, 0), vec3(0, 1, 0));
 	}
 
 	void update() {

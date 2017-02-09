@@ -11,6 +11,7 @@
 
 // interpolated colour received from vertex stage
 in vec3 Normal;
+in vec4 ShadowCoord;
 
 layout(location = 3) uniform mat4 View;
 
@@ -19,6 +20,10 @@ layout(location = 6) uniform vec3 AmbientLight;
 
 layout(location = 7) uniform vec3 Color;
 layout(location = 8) uniform vec3 EmissionColor;
+
+layout(location = 9) uniform mat4 shadowMVP;
+
+uniform sampler2D shadowMap;
 
 // first output is mapped to the framebuffer's colour index by default
 out vec4 FragmentColour;
@@ -30,6 +35,8 @@ void main(void)
     if(FragmentColour.y<0)FragmentColour.y=0;
     if(FragmentColour.z<0)FragmentColour.z=0;
     FragmentColour.xyz+=AmbientLight;
-	FragmentColour.xyz*=Color;
+	if(texture(shadowMap, ShadowCoord.xy).x >= ShadowCoord.z -0.001 )
+		FragmentColour.xyz*=Color;
+	else FragmentColour.xyz*=vec3(0);
 	FragmentColour.xyz+=EmissionColor;
 }

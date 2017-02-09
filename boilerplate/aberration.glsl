@@ -20,5 +20,7 @@ void main()
     col.y = texture(texFramebuffer,vec2(Texcoord.x+aberration.y,Texcoord.y)).y;
     col.z = texture(texFramebuffer,vec2(Texcoord.x+aberration.z,Texcoord.y)).z;
 
+//	col.xyz = vec3(texture(texFramebuffer,vec2(Texcoord)).x);
+
 	outColor=vec4(col, 1);
 }

@@ -21,8 +21,18 @@ Aventador::Aventador() {
 	wheel3.get()->rotateSpeed = -.1f;
 }
 
+void Aventador::update0(glm::mat4 parentTransform) {
+	Light::renderShadowMap(&Resources::aventadorBody, parentTransform* transform);
+	Light::renderShadowMap(&Resources::aventadorBodyGlow, parentTransform*transform);
+	Light::renderShadowMap(&Resources::aventadorUnder, parentTransform*transform);
+
+	wheel1.get()->update0(parentTransform*transform);
+	wheel2.get()->update0(parentTransform*transform);
+	wheel0.get()->update0(parentTransform*transform);
+	wheel3.get()->update0(parentTransform*transform);
+}
+
 void Aventador::update(glm::mat4 parentTransform) {
-	//	transform = rotate(transform, 0.005f, vec3(0.0f, 0.0f, 1.0f));
 	Graphics::RenderScene(&Resources::aventadorBody, &Resources::standardShader, &(Resources::darkGreyMaterial), parentTransform* transform);
 	Graphics::RenderScene(&Resources::aventadorBodyGlow, &Resources::standardShader, &Resources::emmisiveBlueMaterial, parentTransform*transform);
 	Graphics::RenderScene(&Resources::aventadorUnder, &Resources::standardShader, &Resources::pureBlackMaterial, parentTransform*transform);
@@ -33,8 +43,13 @@ void Aventador::update(glm::mat4 parentTransform) {
 	wheel3.get()->update(parentTransform*transform);
 }
 
-void AventadorWheel::update(glm::mat4 parentTransform) {
+void AventadorWheel::update0(glm::mat4 parentTransform) {
 	transform = rotate(transform, rotateSpeed, vec3(1.0f, 0.0f, 0.0f));
+	Light::renderShadowMap(&Resources::aventadorWheel, parentTransform*transform);
+	Light::renderShadowMap(&Resources::aventadorWheelGlow, parentTransform*transform);
+}
+
+void AventadorWheel::update(glm::mat4 parentTransform) {
 	Graphics::RenderScene(&Resources::aventadorWheel, &Resources::standardShader, &Resources::darkGreyMaterial, parentTransform*transform);
 	Graphics::RenderScene(&Resources::aventadorWheelGlow, &Resources::standardShader, &Resources::emmisiveBlueMaterial, parentTransform*transform);
 }
@@ -49,6 +64,9 @@ namespace Game {
 	}
 
 	void update() {
+		for (int i = 0; i < entities.size(); i++) {
+			entities[i].get()->update0(mat4(1));
+		}
 		for (int i = 0; i < entities.size(); i++) {
 			entities[i].get()->update(mat4(1));
 		}
@@ -83,6 +101,10 @@ namespace Time {
 			tfps++;
 		}
 	}
+}
+
+void Plane::update0(glm::mat4 parentTransform) {
+	Light::renderShadowMap(&Resources::plane, parentTransform*transform);
 }
 
 void Plane::update(glm::mat4 parentTransform) {

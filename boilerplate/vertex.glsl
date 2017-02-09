@@ -23,10 +23,14 @@ layout(location = 6) uniform vec3 AmbientLight;
 layout(location = 7) uniform vec3 Color;
 layout(location = 8) uniform vec3 EmissionColor;
 
+layout(location = 9) uniform mat4 shadowMVP;
+
 out vec3 Normal;
+out vec4 ShadowCoord;
 
 void main()
 {
     gl_Position = Projection * View * Model * vec4(VertexPosition, 1.0);
 	Normal=mat3(View * Model)*VertexNormal;
+	ShadowCoord = shadowMVP * Model * vec4(VertexPosition, 1.0);
 }
