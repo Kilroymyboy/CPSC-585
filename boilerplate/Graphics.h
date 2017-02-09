@@ -39,7 +39,7 @@
 #define VSYNC 1
 #define SHADOWMAP_SIZE 1024
 
-#define BLOOM_DOWNSAMPLE 10
+#define BLOOM_DOWNSAMPLE 8
 
 namespace Graphics {
 	int init();

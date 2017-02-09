@@ -374,7 +374,7 @@ namespace Graphics {
 			return -1;
 		}
 
-		if (!InitializeFrameBuffer(&hBlurFbo, "downsample.glsl", vec2(WINDOW_WIDTH / BLOOM_DOWNSAMPLE, WINDOW_HEIGHT / BLOOM_DOWNSAMPLE), 0)) {
+		if (!InitializeFrameBuffer(&hBlurFbo, "downsample.glsl", vec2(WINDOW_WIDTH / BLOOM_DOWNSAMPLE, WINDOW_HEIGHT / BLOOM_DOWNSAMPLE), 1)) {
 			return -1;
 		}
 
@@ -476,6 +476,45 @@ namespace Graphics {
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+		glBindFramebuffer(GL_FRAMEBUFFER, hBlurFbo.fbo);
+		glBindTexture(GL_TEXTURE_2D, hBlurFbo.texture);
+
+		glScissor(0, 0, WINDOW_WIDTH/ BLOOM_DOWNSAMPLE, WINDOW_HEIGHT/ BLOOM_DOWNSAMPLE);
+		glViewport(0, 0, WINDOW_WIDTH/ BLOOM_DOWNSAMPLE, WINDOW_HEIGHT/ BLOOM_DOWNSAMPLE);
+
+		glBindVertexArray(tonemappingFbo.vao);
+		glDisable(GL_DEPTH_TEST);
+		glUseProgram(tonemappingFbo.shader.program);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, tonemappingFbo.texture);
+
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	}
+
+	void renderHBlur() {
+		glBindFramebuffer(GL_FRAMEBUFFER, aberrationFbo.fbo);
+		glBindTexture(GL_TEXTURE_2D, aberrationFbo.texture);
+
+		glScissor(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+		glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+
+		glBindVertexArray(hBlurFbo.vao);
+		glDisable(GL_DEPTH_TEST);
+		glUseProgram(hBlurFbo.shader.program);
+
+		glUniform2f(1, WINDOW_WIDTH*MSAA, WINDOW_HEIGHT*MSAA);
+		glUniform1i(2, BLOOM_DOWNSAMPLE*MSAA);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, hBlurFbo.texture);
+
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 
 	void renderMSAA() {
@@ -517,7 +556,8 @@ namespace Graphics {
 	void update() {
 
 		renderTonemapping();
-		renderMSAA();
+		renderHBlur();
+	//	renderMSAA();
 		renderAberration();
 
 		CheckGLErrors();
