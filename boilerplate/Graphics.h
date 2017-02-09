@@ -24,14 +24,22 @@
 #define VERTEX_POSITION_LOCATION 0
 #define VERTEX_NORMAL_LOCATION 1
 #define PROJECTION_LOCATION 2
-#define MODELVIEW_LOCATION 3
-#define LIGHT_LOCATION 4
-#define AMBIENT_LOCATION 5
-#define COLOR_LOCATION 6
-#define EMISSION_COLOR_LOCATION 7
+#define VIEW_LOCATION 3
+#define MODEL_LOCATION 4
+#define LIGHT_LOCATION 5
+#define AMBIENT_LOCATION 6
+#define COLOR_LOCATION 7
+#define EMISSION_COLOR_LOCATION 8
+#define SHADOW_MVP_LOCATION 9
 
 #define WINDOW_WIDTH 1280
 #define WINDOW_HEIGHT 720
+
+#define MSAA 2
+#define VSYNC 1
+#define SHADOWMAP_SIZE 1024
+
+#define BLOOM_DOWNSAMPLE 8
 
 namespace Graphics {
 	int init();
@@ -84,6 +92,8 @@ namespace Graphics {
 		GLuint vao;
 		GLuint rbo;
 
+		MyShader shader;
+
 		MyFrameBuffer() :fbo(0), texture(0), vbo(0), vao(0), rbo(0) {}
 	};
 
@@ -91,7 +101,8 @@ namespace Graphics {
 	void loadGeometry(MyGeometry* geometry, char* path);
 	void RenderScene(MyGeometry *geometry, MyShader *shader, void(*material)(), glm::mat4 transform);
 	bool InitializeShaders(MyShader *shader, const std::string vertex, const std::string fragment);
-	bool InitializeFrameBuffer(MyFrameBuffer* frameBuffer);
+	bool InitializeFrameBuffer(MyFrameBuffer* frameBuffer, const std::string& fragment, glm::vec2 dimension, bool HDR);
+	bool InitializeShadowMap(MyFrameBuffer* frameBuffer, glm::vec2 dimension);
 }
 
 namespace Viewport {
@@ -103,10 +114,16 @@ namespace Viewport {
 }
 
 namespace Light {
+	extern glm::mat4 biasMatrix;
+
 	extern glm::vec3 color;
 	extern glm::vec3 direction;
 	extern glm::vec3 ambient;
 
+	extern glm::mat4 transform;
+	extern glm::mat4 projection;
+
 	void init();
 	void update();
+	void renderShadowMap(Graphics::MyGeometry* geometry, glm::mat4 obj);
 }

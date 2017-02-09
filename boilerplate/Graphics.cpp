@@ -12,9 +12,16 @@ using namespace glm;
 namespace Graphics {
 
 	GLFWwindow *window;
-	MyShader frameBufferShader;
 
-	MyFrameBuffer defaultFbo;
+	MyFrameBuffer tonemappingFbo;
+	MyFrameBuffer msaaFbo;
+	MyFrameBuffer aberrationFbo;
+
+	MyFrameBuffer shadowFbo;
+
+	MyFrameBuffer downsampleFbo;
+	MyFrameBuffer hBlurFbo;
+	MyFrameBuffer vBlurFbo;
 
 	void QueryGLVersion();
 	bool CheckGLErrors();
@@ -101,56 +108,7 @@ namespace Graphics {
 		glBindTexture(texture->target, 0);
 		glDeleteTextures(1, &texture->textureID);
 	}
-	/*
-	bool InitializeGeometry(MyGeometry *geometry)
-	{
-		// three vertex positions and assocated colours of a triangle
-		const GLfloat vertices[][3] = {
-			{ -.6f, -.4f,0.0f },
-			{ .0f,  .6f,0.0f },
-			{ .6f, -.4f,0.0f }
-		};
 
-		const GLfloat colours[][3] = {
-			{ -1.0f, 0.0f, 0.0f },
-			{ -1.0f, 0.0f, 0.0f },
-			{ -1.0f, 0.0f, 0.0f }
-		};
-
-		geometry->elementCount = 3;
-
-		// create an array buffer object for storing our vertices
-		glGenBuffers(1, &geometry->vertexBuffer);
-		glBindBuffer(GL_ARRAY_BUFFER, geometry->vertexBuffer);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-		// create another one for storing our colours
-		glGenBuffers(1, &geometry->normalBuffer);
-		glBindBuffer(GL_ARRAY_BUFFER, geometry->normalBuffer);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(colours), colours, GL_STATIC_DRAW);
-
-		// create a vertex array object encapsulating all our vertex attributes
-		glGenVertexArrays(1, &geometry->vertexArray);
-		glBindVertexArray(geometry->vertexArray);
-
-		// associate the position array with the vertex array object
-		glBindBuffer(GL_ARRAY_BUFFER, geometry->vertexBuffer);
-		glVertexAttribPointer(VERTEX_POSITION_LOCATION, 3, GL_FLOAT, GL_FALSE, 0, 0);
-		glEnableVertexAttribArray(VERTEX_POSITION_LOCATION);
-
-		// assocaite the colour array with the vertex array object
-		glBindBuffer(GL_ARRAY_BUFFER, geometry->normalBuffer);
-		glVertexAttribPointer(VERTEX_NORMAL_LOCATION, 3, GL_FLOAT, GL_FALSE, 0, 0);
-		glEnableVertexAttribArray(VERTEX_NORMAL_LOCATION);
-
-		// unbind our buffers, resetting to default state
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		glBindVertexArray(0);
-
-		// check for OpenGL errors and return false if error occurred
-		return !CheckGLErrors();
-	}
-	*/
 	// deallocate geometry-related objects
 	void DestroyGeometry(MyGeometry *geometry)
 	{
@@ -162,22 +120,37 @@ namespace Graphics {
 	}
 
 	void clearFrameBuffer() {
-		glBindFramebuffer(GL_FRAMEBUFFER, defaultFbo.fbo);
-		glBindTexture(GL_TEXTURE_2D, defaultFbo.texture);
+		glBindFramebuffer(GL_FRAMEBUFFER, tonemappingFbo.fbo);
+		glBindTexture(GL_TEXTURE_2D, tonemappingFbo.texture);
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		// not sure if i need to do this..
+		glBindTexture(GL_TEXTURE_2D, 0);
+
+		glBindFramebuffer(GL_FRAMEBUFFER, msaaFbo.fbo);
+		glBindTexture(GL_TEXTURE_2D, msaaFbo.texture);
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glBindTexture(GL_TEXTURE_2D, 0);
+
+		glBindFramebuffer(GL_FRAMEBUFFER, shadowFbo.fbo);
+		glBindTexture(GL_TEXTURE_2D, shadowFbo.texture);
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 
 	void RenderScene(MyGeometry *geometry, MyShader *shader, void(*material)(), mat4 transform)
 	{
-		glBindFramebuffer(GL_FRAMEBUFFER, defaultFbo.fbo);
-		glBindTexture(GL_TEXTURE_2D, defaultFbo.texture);
+		glBindFramebuffer(GL_FRAMEBUFFER, tonemappingFbo.fbo);
+		glBindTexture(GL_TEXTURE_2D, tonemappingFbo.texture);
 
 		// enable gl depth test
 		glEnable(GL_DEPTH_TEST);
+		glScissor(0, 0, WINDOW_WIDTH*MSAA, WINDOW_HEIGHT*MSAA);
+		glViewport(0, 0, WINDOW_WIDTH*MSAA, WINDOW_HEIGHT*MSAA);
 
 		// bind our shader program and the vertex array object containing our
 		// scene geometry, then tell OpenGL to draw our geometry
@@ -188,12 +161,19 @@ namespace Graphics {
 		Viewport::update(transform);
 		Light::update();
 
+		mat4 shadowMvp = Light::biasMatrix*Light::projection*Light::transform;
+		glUniformMatrix4fv(SHADOW_MVP_LOCATION, 1, GL_FALSE, &shadowMvp[0][0]);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, shadowFbo.texture);
+
 		glDrawArrays(GL_TRIANGLES, 0, geometry->elementCount);
 
 		// reset state to default (no shader or geometry bound)
 		glBindVertexArray(0);
 		glUseProgram(0);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glBindTexture(GL_TEXTURE_2D, 0);
 
 		// check for an report any OpenGL errors
 		CheckGLErrors();
@@ -333,13 +313,13 @@ namespace Graphics {
 	}
 
 	GLfloat quadVertices[] = {
-		-1.0f,  1.0f,  0.0f, 1.0f,
-		1.0f,  1.0f,  1.0f, 1.0f,
-		1.0f, -1.0f,  1.0f, 0.0f,
+		-1.0f,  1.0f,  0.0f, 1,
+		1.0f,  1.0f,  1, 1,
+		1.0f, -1.0f,  1, 0.0f,
 
-		1.0f, -1.0f,  1.0f, 0.0f,
+		1.0f, -1.0f, 1, 0.0f,
 		-1.0f, -1.0f,  0.0f, 0.0f,
-		-1.0f,  1.0f,  0.0f, 1.0f
+		-1.0f,  1.0f,  0.0f, 1
 	};
 
 
@@ -383,27 +363,51 @@ namespace Graphics {
 		QueryGLVersion();
 
 		// frame buffer objects
-		if (!InitializeFrameBuffer(&defaultFbo)) {
+		if (!InitializeFrameBuffer(&tonemappingFbo, "tonemapping.glsl", vec2(WINDOW_WIDTH*MSAA, WINDOW_HEIGHT*MSAA), 1)) {
+			return -1;
+		}
+
+		if (!InitializeFrameBuffer(&msaaFbo, "downsample.glsl", vec2(WINDOW_WIDTH*MSAA, WINDOW_HEIGHT*MSAA), 0)) {
+			return -1;
+		}
+
+		if (!InitializeFrameBuffer(&aberrationFbo, "aberration.glsl", vec2(WINDOW_WIDTH, WINDOW_HEIGHT), 0)) {
+			return -1;
+		}
+
+		if (!InitializeShadowMap(&shadowFbo, vec2(SHADOWMAP_SIZE, SHADOWMAP_SIZE))) {
+			return -1;
+		}
+
+		if (!InitializeFrameBuffer(&downsampleFbo, "downsample.glsl", vec2(WINDOW_WIDTH / BLOOM_DOWNSAMPLE, WINDOW_HEIGHT / BLOOM_DOWNSAMPLE), 1)) {
+			return -1;
+		}
+
+		if (!InitializeFrameBuffer(&hBlurFbo, "blur.glsl", vec2(WINDOW_WIDTH / BLOOM_DOWNSAMPLE, WINDOW_HEIGHT / BLOOM_DOWNSAMPLE), 1)) {
+			return -1;
+		}
+		if (!InitializeFrameBuffer(&vBlurFbo, "blur.glsl", vec2(WINDOW_WIDTH / BLOOM_DOWNSAMPLE, WINDOW_HEIGHT / BLOOM_DOWNSAMPLE), 1)) {
 			return -1;
 		}
 
 		return 0;
 	}
 
-	bool InitializeFrameBuffer(MyFrameBuffer* frameBuffer) {
+	bool InitializeFrameBuffer(MyFrameBuffer* frameBuffer, const string &fragment, vec2 dimension, bool HDR) {
 		glGenFramebuffers(1, &frameBuffer->fbo);
 		glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer->fbo);
 
 		glGenTextures(1, &frameBuffer->texture);
 		glBindTexture(GL_TEXTURE_2D, frameBuffer->texture);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, WINDOW_WIDTH, WINDOW_HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+
+		glTexImage2D(GL_TEXTURE_2D, 0, HDR ? GL_RGBA16F : GL_RGBA, dimension.x, dimension.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 		glGenRenderbuffers(1, &frameBuffer->rbo);
 		glBindRenderbuffer(GL_RENDERBUFFER, frameBuffer->rbo);
-		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, WINDOW_WIDTH, WINDOW_HEIGHT);
+		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, dimension.x, dimension.y);
 		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, frameBuffer->rbo);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, frameBuffer->texture, 0);
 
@@ -412,28 +416,54 @@ namespace Graphics {
 			return false;
 		}
 
-		if (!InitializeShaders(&frameBufferShader, "framebuffervertex.glsl", "framebufferfragment.glsl")) {
+		if (!InitializeShaders(&frameBuffer->shader, "framebuffervertex.glsl", fragment)) {
 			cout << "Program could not initialize framebuffer shaders, TERMINATING" << endl;
 			return false;
 		}
 
-		glUseProgram(frameBufferShader.program);
+		glUseProgram(frameBuffer->shader.program);
 		glGenVertexArrays(1, &frameBuffer->vao);
 		glGenBuffers(1, &frameBuffer->vbo);
 		glBindBuffer(GL_ARRAY_BUFFER, frameBuffer->vbo);
 		glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), quadVertices, GL_STATIC_DRAW);
 		glBindVertexArray(frameBuffer->vao);
 		glBindBuffer(GL_ARRAY_BUFFER, frameBuffer->vbo);
-		glUniform1i(glGetUniformLocation(frameBufferShader.program, "texFramebuffer"), 0);
+		glUniform1i(glGetUniformLocation(frameBuffer->shader.program, "texFramebuffer"), 0);
 
-		GLint posAttrib = glGetAttribLocation(frameBufferShader.program, "position");
+		GLint posAttrib = glGetAttribLocation(frameBuffer->shader.program, "position");
 		glEnableVertexAttribArray(posAttrib);
 		glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), 0);
 
-		GLint texAttrib = glGetAttribLocation(frameBufferShader.program, "texcoord");
+		GLint texAttrib = glGetAttribLocation(frameBuffer->shader.program, "texcoord");
 		glEnableVertexAttribArray(texAttrib);
 		glVertexAttribPointer(texAttrib, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (void*)(2 * sizeof(GLfloat)));
 
+		return true;
+	}
+
+	bool InitializeShadowMap(MyFrameBuffer* frameBuffer, vec2 dimension) {
+		glGenFramebuffers(1, &frameBuffer->fbo);
+		glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer->fbo);
+
+		glGenTextures(1, &frameBuffer->texture);
+		glBindTexture(GL_TEXTURE_2D, frameBuffer->texture);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, SHADOWMAP_SIZE, SHADOWMAP_SIZE, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+		glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, frameBuffer->texture, 0);
+
+		if (!InitializeShaders(&frameBuffer->shader, "shadowmapvertex.glsl", "shadowmapfragment.glsl")) {
+			cout << "Program could not initialize shadow map shaders, TERMINATING" << endl;
+			return false;
+		}
+
+		glDrawBuffer(GL_NONE);
+
+		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+			return false;
 		return true;
 	}
 
@@ -441,28 +471,148 @@ namespace Graphics {
 		return glfwWindowShouldClose(window);
 	}
 
-	void renderFrameBuffer() {
-		glBindVertexArray(defaultFbo.vao);
+	void renderTonemapping() {
+		glBindFramebuffer(GL_FRAMEBUFFER, msaaFbo.fbo);
+		glBindTexture(GL_TEXTURE_2D, msaaFbo.texture);
+
+		glScissor(0, 0, WINDOW_WIDTH*MSAA, WINDOW_HEIGHT*MSAA);
+		glViewport(0, 0, WINDOW_WIDTH*MSAA, WINDOW_HEIGHT*MSAA);
+
+		glBindVertexArray(tonemappingFbo.vao);
 		glDisable(GL_DEPTH_TEST);
-		glUseProgram(frameBufferShader.program);
+		glUseProgram(tonemappingFbo.shader.program);
 
 		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, tonemappingFbo.texture);
 
 		glDrawArrays(GL_TRIANGLES, 0, 6);
-		CheckGLErrors();
+
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	}
+
+	void renderDownsample() {
+		glBindFramebuffer(GL_FRAMEBUFFER, hBlurFbo.fbo);
+		glBindTexture(GL_TEXTURE_2D, hBlurFbo.texture);
+
+		glScissor(0, 0, WINDOW_WIDTH / BLOOM_DOWNSAMPLE, WINDOW_HEIGHT / BLOOM_DOWNSAMPLE);
+		glViewport(0, 0, WINDOW_WIDTH / BLOOM_DOWNSAMPLE, WINDOW_HEIGHT / BLOOM_DOWNSAMPLE);
+
+		glBindVertexArray(downsampleFbo.vao);
+		glDisable(GL_DEPTH_TEST);
+		glUseProgram(downsampleFbo.shader.program);
+
+		glUniform2f(1, WINDOW_WIDTH*MSAA, WINDOW_HEIGHT*MSAA);
+		glUniform1i(2, BLOOM_DOWNSAMPLE*MSAA);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, tonemappingFbo.texture);
+
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	}
+
+	void renderHBlur() {
+		glBindFramebuffer(GL_FRAMEBUFFER, vBlurFbo.fbo);
+		glBindTexture(GL_TEXTURE_2D, vBlurFbo.texture);
+
+		glScissor(0, 0, WINDOW_WIDTH/ BLOOM_DOWNSAMPLE, WINDOW_HEIGHT/ BLOOM_DOWNSAMPLE);
+		glViewport(0, 0, WINDOW_WIDTH/ BLOOM_DOWNSAMPLE, WINDOW_HEIGHT/ BLOOM_DOWNSAMPLE);
+
+		glBindVertexArray(hBlurFbo.vao);
+		glDisable(GL_DEPTH_TEST);
+		glUseProgram(hBlurFbo.shader.program);
+
+		glUniform2f(0, 1.0f/ (WINDOW_WIDTH/BLOOM_DOWNSAMPLE), 0.00f);
+		glUniform1f(1, 1.0f);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, hBlurFbo.texture);
+
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	}
+
+	void renderVBlur() {
+		glBindFramebuffer(GL_FRAMEBUFFER, aberrationFbo.fbo);
+		glBindTexture(GL_TEXTURE_2D, aberrationFbo.texture);
+
+		glScissor(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+		glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+
+		glBindVertexArray(vBlurFbo.vao);
+		glDisable(GL_DEPTH_TEST);
+		glUseProgram(vBlurFbo.shader.program);
+
+		glUniform2f(0, 0.0f, 1.0f / (WINDOW_WIDTH / BLOOM_DOWNSAMPLE));
+		glUniform1f(1, 0.0f);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, vBlurFbo.texture);
+
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	}
+
+	void renderMSAA() {
+		glBindFramebuffer(GL_FRAMEBUFFER, aberrationFbo.fbo);
+		glBindTexture(GL_TEXTURE_2D, aberrationFbo.texture);
+
+		glScissor(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+		glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+
+		glBindVertexArray(msaaFbo.vao);
+		glDisable(GL_DEPTH_TEST);
+		glUseProgram(msaaFbo.shader.program);
+
+		glUniform2f(1, WINDOW_WIDTH*MSAA, WINDOW_HEIGHT*MSAA);
+		glUniform1i(2, MSAA);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, msaaFbo.texture);
+
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	}
+
+	void renderAberration() {
+		glScissor(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+		glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+
+		glBindVertexArray(aberrationFbo.vao);
+		glDisable(GL_DEPTH_TEST);
+		glUseProgram(aberrationFbo.shader.program);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, aberrationFbo.texture);
+
+		glDrawArrays(GL_TRIANGLES, 0, 6);
 	}
 
 	void update() {
-		renderFrameBuffer();
 
+		renderTonemapping();
+		renderDownsample();
+		renderHBlur();
+		renderVBlur();
+		//	renderMSAA();
+		renderAberration();
+
+		CheckGLErrors();
+
+		// vertical sync
+		glfwSwapInterval(VSYNC);
 		glfwSwapBuffers(window);
 
 		glfwPollEvents();
 	}
 
 	void destroy() {
-		glDeleteFramebuffers(1, &defaultFbo.fbo);
-		glDeleteRenderbuffers(1, &defaultFbo.rbo);
+		glDeleteFramebuffers(1, &tonemappingFbo.fbo);
+		glDeleteRenderbuffers(1, &tonemappingFbo.rbo);
 		glfwDestroyWindow(window);
 		glfwTerminate();
 
@@ -547,27 +697,62 @@ namespace Viewport {
 	}
 
 	void update(mat4 obj) {
-	//	transform = lookAt(vec3(cos(glfwGetTime() / 3) * 6, 1, sin(glfwGetTime() / 3) * 6), vec3(0, 0, 0), vec3(0, 1, 0))*obj;
-		transform = lookAt(vec3(0, 2, -6.5f), vec3(0, 2, 0), vec3(0, 1, 0))*obj;
-		glUniformMatrix4fv(MODELVIEW_LOCATION, 1, false, &transform[0][0]);
+		//	transform = lookAt(vec3(cos(6 / 1.5f) * 4.0f, 1, sin(6 / 1.5f) * 4.0f), vec3(0, 0, 0), vec3(0, 1, 0));
+		transform = lookAt(vec3(cos(glfwGetTime() / 1.5f) * 4.5f, 3, sin(glfwGetTime() / 1.5f) * 4.5f), vec3(0, 0, 0), vec3(0, 1, 0));
+		//	transform = lookAt(vec3(0, 1.5f, -5.5f), vec3(0, 1.5f, 0), vec3(0, 1, 0));
+		glUniformMatrix4fv(MODEL_LOCATION, 1, false, &obj[0][0]);
+		glUniformMatrix4fv(VIEW_LOCATION, 1, false, &transform[0][0]);
 		glUniformMatrix4fv(PROJECTION_LOCATION, 1, false, &projection[0][0]);
 	}
 }
 
 namespace Light {
+	glm::mat4 biasMatrix(
+		0.5, 0.0, 0.0, 0.0,
+		0.0, 0.5, 0.0, 0.0,
+		0.0, 0.0, 0.5, 0.0,
+		0.5, 0.5, 0.5, 1.0
+		);
+
 	glm::vec3 color;
 	glm::vec3 direction;
 	glm::vec3 ambient;
+	glm::mat4 transform;
+	glm::mat4 projection;
 
 	void init() {
 		color = vec3(.1f, .1f, .1f);
 		direction = vec3(0, -1, 0);
-		ambient = vec3(0.1, 0.1, 0.1);
+		ambient = vec3(0.05, 0.05, 0.05);
+		projection = ortho<float>(-5, 5, -5, 5, -5, 30);
+		transform = lookAt(vec3(5, 4, 3), vec3(0, 0, 0), vec3(0, 1, 0));
 	}
 
 	void update() {
-		direction = vec3(cos(glfwGetTime()), -0.8, sin(glfwGetTime()));
+		transform = lookAt(vec3(cos(glfwGetTime() / 3.5f) * 5.0f, 4, sin(glfwGetTime() / 3.5f) * 3.0f), vec3(0, 0, 0), vec3(0, 1, 0));
+		direction = normalize(vec3(-cos(glfwGetTime() / 3.5f) * 5.0f, -4, -sin(glfwGetTime() / 3.5f) * 3.0f));
 		glUniform3f(LIGHT_LOCATION, direction.x, direction.y, direction.z);
 		glUniform3f(AMBIENT_LOCATION, ambient.x, ambient.y, ambient.z);
+	}
+
+	void renderShadowMap(Graphics::MyGeometry* geometry, mat4 obj) {
+		glBindFramebuffer(GL_FRAMEBUFFER, Graphics::shadowFbo.fbo);
+		glBindTexture(GL_TEXTURE_2D, Graphics::shadowFbo.texture);
+
+		// enable gl depth test
+		glEnable(GL_DEPTH_TEST);
+		glScissor(0, 0, SHADOWMAP_SIZE, SHADOWMAP_SIZE);
+		glViewport(0, 0, SHADOWMAP_SIZE, SHADOWMAP_SIZE);
+
+		// bind our shader program and the vertex array object containing our
+		// scene geometry, then tell OpenGL to draw our geometry
+		glUseProgram(Graphics::shadowFbo.shader.program);
+		glBindVertexArray(geometry->vertexArray);
+
+		mat4 mvp = projection*transform*obj;
+		glUniformMatrix4fv(1, 1, GL_FALSE, &mvp[0][0]);
+
+		glDrawArrays(GL_TRIANGLES, 0, geometry->elementCount);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 }

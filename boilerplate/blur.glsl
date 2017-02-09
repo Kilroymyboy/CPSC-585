@@ -11,11 +11,20 @@
 
 in vec2 Texcoord;
 out vec4 outColor;
+
+// large texture to downsample
 uniform sampler2D texFramebuffer;
+
+layout(location = 0) uniform vec2 direction;
+layout(location = 1) uniform float darken;
+
 void main()
 {
-	vec3 t=texture(texFramebuffer, Texcoord).xyz;
-	t/=t+vec3(1);
-	t=pow(t, vec3(1/1.8));
-	outColor=vec4(t, 1);
+	outColor=vec4(0);
+	float mask[11]=float[](
+0.0093,	0.028002,	0.065984,	0.121703,	0.175713,	0.198596,	0.175713,	0.121703,	0.065984,	0.028002,	0.0093
+);
+	for(int i=0;i<11;i++)
+		outColor.xyz+=mask[i]*(texture(texFramebuffer, Texcoord+(i-5)*direction).xyz-vec3(darken));
+	outColor.w=1;
 }

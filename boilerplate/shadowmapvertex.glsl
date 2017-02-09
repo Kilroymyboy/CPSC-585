@@ -6,16 +6,15 @@
 // ==========================================================================
 #version 410
 
+
 #extension GL_ARB_explicit_uniform_location : enable
 #extension GL_ARB_explicit_attrib_location : enable
 
-in vec2 Texcoord;
-out vec4 outColor;
-uniform sampler2D texFramebuffer;
+layout(location = 0) in vec3 VertexPosition;
+layout(location = 1) uniform mat4 MVP;
+
+
 void main()
 {
-	vec3 t=texture(texFramebuffer, Texcoord).xyz;
-	t/=t+vec3(1);
-	t=pow(t, vec3(1/1.8));
-	outColor=vec4(t, 1);
+    gl_Position = MVP * vec4(VertexPosition, 1.0);
 }

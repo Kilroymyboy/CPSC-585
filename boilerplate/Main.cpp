@@ -59,10 +59,12 @@ int main(int argc, char *argv[])
 	Light::init();
 	Viewport::init();
 	Resources::init();
+	Time::init();
 	Game::init();
 	
 	while (!Graphics::shouldClose()) {
 		Graphics::clearFrameBuffer();
+		Time::update();
 		Game::update();
 		Graphics::update();
 		//myGamepad.glfwJoystick();

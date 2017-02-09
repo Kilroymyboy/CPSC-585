@@ -62,6 +62,9 @@
     <None Include="fragment.glsl">
       <Filter>Source Files</Filter>
     </None>
+    <None Include="framebufferhblurfragment.glsl">
+      <Filter>Source Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Graphics.h">

@@ -14,8 +14,11 @@ out vec4 outColor;
 uniform sampler2D texFramebuffer;
 void main()
 {
-	vec3 t=texture(texFramebuffer, Texcoord).xyz;
-	t/=t+vec3(1);
-	t=pow(t, vec3(1/1.8));
-	outColor=vec4(t, 1);
+	outColor=vec4(0,0,0,1);
+	float mask[7]=float[](0.03,0.11,0.22,0.28,0.22,0.11,0.03);
+	for(int i=0;i<7;i++){
+			vec4 t=mask[i]*texture(texFramebuffer, Texcoord+vec2((i-3)/543.21,0));
+			outColor.xyz+=t.xyz;
+	}
+	outColor.xyz=max(outColor.xyz-vec3(1,1,1), vec3(0,0,0));
 }

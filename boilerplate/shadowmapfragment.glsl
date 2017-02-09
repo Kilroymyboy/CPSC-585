@@ -9,13 +9,9 @@
 #extension GL_ARB_explicit_uniform_location : enable
 #extension GL_ARB_explicit_attrib_location : enable
 
-in vec2 Texcoord;
-out vec4 outColor;
-uniform sampler2D texFramebuffer;
+layout(location = 0) out float fragmentdepth;
+
 void main()
 {
-	vec3 t=texture(texFramebuffer, Texcoord).xyz;
-	t/=t+vec3(1);
-	t=pow(t, vec3(1/1.8));
-	outColor=vec4(t, 1);
+	fragmentdepth = gl_FragCoord.z;
 }
