@@ -21,10 +21,12 @@ layout(location = 1) uniform float darken;
 void main()
 {
 	outColor=vec4(0);
-	float mask[17]=float[](
-0.008614,	0.015823,	0.026802,	0.041864,	0.060298,	0.080084,	0.098079,	0.110763,	0.115345,	0.110763,	0.098079,	0.080084,	0.060298,	0.041864,	0.026802,	0.015823,	0.008614
+	float mask[21]=float[](
+	0.000003,	0.000023,	0.000152,	0.000806,	0.003426,	0.011654,	0.031728,	0.069139,	0.120596,
+		0.168378,	0.188193,	0.168378,	0.120596,	0.069139,	0.031728,	0.011654,	0.003426,	0.000806,	0.000152,	0.000023,	0.000003
 );
-	for(int i=0;i<17;i++)
-		outColor.xyz+=mask[i]*(texture(texFramebuffer, Texcoord+(i-8)*direction).xyz-vec3(darken));
+	for(int i=0;i<21;i++)
+		outColor.xyz+=mask[i]*(texture(texFramebuffer, Texcoord+(i-10)*direction).xyz-vec3(darken));
+	outColor.xyz=max(outColor.xyz, vec3(0));
 	outColor.w=1;
 }
