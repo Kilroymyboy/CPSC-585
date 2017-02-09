@@ -485,24 +485,6 @@ namespace Graphics {
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-		// render hdr image into downsample fbo for bloom gaussian blur
-		glBindFramebuffer(GL_FRAMEBUFFER, downsampleFbo.fbo);
-		glBindTexture(GL_TEXTURE_2D, downsampleFbo.texture);
-
-		glScissor(0, 0, WINDOW_WIDTH / BLOOM_DOWNSAMPLE, WINDOW_HEIGHT / BLOOM_DOWNSAMPLE);
-		glViewport(0, 0, WINDOW_WIDTH / BLOOM_DOWNSAMPLE, WINDOW_HEIGHT / BLOOM_DOWNSAMPLE);
-
-		glBindVertexArray(tonemappingFbo.vao);
-		glDisable(GL_DEPTH_TEST);
-		glUseProgram(tonemappingFbo.shader.program);
-
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, tonemappingFbo.texture);
-
-		glDrawArrays(GL_TRIANGLES, 0, 6);
-
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 
 	void renderDownsample() {
@@ -520,7 +502,7 @@ namespace Graphics {
 		glUniform1i(2, BLOOM_DOWNSAMPLE*MSAA);
 
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, downsampleFbo.texture);
+		glBindTexture(GL_TEXTURE_2D, tonemappingFbo.texture);
 
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 
