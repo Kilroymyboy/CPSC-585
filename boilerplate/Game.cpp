@@ -59,7 +59,9 @@ namespace Game {
 
 	// we can customize this function as much as we want for now for debugging
 	void init() {
-		entities.push_back(unique_ptr<Aventador>(new Aventador));
+	//	entities.push_back(unique_ptr<Aventador>(new Aventador));
+
+		entities.push_back(unique_ptr<Cube>(new Cube));
 		entities.push_back(unique_ptr<Plane>(new Plane));
 	}
 
@@ -109,4 +111,12 @@ void Plane::update0(glm::mat4 parentTransform) {
 
 void Plane::update(glm::mat4 parentTransform) {
 	Graphics::RenderScene(&Resources::plane, &Resources::standardShader, &Resources::defaultMaterial, parentTransform*transform);
+}
+
+void Cube::update0(glm::mat4 parentTransform) {
+	Light::renderShadowMap(&Resources::cube, parentTransform*transform);
+}
+
+void Cube::update(glm::mat4 parentTransform) {
+	Graphics::RenderScene(&Resources::cube, &Resources::standardShader, &Resources::defaultMaterial, parentTransform*transform);
 }

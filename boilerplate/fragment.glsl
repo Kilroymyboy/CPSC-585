@@ -30,12 +30,12 @@ out vec4 FragmentColour;
 
 void main(void)
 {
-    FragmentColour = vec4(1, 1, 1, 0)*dot(mat3(View)*(-LightDirection), Normal);
+    FragmentColour = vec4(1, 1, 1, 0)*dot(-LightDirection, Normal);
     if(FragmentColour.x<0)FragmentColour.x=0;
     if(FragmentColour.y<0)FragmentColour.y=0;
     if(FragmentColour.z<0)FragmentColour.z=0;
     FragmentColour.xyz+=AmbientLight;
-	if(texture(shadowMap, ShadowCoord.xy).x >= ShadowCoord.z -0.002)
+	if(texture(shadowMap, ShadowCoord.xy).x >= ShadowCoord.z -0.001)
 		FragmentColour.xyz*=Color;
 	else FragmentColour.xyz*=vec3(0);
 	FragmentColour.xyz+=EmissionColor;
