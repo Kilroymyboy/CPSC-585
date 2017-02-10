@@ -9,6 +9,7 @@ using namespace std;
 
 // create gamepad instance (controller no. 1)
 Gamepad myGamepad = Gamepad(1);
+
 // A function to obtain input, called each frame
 void GetGamepadInput()
 {
@@ -53,15 +54,16 @@ int main(int argc, char *argv[])
 {
 
 	if (Graphics::init() == -1)return -1;
-	//PhysicsManager *mPhysx = new PhysicsManager();
 
-	//mPhysx->initPhysX();
+	//init physics as well
+	PhysicsManager *mPhysx = new PhysicsManager();
+
 	Light::init();
 	Viewport::init();
 	Resources::init();
 	Time::init();
 	Game::init();
-	
+	PxU64 frameNum = 0;
 	while (!Graphics::shouldClose()) {
 		Graphics::clearFrameBuffer();
 		Time::update();
@@ -71,6 +73,7 @@ int main(int argc, char *argv[])
 		myGamepad.Update(); // Update the gamepad
 		myGamepad.GetState();
 		GetGamepadInput();
+		mPhysx->update(frameNum++);
 	}
 	Graphics::destroy();
 }
