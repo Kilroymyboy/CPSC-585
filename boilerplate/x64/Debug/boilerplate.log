@@ -1,0 +1,28 @@
+﻿Build started 2/9/2017 5:03:12 PM.
+     1>Project "U:\c585\project\CPSC-585\boilerplate\boilerplate.vcxproj" on node 2 (Build target(s)).
+     1>ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\x86_amd64\CL.exe /c /I"U:\c585\project\CPSC-585\boilerplate\..\middleware\physx" /I"U:\c585\project\CPSC-585\boilerplate\..\middleware\glfw\include" /I"U:\c585\project\CPSC-585\boilerplate\..\middleware\glad\include" /I"U:\c585\project\CPSC-585\boilerplate\..\middleware\stb" /I"U:\c585\project\CPSC-585\boilerplate\..\middleware\glm-0.9.8.2" /ZI /nologo /W3 /WX- /sdl /Od /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"x64\Debug\\" /Fd"x64\Debug\vc140.pdb" /Gd /TC /errorReport:prompt ..\middleware\glad\src\glad.c
+         glad.c
+         C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\x86_amd64\CL.exe /c /I"U:\c585\project\CPSC-585\boilerplate\..\middleware\physx" /I"U:\c585\project\CPSC-585\boilerplate\..\middleware\glfw\include" /I"U:\c585\project\CPSC-585\boilerplate\..\middleware\glad\include" /I"U:\c585\project\CPSC-585\boilerplate\..\middleware\stb" /I"U:\c585\project\CPSC-585\boilerplate\..\middleware\glm-0.9.8.2" /ZI /nologo /W3 /WX- /sdl /Od /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"x64\Debug\\" /Fd"x64\Debug\vc140.pdb" /Gd /TP /errorReport:prompt Game.cpp Gamepad.cpp Graphics.cpp InputManager.cpp Main.cpp PhysicsManager.cpp Resources.cpp
+         Resources.cpp
+         PhysicsManager.cpp
+         Main.cpp
+         InputManager.cpp
+         Graphics.cpp
+     1>u:\c585\project\cpsc-585\boilerplate\graphics.cpp(270): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
+     1>u:\c585\project\cpsc-585\boilerplate\graphics.cpp(300): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
+     1>u:\c585\project\cpsc-585\boilerplate\graphics.cpp(420): warning C4244: 'argument': conversion from 'float' to 'GLsizei', possible loss of data
+     1>u:\c585\project\cpsc-585\boilerplate\graphics.cpp(427): warning C4244: 'argument': conversion from 'float' to 'GLsizei', possible loss of data
+     1>u:\c585\project\cpsc-585\boilerplate\graphics.cpp(468): warning C4244: 'argument': conversion from 'float' to 'GLsizei', possible loss of data
+     1>u:\c585\project\cpsc-585\boilerplate\graphics.cpp(475): warning C4244: 'argument': conversion from 'float' to 'GLsizei', possible loss of data
+     1>u:\c585\project\cpsc-585\boilerplate\graphics.cpp(746): warning C4267: '=': conversion from 'size_t' to 'GLsizei', possible loss of data
+     1>u:\c585\project\cpsc-585\boilerplate\graphics.cpp(713): error C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+         c:\program files (x86)\windows kits\10\include\10.0.10150.0\ucrt\stdio.h(205): note: see declaration of 'fopen'
+         Gamepad.cpp
+         Game.cpp
+         Generating Code...
+     1>Done Building Project "U:\c585\project\CPSC-585\boilerplate\boilerplate.vcxproj" (Build target(s)) -- FAILED.
+
+Build FAILED.
+
+Time Elapsed 00:00:25.96

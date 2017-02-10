@@ -9,6 +9,7 @@ using namespace std;
 
 // create gamepad instance (controller no. 1)
 Gamepad myGamepad = Gamepad(1);
+ 
 // A function to obtain input, called each frame
 void GetGamepadInput()
 {
@@ -53,9 +54,8 @@ int main(int argc, char *argv[])
 {
 
 	if (Graphics::init() == -1)return -1;
-	//PhysicsManager *mPhysx = new PhysicsManager();
+	PhysicsManager *mPhysx = new PhysicsManager();
 
-	//mPhysx->initPhysX();
 	Light::init();
 	Viewport::init();
 	Resources::init();

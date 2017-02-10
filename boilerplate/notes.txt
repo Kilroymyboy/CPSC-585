@@ -1,0 +1,12 @@
+Px in physics is for physx 
+pvd is for linking to additional library
+simulate(1.f , 60.f) is a function to simulate scene with parameters specifying fps
+body->attacheshape
+PxTransform transform = groundPlane->getGlobalPose(); returns a PxTransform object (px Vec3 translation in world space and quaternion for rotation)
+PxVec3 ps = transform.parameters();
+PxVec3 Rx = transform.q.getBasisVector0(); x vec for transform matrix
+PxVec3 Ry = transform.q.getBasisVector1(); y vec for transform matrix
+PxVec3 Rz = transform.q.getBasisVector2(); z vec for transform matrix
+eVELOCITY 
+eACCELERATION
+physx sway bar possibly look into
