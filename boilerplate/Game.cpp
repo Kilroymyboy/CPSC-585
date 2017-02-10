@@ -61,6 +61,7 @@ namespace Game {
 	void init() {
 		entities.push_back(unique_ptr<Aventador>(new Aventador));
 	//	entities.push_back(unique_ptr<Cube>(new Cube));
+	//	entities.push_back(unique_ptr<CenteredCube>(new CenteredCube));
 		entities.push_back(unique_ptr<Plane>(new Plane));
 	}
 
@@ -118,4 +119,13 @@ void Cube::update0(glm::mat4 parentTransform) {
 
 void Cube::update(glm::mat4 parentTransform) {
 	Graphics::RenderScene(&Resources::cube, &Resources::standardShader, &Resources::defaultMaterial, parentTransform*transform);
+}
+
+
+void CenteredCube::update0(glm::mat4 parentTransform) {
+	Light::renderShadowMap(&Resources::centeredCube, parentTransform*transform);
+}
+
+void CenteredCube::update(glm::mat4 parentTransform) {
+	Graphics::RenderScene(&Resources::centeredCube, &Resources::standardShader, &Resources::defaultMaterial, parentTransform*transform);
 }

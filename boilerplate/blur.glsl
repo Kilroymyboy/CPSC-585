@@ -26,7 +26,7 @@ void main()
 		0.168378,	0.188193,	0.168378,	0.120596,	0.069139,	0.031728,	0.011654,	0.003426,	0.000806,	0.000152,	0.000023,	0.000003
 );
 	for(int i=0;i<21;i++)
-		outColor.xyz+=mask[i]*(texture(texFramebuffer, Texcoord+(i-10)*direction).xyz-vec3(darken));
-	outColor.xyz=max(outColor.xyz, vec3(0));
+		outColor.xyz+=mask[i]*(texture(texFramebuffer, Texcoord+(i-10)*direction).xyz);
+	outColor.xyz=max(outColor.xyz-vec3(darken), vec3(0));
 	outColor.w=1;
 }

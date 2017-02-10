@@ -35,8 +35,10 @@ void main(void)
     if(FragmentColour.y<0)FragmentColour.y=0;
     if(FragmentColour.z<0)FragmentColour.z=0;
     FragmentColour.xyz+=AmbientLight;
-	if(texture(shadowMap, ShadowCoord.xy).x >= ShadowCoord.z -0.001)
-		FragmentColour.xyz*=Color;
-	else FragmentColour.xyz*=vec3(0);
+	int hits=0;
+	for(int i=-2;i<3;i++)for(int j=-1;j<2;j++)
+		if(texture(shadowMap, ShadowCoord.xy+vec2(j/3201.1,i/2402.9)).x >= ShadowCoord.z -0.002)
+			hits++;
+	FragmentColour.xyz*=Color/15.0*hits;
 	FragmentColour.xyz+=EmissionColor;
 }

@@ -15,10 +15,11 @@ out vec4 outColor;
 // large texture to downsample
 uniform sampler2D tex0;
 uniform sampler2D tex1;
+uniform sampler2D tex2;
 
 
 void main()
 {
-	outColor=texture(tex0, Texcoord)*1+1*texture(tex1, Texcoord);
+	outColor=texture(tex0, Texcoord)+texture(tex1, Texcoord)+texture(tex2, Texcoord);
 	outColor.w=1;
 }

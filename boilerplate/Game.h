@@ -52,3 +52,9 @@ public:
 	void update0(glm::mat4 parentTransform)override;
 	void update(glm::mat4 parentTransform)override;
 };
+
+class CenteredCube :public Entity {
+public:
+	void update0(glm::mat4 parentTransform)override;
+	void update(glm::mat4 parentTransform)override;
+};

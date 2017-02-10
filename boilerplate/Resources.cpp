@@ -4,7 +4,7 @@
 
 namespace Resources {
 	Graphics::MyGeometry aventadorBody, aventadorBodyGlow, aventadorUnder, aventadorWheel, aventadorWheelGlow;
-	Graphics::MyGeometry plane, cube;
+	Graphics::MyGeometry plane, cube, centeredCube;
 	Graphics::MyShader standardShader;
 
 	void init() {
@@ -17,6 +17,7 @@ namespace Resources {
 		Graphics::loadGeometry(&aventadorWheelGlow, "models/aventador_wheel_glow.obj");
 		Graphics::loadGeometry(&plane, "models/plane.obj");
 		Graphics::loadGeometry(&cube, "models/cube.obj");
+		Graphics::loadGeometry(&centeredCube, "models/cube_center.obj");
 	}
 
 	void nullMaterial() {
@@ -40,6 +41,6 @@ namespace Resources {
 
 	void emmisiveBlueMaterial() {
 		glUniform3f(COLOR_LOCATION, 0.0f, 0.0f, 0.0f);
-		glUniform3f(EMISSION_COLOR_LOCATION, 8.0f, 12.0f, 20.0f);
+		glUniform3f(EMISSION_COLOR_LOCATION, 1.25f, 3.5f, 5.5f);
 	}
 }
