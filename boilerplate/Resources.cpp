@@ -4,7 +4,7 @@
 
 namespace Resources {
 	Graphics::MyGeometry aventadorBody, aventadorBodyGlow, aventadorUnder, aventadorWheel, aventadorWheelGlow;
-	Graphics::MyGeometry plane, cube;
+	Graphics::MyGeometry plane, cube, centeredCube;
 	Graphics::MyShader standardShader;
 
 	void init() {
@@ -17,6 +17,7 @@ namespace Resources {
 		Graphics::loadGeometry(&aventadorWheelGlow, "models/aventador_wheel_glow.obj");
 		Graphics::loadGeometry(&plane, "models/plane.obj");
 		Graphics::loadGeometry(&cube, "models/cube.obj");
+		Graphics::loadGeometry(&centeredCube, "models/cube_center.obj");
 	}
 
 	void nullMaterial() {
