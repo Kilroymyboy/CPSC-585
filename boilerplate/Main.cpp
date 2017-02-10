@@ -3,6 +3,7 @@
 #include "Game.h"
 #include "PhysicsManager.h"
 #include "Gamepad.h"
+#include "InputManager.h"
 #include "Main.h"
 
 using namespace std;
@@ -50,6 +51,9 @@ void GetGamepadInput()
 
 }
 
+Gamepad gamepad = Gamepad(1);
+Gamepad gamepad2 = Gamepad(2);
+
 int main(int argc, char *argv[])
 {
 
@@ -69,11 +73,15 @@ int main(int argc, char *argv[])
 		Time::update();
 		Game::update();
 		Graphics::update();
+		
 		//myGamepad.glfwJoystick();
 		myGamepad.Update(); // Update the gamepad
 		myGamepad.GetState();
 		GetGamepadInput();
 		mPhysx->update(frameNum++);
+
+		InputManager::GetGamepadInput(gamepad);
+		InputManager::GetGamepadInput(gamepad2);
 	}
 	Graphics::destroy();
 }

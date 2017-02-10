@@ -6,6 +6,8 @@ using namespace std;
 //Link to the Xinput library
 #pragma comment(lib, "Xinput.lib")
 
+//Controller setup followed from tutorial https://lcmccauley.wordpress.com/2014/01/05/gamepad-input-tutorial/ parts 1 to 3
+
 XButtonIDs Xbuttons;
 // 'XButtonIDs' - Default constructor
 XButtonIDs::XButtonIDs()
@@ -33,11 +35,12 @@ XButtonIDs::XButtonIDs()
 	Back = 13;
 }
 
+//unused gamepad constuctor
 Gamepad::Gamepad()
 {
 }
 
-// constructor for gamepad for joystick index
+//constructor for gamepad for joystick index this will be the constructor used
 Gamepad::Gamepad(int a_iIndex)
 {
 	m_iGamepadIndex = a_iIndex - 1;
@@ -54,6 +57,7 @@ Gamepad::~Gamepad()
 {
 }
 
+//required call in game loop to update state of controller
 XINPUT_STATE Gamepad::GetState()
 {
 	XINPUT_STATE GamepadState;
@@ -65,12 +69,14 @@ XINPUT_STATE Gamepad::GetState()
 	return GamepadState;
 }
 
+//gets the controller index in our case should start at 1
 int Gamepad::GetIndex()
 {
 	cout << m_iGamepadIndex << endl;;
 	return m_iGamepadIndex;
 }
 
+//returns true if game pad is connected else return false
 bool Gamepad::Connected()
 {
 	ZeroMemory(&m_State, sizeof(XINPUT_STATE));
@@ -89,6 +95,7 @@ bool Gamepad::Connected()
 	}
 }
 
+//called before getting inputs
 void Gamepad::Update()
 {
 	m_State = GetState(); //Get current gamepad status
@@ -101,11 +108,13 @@ void Gamepad::Update()
 	}
 }
 
+//a different way of accessing states, saves our button states on the current frame to prev button state on next frame we run again to get the new states updating prev button state
 void Gamepad::RefreshState()
 {
 	memcpy(bPrev_ButtonsStates, bButtonStates, sizeof(bPrev_ButtonsStates));
 }
 
+//LStick_dead and RStick_dead used if slight touches of the control sticks give unwanted movement
 bool Gamepad::LStick_Dead()
 {
 	//gets x y axes of the stick
@@ -136,8 +145,7 @@ bool Gamepad::RStick_Dead()
 	return true;
 }
 
-// May have some issues in the code below for aquiring the stick axis
-// Return X axis of left stick
+// Return X axis of left stick from range -1 (left) to 1 (right)
 float Gamepad::LeftStick_X()
 {
 	// Obtain X axis of left stick
@@ -147,7 +155,7 @@ float Gamepad::LeftStick_X()
 	return (static_cast<float>(sX) / 32768.0f);
 }
 
-// Return Y axis of left stick
+// Return Y axis of left stick from range -1 (down) to 1 (up)
 float Gamepad::LeftStick_Y()
 {
 	// Obtain Y axis of left stick
@@ -157,7 +165,7 @@ float Gamepad::LeftStick_Y()
 	return (static_cast<float>(sY) / 32768.0f);
 }
 
-// Return X axis of right stick
+// Return X axis of right stick from range -1 (left) to 1 (right)
 float Gamepad::RightStick_X()
 {
 	// Obtain X axis of right stick
@@ -167,7 +175,7 @@ float Gamepad::RightStick_X()
 	return (static_cast<float>(sX) / 32768.0f);
 }
 
-// Return Y axis of right stick
+// Return Y axis of right stick from range -1 (down) to 1 (up)
 float Gamepad::RightStick_Y()
 {
 	// Obtain the Y axis of the left stick
@@ -233,12 +241,13 @@ bool Gamepad::GetButtonPressed(int a_iButton)
 	return false; //not pressed
 }
 
+//if using the refresh state with prev button stored array use this to get button down state instead of getbuttonpressed
 bool Gamepad::GetButtonDown(int a_iButton)
 {
 	return bGamepad_ButtonsDown[a_iButton];
 }
 
-
+//GLFW code for the gamepad that is here in case xinput decides to not work, currently unused
 void Gamepad::glfwJoystick()
 {
 	int present = glfwJoystickPresent(GLFW_JOYSTICK_1);

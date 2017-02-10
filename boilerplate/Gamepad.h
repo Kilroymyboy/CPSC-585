@@ -52,6 +52,7 @@ public:
 	Gamepad(int a_iIndex);
 	~Gamepad();
 
+	//Two different ways to update gamepad currently use update as refresh state is optional and I dont' have a great understanding of it
 	void Update();
 	void RefreshState();
 
