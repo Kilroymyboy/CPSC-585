@@ -1,4 +1,5 @@
 #include "InputManager.h"
+#include "Gamepad.h"
 
 using namespace std;
 
@@ -11,13 +12,11 @@ InputManager::~InputManager()
 {
 }
 
-//has wasd and qe for keys mapped currently don't know where to put
+//has wasd and qe for keys mapped if we want player 2 on keyboard since the numpad mapping is actually just 1=a and so on up to 9 will have to use some other mapping
 void InputManager::keyBoard(unsigned char key, int x, int y)
 {
 	float factor = 0.05f;
 
-	cout << key << endl;
-	
 	switch (key)
 	{
 	case (27) :
@@ -47,31 +46,73 @@ void InputManager::keyBoard(unsigned char key, int x, int y)
 		cout << " E pressed " << endl;
 		break;
 
-		//These don't work our keyboards don't even return numpad keys
-	case (GLFW_KEY_KP_4) :
-		cout << " numpad 4 " << endl;
+	case (GLFW_KEY_J) :
+		cout << " J " << endl;
 		break;
 
-	case (GLFW_KEY_KP_5) :
-		cout << " numpad 5 " << endl;
+	case (GLFW_KEY_K) :
+		cout << " K pressed " << endl;
 		break;
 
-	case (GLFW_KEY_KP_6) :
-		cout << " numpad 6 " << endl;
+	case (GLFW_KEY_L) :
+		cout << " L pressed " << endl;
 		break;
 
-	case (GLFW_KEY_KP_7) :
-		cout << " numpad 7 " << endl;
+	case (GLFW_KEY_I) :
+		cout << " I pressed " << endl;
 		break;
 
-	case (GLFW_KEY_KP_8) :
-		cout << " numpad 8 " << endl;
+	case (GLFW_KEY_U) :
+		cout << " U pressed " << endl;
 		break;
 
-	case (GLFW_KEY_KP_9) :
-		cout << " numpad 9 " << endl;
+	case (GLFW_KEY_O) :
+		cout << " O pressed " << endl;
 		break;
 	}
+}
+
+// A function to obtain input, called each frame
+void InputManager::GetGamepadInput(Gamepad myGamepad)
+{
+	//NOTE gamepad update() must be called BEFORE any pulling inputs
+	myGamepad.Update(); // Update the gamepad
+	myGamepad.GetState();
+
+	if (myGamepad.GetButtonPressed(Xbuttons.A)) {
+		cout << "A pressed" << endl;
+	}
+	else if (myGamepad.GetButtonPressed(Xbuttons.X)) {
+		cout << "X pressed " << endl;
+	}
+	else if (myGamepad.GetButtonPressed(Xbuttons.Y)) {
+		cout << "Y pressed" << endl;
+	}
+	else if (myGamepad.GetButtonPressed(Xbuttons.B)) {
+		cout << "B pressed" << endl;
+	}
+	else if (myGamepad.LeftTrigger() > 0)
+	{
+		cout << "Left Trigger " << endl;
+	}
+	else if (myGamepad.RightTrigger() > 0)
+	{
+		cout << "Right Trigger " << endl;
+	}
+	else if (myGamepad.GetButtonPressed(Xbuttons.Start))
+	{
+		cout << "GAME START!!!!" << endl;
+	}
+	
+	//four test calls to get stick x y every time implement it later for what we need to control the car but they all work
+	//myGamepad.RightStick_X();
+	//myGamepad.RightStick_Y();
+	//myGamepad.LeftStick_X();
+	//myGamepad.LeftStick_Y();
+
+	// Update the gamepad for next frame
+	myGamepad.RefreshState();
+
 }
 
 /*
