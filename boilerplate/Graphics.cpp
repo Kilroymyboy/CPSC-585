@@ -572,7 +572,7 @@ namespace Graphics {
 		glUseProgram(hBlurFbo.shader.program);
 
 		glUniform2f(0, 1.0f / (WINDOW_WIDTH / BLOOM_DOWNSAMPLE), 0.00f);
-		glUniform1f(1, 1.0f);
+		glUniform1f(1, 0.5f);
 
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, hBlurFbo.texture);
