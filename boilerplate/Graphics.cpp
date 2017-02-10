@@ -606,7 +606,7 @@ namespace Graphics {
 		glDisable(GL_DEPTH_TEST);
 		glUseProgram(hBlurFbo1.shader.program);
 
-		glUniform2f(0, 1.0f / (WINDOW_WIDTH / BLOOM_DOWNSAMPLE1), 0.00f);
+		glUniform2f(0, 1.0f / (WINDOW_WIDTH / BLOOM_DOWNSAMPLE1), 0.0f);
 		glUniform1f(1, 1.0f);
 
 		glActiveTexture(GL_TEXTURE0);

@@ -16,7 +16,10 @@ void main()
 {
 	vec3 t=texture(texFramebuffer, Texcoord).xyz;
 	float exposure=1.0, gamma=1.2;
-	t=vec3(1)-exp(-t*exposure);
-	t=pow(t, vec3(1/gamma));
+	float white=1.5;
+	float luma = dot(t, vec3(0.2126, 0.7152, 0.0722));
+	float toneMappedLuma = luma * (1. + luma / (white*white)) / (1. + luma);
+	t *= toneMappedLuma / luma;
+	t=pow(t, vec3(1.0/gamma));
 	outColor=vec4(t, 1);
 }
