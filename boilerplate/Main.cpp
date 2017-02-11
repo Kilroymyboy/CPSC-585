@@ -60,7 +60,7 @@ int main(int argc, char *argv[])
 	if (Graphics::init() == -1)return -1;
 
 	//init physics as well
-	PhysicsManager *mPhysx = new PhysicsManager();
+	PhysicsManager::init();
 
 	Light::init();
 	Viewport::init();
@@ -78,12 +78,13 @@ int main(int argc, char *argv[])
 		myGamepad.Update(); // Update the gamepad
 		myGamepad.GetState();
 		GetGamepadInput();
-		mPhysx->update(1);
+		PhysicsManager::update(1);
 
 		InputManager::GetGamepadInput(gamepad);
 		InputManager::GetGamepadInput(gamepad2);
 
 		Keyboard::update();
 	}
+	PhysicsManager::destroy();
 	Graphics::destroy();
 }
