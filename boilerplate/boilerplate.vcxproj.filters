@@ -78,7 +78,7 @@
     </ClInclude>
     <ClInclude Include="PhysicsManager.h">
       <Filter>Header Files\Physics</Filter>
-	</ClInclude>
+    </ClInclude>
     <ClInclude Include="Gamepad.h">
       <Filter>Header Files</Filter>
     </ClInclude>
