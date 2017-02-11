@@ -68,7 +68,6 @@ int main(int argc, char *argv[])
 	Time::init();
 	Keyboard::init();
 	Game::init();
-	PxU64 frameNum = 0;
 	while (!Graphics::shouldClose()) {
 		Graphics::clearFrameBuffer();
 		Time::update();

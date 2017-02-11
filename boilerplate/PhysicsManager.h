@@ -4,8 +4,6 @@
 #include "extensions\PxRigidBodyExt.h"
 #include <vector>
 
-using namespace physx;
-
 class PhysicsManager
 {
 public:
@@ -13,17 +11,17 @@ public:
 	~PhysicsManager();
 
 	void update(float);
-	PxRigidDynamic* createDynamic(const PxTransform&, const PxGeometry&, const PxVec3&);
-	void createStack(const PxTransform&, PxU32, PxReal);
+	physx::PxRigidDynamic* createDynamic(const physx::PxTransform&, const physx::PxGeometry&, const physx::PxVec3&);
+	void createStack(const physx::PxTransform&, physx::PxU32, physx::PxReal);
 
 private:
-	PxFoundation *mFoundation;
-	PxPhysics *mPhysics;
-	PxScene *mScene;
-	PxMaterial *mMaterial;
-	PxVisualDebuggerConnection* gConnection;
+	physx::PxFoundation *mFoundation;
+	physx::PxPhysics *mPhysics;
+	physx::PxScene *mScene;
+	physx::PxMaterial *mMaterial;
+	physx::PxVisualDebuggerConnection* gConnection;
 
 	//remove later
-	PxRigidDynamic *actor;
+	physx::PxRigidDynamic *actor;
 };
 

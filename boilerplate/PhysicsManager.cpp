@@ -1,6 +1,8 @@
 #include "PhysicsManager.h"
 #include "Game.h"
 
+using namespace physx;
+
 PhysicsManager::PhysicsManager()
 {
 	printf("initializing PhysX\n");
