@@ -62,9 +62,9 @@ namespace Game {
 
 	// we can customize this function as much as we want for now for debugging
 	void init() {
-		//entities.push_back(unique_ptr<Aventador>(new Aventador));
+			entities.push_back(unique_ptr<Aventador>(new Aventador));
 		//	entities.push_back(unique_ptr<Cube>(new Cube));
-		entities.push_back(unique_ptr<CenteredCube>(new CenteredCube(vec3(0, 3, 0))));
+		//entities.push_back(unique_ptr<CenteredCube>(new CenteredCube(vec3(0, 3, 0))));
 		entities.push_back(unique_ptr<Plane>(new Plane));
 	}
 
@@ -134,7 +134,7 @@ CenteredCube::CenteredCube(vec3 position) {
 	PxVec3 dimensions(0.5f, 0.5f, 0.5f);
 	PxBoxGeometry geometry(dimensions);
 	actor = PxCreateDynamic(*PhysicsManager::mPhysics, t, geometry, *PhysicsManager::mPhysics->createMaterial(0.1f, 0.1f, 0.5f), PxReal(1.0f));
-	actor->setAngularDamping(0.5);
+	actor->setAngularDamping(0.1);
 	PhysicsManager::mScene->addActor(*actor);
 }
 

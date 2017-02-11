@@ -178,6 +178,7 @@ namespace Keyboard {
 	}
 
 	void Callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+		if (key < 0 || key >= 256)return;
 		if (action == GLFW_PRESS) {
 			v[key] = 1;
 		}
