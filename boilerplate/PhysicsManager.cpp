@@ -59,7 +59,7 @@ namespace PhysicsManager {
 
 
 		actor = PxCreateDynamic(*mPhysics, transform, geometry, *mMaterial, density);
-		mScene->addActor(*actor);
+	//	mScene->addActor(*actor);
 		actor->setAngularDamping(0.75);
 		actor->setLinearVelocity(PxVec3(0, 0, 2));
 
@@ -110,7 +110,7 @@ namespace PhysicsManager {
 		{
 			glm::mat4 rotMatrix = glm::translate(glm::mat4(1), glm::vec3(transforms->actor2World.p.x, transforms->actor2World.p.y, transforms->actor2World.p.z));
 			PxReal a; PxVec3 b; transforms->actor2World.q.toRadiansAndUnitAxis(a, b); rotMatrix = glm::rotate(rotMatrix, (float)a, glm::vec3(b.x, b.y, b.z));
-			Game::entities[0]->transform = rotMatrix;
+		//	Game::entities[0]->transform = rotMatrix;
 		}
 
 		// glm::mat4_cast(glm::quat(transforms->actor2World.q.x, transforms->actor2World.q.y, transforms->actor2World.q.z, transforms->actor2World.q.w));

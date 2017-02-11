@@ -12,5 +12,8 @@ namespace PhysicsManager
 	void update(float);
 	physx::PxRigidDynamic* createDynamic(const physx::PxTransform&, const physx::PxGeometry&, const physx::PxVec3&);
 	void createStack(const physx::PxTransform&, physx::PxU32, physx::PxReal);
+
+	extern physx::PxPhysics *mPhysics;
+	extern physx::PxScene *mScene;
 };
 

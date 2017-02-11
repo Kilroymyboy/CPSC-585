@@ -3,6 +3,7 @@
 #include <vector>
 #include <memory>
 #include "Graphics.h"
+#include "PhysicsManager.h"
 
 #define PRINT_FPS 0
 
@@ -54,7 +55,9 @@ public:
 };
 
 class CenteredCube :public Entity {
+	physx::PxRigidDynamic *actor;
 public:
+	CenteredCube(glm::vec3);
 	void update0(glm::mat4 parentTransform)override;
 	void update(glm::mat4 parentTransform)override;
 };

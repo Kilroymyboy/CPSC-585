@@ -4,6 +4,7 @@
 
 using namespace std;
 using namespace glm;
+using namespace physx;
 
 Aventador::Aventador() {
 	wheel1 = std::unique_ptr<AventadorWheel>(new AventadorWheel);
@@ -61,9 +62,9 @@ namespace Game {
 
 	// we can customize this function as much as we want for now for debugging
 	void init() {
-		entities.push_back(unique_ptr<Aventador>(new Aventador));
-	//	entities.push_back(unique_ptr<Cube>(new Cube));
-	//	entities.push_back(unique_ptr<CenteredCube>(new CenteredCube));
+		//entities.push_back(unique_ptr<Aventador>(new Aventador));
+		//	entities.push_back(unique_ptr<Cube>(new Cube));
+		entities.push_back(unique_ptr<CenteredCube>(new CenteredCube(vec3(0, 3, 0))));
 		entities.push_back(unique_ptr<Plane>(new Plane));
 	}
 
@@ -128,11 +129,28 @@ void Cube::update(glm::mat4 parentTransform) {
 	Graphics::RenderScene(&Resources::cube, &Resources::standardShader, &Resources::defaultMaterial, parentTransform*transform);
 }
 
+CenteredCube::CenteredCube(vec3 position) {
+	PxTransform t(PxVec3(position.x, position.y, position.z), PxQuat::createIdentity());
+	PxVec3 dimensions(0.5f, 0.5f, 0.5f);
+	PxBoxGeometry geometry(dimensions);
+	actor = PxCreateDynamic(*PhysicsManager::mPhysics, t, geometry, *PhysicsManager::mPhysics->createMaterial(0.1f, 0.1f, 0.5f), PxReal(1.0f));
+	actor->setAngularDamping(0.5);
+	PhysicsManager::mScene->addActor(*actor);
+}
 
 void CenteredCube::update0(glm::mat4 parentTransform) {
-	Light::renderShadowMap(&Resources::centeredCube, parentTransform*transform);
+	if (Keyboard::keyPressed(GLFW_KEY_P)) {
+		actor->addForce(PxVec3(0, 100, 0));
+		actor->addTorque(PxVec3(50, 10, 20));
+	}
+
+	glm::mat4 m = glm::translate(glm::mat4(1), glm::vec3(actor->getGlobalPose().p.x, actor->getGlobalPose().p.y, actor->getGlobalPose().p.z));
+	PxReal a; PxVec3 b;  actor->getGlobalPose().q.toRadiansAndUnitAxis(a, b); m = glm::rotate(m, (float)a, glm::vec3(b.x, b.y, b.z));
+	transform = m;
+
+	Light::renderShadowMap(&Resources::centeredCube, transform);
 }
 
 void CenteredCube::update(glm::mat4 parentTransform) {
-	Graphics::RenderScene(&Resources::centeredCube, &Resources::standardShader, &Resources::defaultMaterial, parentTransform*transform);
+	Graphics::RenderScene(&Resources::centeredCube, &Resources::standardShader, &Resources::defaultMaterial, transform);
 }
