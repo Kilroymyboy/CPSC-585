@@ -819,7 +819,6 @@ namespace Graphics {
 		}
 
 		geometry->elementCount = bufferVertices.size();
-		cout << geometry->elementCount << endl;
 
 		glGenBuffers(1, &geometry->vertexBuffer);
 		glBindBuffer(GL_ARRAY_BUFFER, geometry->vertexBuffer);

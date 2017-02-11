@@ -37,7 +37,7 @@ void main(void)
 
 	int hits=0;
 	float bias = 0.002*tan(acos(cosTheta));
-	bias = max(0, min(0.01, bias));
+	bias = max(0, min(0.004, bias));
 
 	if(ShadowCoord.x<0||ShadowCoord.x>1||ShadowCoord.y<0||ShadowCoord.y>1)
 		hits=15;
