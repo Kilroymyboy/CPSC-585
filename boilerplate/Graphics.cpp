@@ -137,13 +137,25 @@ namespace Graphics {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glBindTexture(GL_TEXTURE_2D, 0);
+
+		glBindFramebuffer(GL_FRAMEBUFFER, msaaFbo.fbo);
+		glBindTexture(GL_TEXTURE_2D, msaaFbo.texture);
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 
 	void RenderScene(MyGeometry *geometry, MyShader *shader, void(*material)(), mat4 transform)
 	{
-		glBindFramebuffer(GL_FRAMEBUFFER, defaultFbo.fbo);
-		glBindTexture(GL_TEXTURE_2D, defaultFbo.texture);
-
+		if (EFFECTS) {
+			glBindFramebuffer(GL_FRAMEBUFFER, defaultFbo.fbo);
+			glBindTexture(GL_TEXTURE_2D, defaultFbo.texture);
+		}
+		else {
+			glBindFramebuffer(GL_FRAMEBUFFER, msaaFbo.fbo);
+			glBindTexture(GL_TEXTURE_2D, msaaFbo.texture);
+		}
 		// enable gl depth test
 		glEnable(GL_DEPTH_TEST);
 		glScissor(0, 0, WINDOW_WIDTH*MSAA, WINDOW_HEIGHT*MSAA);
@@ -595,7 +607,7 @@ namespace Graphics {
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		
+
 		glBindFramebuffer(GL_FRAMEBUFFER, vBlurFbo1.fbo);
 		glBindTexture(GL_TEXTURE_2D, vBlurFbo1.texture);
 
@@ -635,9 +647,9 @@ namespace Graphics {
 		glBindTexture(GL_TEXTURE_2D, vBlurFbo.texture);
 
 		glDrawArrays(GL_TRIANGLES, 0, 6);
-		
+
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		
+
 		glBindFramebuffer(GL_FRAMEBUFFER, hBlurFbo1.fbo);
 		glBindTexture(GL_TEXTURE_2D, hBlurFbo1.texture);
 
@@ -702,8 +714,13 @@ namespace Graphics {
 	}
 
 	void renderMSAA() {
-		glBindFramebuffer(GL_FRAMEBUFFER, aberrationFbo.fbo);
-		glBindTexture(GL_TEXTURE_2D, aberrationFbo.texture);
+		if (EFFECTS) {
+			glBindFramebuffer(GL_FRAMEBUFFER, aberrationFbo.fbo);
+			glBindTexture(GL_TEXTURE_2D, aberrationFbo.texture);
+		}
+		else {
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		}
 
 		glScissor(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 		glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
@@ -738,14 +755,17 @@ namespace Graphics {
 	}
 
 	void update() {
-
-		renderDownsample();
-		renderHBlur();
-		renderVBlur();
-		renderAdditive();
-		renderTonemapping();
+		if (EFFECTS) {
+			renderDownsample();
+			renderHBlur();
+			renderVBlur();
+			renderAdditive();
+			renderTonemapping();
+		}
 		renderMSAA();
-		renderAberration();
+		if (EFFECTS) {
+			renderAberration();
+		}
 
 		CheckGLErrors();
 
@@ -845,7 +865,7 @@ namespace Viewport {
 	void update(mat4 obj) {
 		//	transform = lookAt(vec3(cos(6 / 1.5f) * 4.0f, 1, sin(6 / 1.5f) * 4.0f), vec3(0, 0, 0), vec3(0, 1, 0));
 		transform = lookAt(vec3(cos(glfwGetTime() / 1.5f) * 4.5f, 3, sin(glfwGetTime() / 1.5f) * 4.5f), vec3(0, 0, 0), vec3(0, 1, 0));
-			transform = lookAt(vec3(0, 1.5f, -5.5f), vec3(0, 1.5f, 0), vec3(0, 1, 0));
+		transform = lookAt(vec3(0, 1.5f, -5.5f), vec3(0, 1.5f, 0), vec3(0, 1, 0));
 		//	transform = lookAt(vec3(10, 10.5f, -10.f), vec3(0, 0, 0), vec3(0, 1, 0));
 
 		glUniformMatrix4fv(MODEL_LOCATION, 1, false, &obj[0][0]);
@@ -861,7 +881,7 @@ namespace Light {
 		0.0, 0.5, 0.0, 0.0,
 		0.0, 0.0, 0.5, 0.0,
 		0.5, 0.5, 0.5, 1.0
-		);
+	);
 
 	glm::vec3 color;
 	glm::vec3 direction;
