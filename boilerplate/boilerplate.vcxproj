@@ -145,13 +145,6 @@
     <ClCompile Include="Resources.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="fragment.glsl" />
-    <None Include="framebufferfragment.glsl" />
-    <None Include="framebufferhblurfragment.glsl" />
-    <None Include="framebuffervertex.glsl" />
-    <None Include="vertex.glsl" />
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="Game.h" />
     <ClInclude Include="Graphics.h" />
     <ClInclude Include="PhysicsManager.h" />

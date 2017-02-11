@@ -37,8 +37,8 @@ namespace Graphics {
 	bool InitializeShaders(MyShader *shader, const string vertex, const string fragment)
 	{
 		// load shader source from files
-		string vertexSource = LoadSource(vertex);
-		string fragmentSource = LoadSource(fragment);
+		string vertexSource = LoadSource("shaders/" + vertex);
+		string fragmentSource = LoadSource("shaders/" + fragment);
 		if (vertexSource.empty() || fragmentSource.empty()) return false;
 
 		// compile shader source into shader objects
