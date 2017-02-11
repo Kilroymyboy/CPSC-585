@@ -3,6 +3,7 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include "Gamepad.h"
+#include "PhysicsManager.h"
 
 class InputManager
 {

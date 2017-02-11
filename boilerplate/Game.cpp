@@ -59,9 +59,9 @@ namespace Game {
 
 	// we can customize this function as much as we want for now for debugging
 	void init() {
-		entities.push_back(unique_ptr<Aventador>(new Aventador));
+	//	entities.push_back(unique_ptr<Aventador>(new Aventador));
 	//	entities.push_back(unique_ptr<Cube>(new Cube));
-	//	entities.push_back(unique_ptr<CenteredCube>(new CenteredCube));
+		entities.push_back(unique_ptr<CenteredCube>(new CenteredCube));
 		entities.push_back(unique_ptr<Plane>(new Plane));
 	}
 
@@ -94,7 +94,7 @@ namespace Time {
 		if (time > fpsTime + 1) {
 			fps = tfps;
 			if (PRINT_FPS) {
-				cout << "fps: " << fps << endl;
+				//cout << "fps: " << fps << endl;
 			}
 			tfps = 0;
 			fpsTime = time;

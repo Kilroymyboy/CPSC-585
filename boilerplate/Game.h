@@ -9,6 +9,7 @@
 class Entity {
 public:
 	glm::mat4 transform;
+	float mass;
 	virtual void update0(glm::mat4 parentTransform) {}
 	virtual void update(glm::mat4 parentTransform) {}
 };
