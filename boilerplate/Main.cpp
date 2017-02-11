@@ -66,6 +66,7 @@ int main(int argc, char *argv[])
 	Viewport::init();
 	Resources::init();
 	Time::init();
+	Keyboard::init();
 	Game::init();
 	PxU64 frameNum = 0;
 	while (!Graphics::shouldClose()) {
@@ -82,6 +83,8 @@ int main(int argc, char *argv[])
 
 		InputManager::GetGamepadInput(gamepad);
 		InputManager::GetGamepadInput(gamepad2);
+
+		Keyboard::update();
 	}
 	Graphics::destroy();
 }

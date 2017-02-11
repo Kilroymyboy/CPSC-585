@@ -4,7 +4,7 @@
 #include <memory>
 #include "Graphics.h"
 
-#define PRINT_FPS true
+#define PRINT_FPS 0
 
 class Entity {
 public:

@@ -18,3 +18,11 @@ public:
 
 };
 
+namespace Keyboard {
+	void init();
+	void update();
+	bool keyDown(int key);
+	bool keyPressed(int key);
+	bool keyReleased(int key);
+	void Callback(GLFWwindow* window, int key, int scancode, int action, int mods);
+}

@@ -1,5 +1,7 @@
 #include "Game.h"
 #include "Resources.h"
+#include "InputManager.h"
+
 using namespace std;
 using namespace glm;
 
@@ -66,12 +68,17 @@ namespace Game {
 	}
 
 	void update() {
+		glfwPollEvents();
+
 		for (int i = 0; i < entities.size(); i++) {
 			entities[i].get()->update0(mat4(1));
 		}
 		for (int i = 0; i < entities.size(); i++) {
 			entities[i].get()->update(mat4(1));
 		}
+
+		if (Keyboard::keyPressed(GLFW_KEY_Q))cout << "q pressed\n";
+		if (Keyboard::keyReleased(GLFW_KEY_Q))cout << "q released\n";
 	}
 }
 

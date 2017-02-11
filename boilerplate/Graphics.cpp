@@ -356,7 +356,7 @@ namespace Graphics {
 		}
 
 		// set keyboard callback function and make our context current (active)
-		glfwSetKeyCallback(window, KeyCallback);
+		glfwSetKeyCallback(window, Keyboard::Callback);
 		glfwMakeContextCurrent(window);
 
 		//Intialize GLAD
@@ -772,8 +772,6 @@ namespace Graphics {
 		// vertical sync
 		glfwSwapInterval(VSYNC);
 		glfwSwapBuffers(window);
-
-		glfwPollEvents();
 	}
 
 	void destroy() {
