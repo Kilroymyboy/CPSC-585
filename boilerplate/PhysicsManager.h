@@ -21,6 +21,7 @@ private:
 	PxPhysics *mPhysics;
 	PxScene *mScene;
 	PxMaterial *mMaterial;
+	PxVisualDebuggerConnection* gConnection;
 
 	//remove later
 	PxRigidDynamic *actor;

@@ -42,7 +42,7 @@
 #define BLOOM_DOWNSAMPLE 2
 #define BLOOM_DOWNSAMPLE1 8
 
-#define EFFECTS 1
+#define EFFECTS 0
 
 namespace Graphics {
 	int init();

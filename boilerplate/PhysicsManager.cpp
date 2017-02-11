@@ -1,5 +1,6 @@
 #include "PhysicsManager.h"
 #include "Game.h"
+
 PhysicsManager::PhysicsManager()
 {
 	printf("initializing PhysX\n");
@@ -30,7 +31,8 @@ PhysicsManager::PhysicsManager()
 	sceneDesc.flags |= PxSceneFlag::eENABLE_ACTIVETRANSFORMS;
 	mScene = mPhysics->createScene(sceneDesc);
 
-	mMaterial = mPhysics->createMaterial(0.5f, 0.5f, 0.6f);
+	mMaterial = mPhysics->createMaterial(0.f, 0.f, 0.f);
+
 
 
 	// infinite collision plane
@@ -40,15 +42,15 @@ PhysicsManager::PhysicsManager()
 
 
 	PxReal density = 1.0f;
-	PxTransform transform(PxVec3(0.0f, 10.0f, 0.0f), PxQuat::createIdentity());
-	PxVec3 dimensions(.1, .1, .1);
+	PxTransform transform(PxVec3(0.0f, 2.0f, 0.0f), PxQuat::createIdentity());
+	PxVec3 dimensions(0.1f, 0.1f, 0.1f);
 	PxBoxGeometry geometry(dimensions);
 
 
 	actor = PxCreateDynamic(*mPhysics, transform, geometry, *mMaterial, density);
 	mScene->addActor(*actor);
 	actor->setAngularDamping(0.75);
-	actor->setLinearVelocity(PxVec3(1, 0, 0));
+	actor->setLinearVelocity(PxVec3(0, 0, 2));
 
 
 
@@ -57,7 +59,7 @@ PhysicsManager::PhysicsManager()
 	//createDynamic(PxTransform(PxVec3(0, 40, 100)), PxSphereGeometry(10), PxVec3(0, -50, -100));
 
 	//applying force
-	//PxRigidBodyExt::addForceAtLocalPos(*actor, PxVec3(0, 10, 0), PxVec3(0));
+
 
 
 	printf("PhysX initialized\n");
@@ -95,19 +97,20 @@ void PhysicsManager::update(float delta)
 
 	for (PxU32 i = 0; i < numTransforms; ++i) 
 	{
-		glm::mat4 rotMatrix = glm::mat4_cast(glm::quat(transforms->actor2World.q.x, transforms->actor2World.q.y, transforms->actor2World.q.z, transforms->actor2World.q.w));
-		rotMatrix = glm::translate(glm::mat4(1), glm::vec3(transforms->actor2World.p.x, transforms->actor2World.p.y, transforms->actor2World.p.z));
-
-
-
+		glm::mat4 rotMatrix = glm::translate(glm::mat4(1), glm::vec3(transforms->actor2World.p.x, transforms->actor2World.p.y, transforms->actor2World.p.z));
+		PxReal a; PxVec3 b; transforms->actor2World.q.toRadiansAndUnitAxis(a, b); rotMatrix = glm::rotate(rotMatrix, (float)a, glm::vec3(b.x, b.y, b.z));
 		Game::entities[0]->transform = rotMatrix;
 	}
 
+			// glm::mat4_cast(glm::quat(transforms->actor2World.q.x, transforms->actor2World.q.y, transforms->actor2World.q.z, transforms->actor2World.q.w));
 
 
-	printf("1  this loc: %f , %f , %f\n", test.x, test.y, test.z);
+
+	//printf("1  this loc: %f , %f , %f\n", test.x, test.y, test.z);
 	//printf("2  this loc: %f , %f , %f\n", transforms->actor2World.p.x, transforms->actor2World.p.y, transforms->actor2World.p.z);
 
+	
+	//PxRigidBodyExt::addForceAtLocalPos(*actor, PxVec3(0, 0, 5), PxVec3(0));
 }
 
 PxRigidDynamic* PhysicsManager::createDynamic(const PxTransform& t, const PxGeometry& geometry, const PxVec3& velocity = PxVec3(0))

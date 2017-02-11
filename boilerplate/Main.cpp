@@ -78,7 +78,7 @@ int main(int argc, char *argv[])
 		myGamepad.Update(); // Update the gamepad
 		myGamepad.GetState();
 		GetGamepadInput();
-		mPhysx->update(frameNum++);
+		mPhysx->update(1);
 
 		InputManager::GetGamepadInput(gamepad);
 		InputManager::GetGamepadInput(gamepad2);
