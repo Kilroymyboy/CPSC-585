@@ -12,7 +12,6 @@ public:
 	PhysicsManager();
 	~PhysicsManager();
 
-	static void setTransforms(float x, float y, float z);
 	void update(float);
 	PxRigidDynamic* createDynamic(const PxTransform&, const PxGeometry&, const PxVec3&);
 	void createStack(const PxTransform&, PxU32, PxReal);

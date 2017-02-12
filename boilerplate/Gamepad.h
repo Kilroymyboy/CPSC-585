@@ -5,7 +5,6 @@
 #include <windows.h>
 #include <Xinput.h>
 #include <GLFW/glfw3.h>
-#include "PhysicsManager.h"
 
 // XInput Button values
 static const WORD XINPUT_Buttons[] = {

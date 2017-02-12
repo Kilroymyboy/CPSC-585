@@ -801,7 +801,7 @@ namespace Graphics {
 		}
 
 		geometry->elementCount = bufferVertices.size();
-		//cout << geometry->elementCount << endl;
+		cout << geometry->elementCount << endl;
 
 		glGenBuffers(1, &geometry->vertexBuffer);
 		glBindBuffer(GL_ARRAY_BUFFER, geometry->vertexBuffer);
@@ -844,9 +844,8 @@ namespace Viewport {
 
 	void update(mat4 obj) {
 		//	transform = lookAt(vec3(cos(6 / 1.5f) * 4.0f, 1, sin(6 / 1.5f) * 4.0f), vec3(0, 0, 0), vec3(0, 1, 0));
-			transform = lookAt(vec3(cos(glfwGetTime() / 1.5f) * 4.5f, 3, sin(glfwGetTime() / 1.5f) * 4.5f), vec3(0, 0, 0), vec3(0, 1, 0));
+		transform = lookAt(vec3(cos(glfwGetTime() / 1.5f) * 4.5f, 3, sin(glfwGetTime() / 1.5f) * 4.5f), vec3(0, 0, 0), vec3(0, 1, 0));
 			transform = lookAt(vec3(0, 1.5f, -5.5f), vec3(0, 1.5f, 0), vec3(0, 1, 0));
-		//	transform = lookAt(vec3(0, 1.5f, -5.5f), vec3(0, 1.5f, 0), vec3(0, 1, 0));
 		//	transform = lookAt(vec3(10, 10.5f, -10.f), vec3(0, 0, 0), vec3(0, 1, 0));
 
 		glUniformMatrix4fv(MODEL_LOCATION, 1, false, &obj[0][0]);

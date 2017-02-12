@@ -1,4 +1,5 @@
 #include "InputManager.h"
+#include "Gamepad.h"
 
 using namespace std;
 
@@ -21,54 +22,53 @@ void InputManager::keyBoard(unsigned char key, int x, int y)
 	case (27) :
 		exit(EXIT_FAILURE);
 
-	case (GLFW_KEY_A) : {
+	case (GLFW_KEY_A) :
 		cout << " A pressed " << endl;
 		break;
-		}
-	case (GLFW_KEY_D) : {
+
+	case (GLFW_KEY_D) :
 		cout << " D pressed " << endl;
 		break;
-		}
-	case (GLFW_KEY_S) : {
+
+	case (GLFW_KEY_S) :
 		cout << " S pressed " << endl;
 		break;
-		}
-	case (GLFW_KEY_W) : {
+
+	case (GLFW_KEY_W) :
 		cout << " W pressed " << endl;
 		break;
-		}
-	case (GLFW_KEY_Q) : {
+
+	case (GLFW_KEY_Q) :
 		cout << " Q pressed " << endl;
 		break;
-		}
-	case (GLFW_KEY_E) : {
+
+	case (GLFW_KEY_E) :
 		cout << " E pressed " << endl;
 		break;
-		}
-	case (GLFW_KEY_J) : {
+
+	case (GLFW_KEY_J) :
 		cout << " J " << endl;
 		break;
-		}
-	case (GLFW_KEY_K) : {
+
+	case (GLFW_KEY_K) :
 		cout << " K pressed " << endl;
 		break;
-		}
-	case (GLFW_KEY_L) : {
+
+	case (GLFW_KEY_L) :
 		cout << " L pressed " << endl;
 		break;
-		}
-	case (GLFW_KEY_I) : {
+
+	case (GLFW_KEY_I) :
 		cout << " I pressed " << endl;
 		break;
-		}
-	case (GLFW_KEY_U) : {
+
+	case (GLFW_KEY_U) :
 		cout << " U pressed " << endl;
 		break;
-		}
-	case (GLFW_KEY_O) : {
+
+	case (GLFW_KEY_O) :
 		cout << " O pressed " << endl;
 		break;
-		}
 	}
 }
 
@@ -81,7 +81,6 @@ void InputManager::GetGamepadInput(Gamepad myGamepad)
 
 	if (myGamepad.GetButtonPressed(Xbuttons.A)) {
 		cout << "A pressed" << endl;
-		PhysicsManager::setTransforms(0, 5.0f, 0); //This doesn't work for jumping
 	}
 	else if (myGamepad.GetButtonPressed(Xbuttons.X)) {
 		cout << "X pressed " << endl;
@@ -94,15 +93,11 @@ void InputManager::GetGamepadInput(Gamepad myGamepad)
 	}
 	else if (myGamepad.LeftTrigger() > 0)
 	{
-		//Left trigger returns 1 if pressed return LeftTrigger() to drive car backwards
 		cout << "Left Trigger " << endl;
-		PhysicsManager::setTransforms(0, 0, -1 * myGamepad.LeftTrigger());
 	}
 	else if (myGamepad.RightTrigger() > 0)
 	{
-		//Call RightTrigger to return 1 for out driving forward force
 		cout << "Right Trigger " << endl;
-		PhysicsManager::setTransforms(0, 0, myGamepad.RightTrigger());
 	}
 	else if (myGamepad.GetButtonPressed(Xbuttons.Start))
 	{
@@ -118,23 +113,6 @@ void InputManager::GetGamepadInput(Gamepad myGamepad)
 	// Update the gamepad for next frame
 	myGamepad.RefreshState();
 
-}
-
-//Only thing in here probably going to be used is update as this makes updating controller state way easier just call this at the beginning of the main game loop
-//Main reason being we always have to intialize a controller with an index that it is plugged into (0-4)
-namespace Controller {
-	Gamepad *gamepad = new Gamepad();
-	//call before each iteration of checking for buttons
-	void update()
-	{
-		gamepad->Update();
-		gamepad->GetState();
-	}
-	//don't need release as button pressed returns true if pressed and false if released
-	bool buttonPressed(int button)
-	{
-		return gamepad->GetButtonPressed(button);
-	}
 }
 
 /*
