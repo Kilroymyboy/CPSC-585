@@ -27,13 +27,32 @@ Aventador::Aventador() {
 
 	PxTransform t(PxVec3(0, 2, 0), PxQuat::createIdentity());
 	PxVec3 dimensions(1, 0.5, 2.5);
-	PxBoxGeometry geometry(dimensions);
-	actor = PxCreateDynamic(*PhysicsManager::mPhysics, t, geometry, *PhysicsManager::mPhysics->createMaterial(0.1f, 0.1f, 0.5f), PxReal(1.0f));
-	actor->setAngularDamping(0.1);
-	PhysicsManager::mScene->addActor(*actor);
+
+	actor = PhysicsManager::createDynamic(t, dimensions);
+
+
+	//PxBoxGeometry geometry(dimensions);
+	//actor = PxCreateDynamic(*PhysicsManager::mPhysics, t, geometry, *PhysicsManager::mPhysics->createMaterial(0.1f, 0.1f, 0.5f), PxReal(1.0f));
+	//actor->setAngularDamping(0.1);
+	//PhysicsManager::mScene->addActor(*actor);
 }
 
 void Aventador::update0(glm::mat4 parentTransform) {
+
+	if (Keyboard::keyDown(GLFW_KEY_W)) {
+		PxRigidBodyExt::addLocalForceAtLocalPos(*actor, PxVec3(0, 0, 100), PxVec3(0));
+	}
+	if (Keyboard::keyDown(GLFW_KEY_A)) {
+		PxRigidBodyExt::addLocalForceAtLocalPos(*actor, PxVec3(20, 0, 0), PxVec3(0, 0, 10));
+		//actor->addForce(PxVec3(100, 0, 0));
+	}
+	if (Keyboard::keyDown(GLFW_KEY_S)) {
+		PxRigidBodyExt::addLocalForceAtLocalPos(*actor, PxVec3(0, 0, -100), PxVec3(0));
+	}
+	if (Keyboard::keyDown(GLFW_KEY_D)) {
+		PxRigidBodyExt::addLocalForceAtLocalPos(*actor, PxVec3(20, 0, 0), PxVec3(0, 0, -10));
+	}
+
 	glm::mat4 m = glm::translate(glm::mat4(1), glm::vec3(actor->getGlobalPose().p.x, actor->getGlobalPose().p.y, actor->getGlobalPose().p.z));
 	PxReal a; PxVec3 b;  actor->getGlobalPose().q.toRadiansAndUnitAxis(a, b); m = glm::rotate(m, (float)a, glm::vec3(b.x, b.y, b.z));
 	transform = m;
@@ -151,26 +170,12 @@ void Cube::update(glm::mat4 parentTransform) {
 
 CenteredCube::CenteredCube(vec3 position) {
 	PxTransform t(PxVec3(position.x, position.y, position.z), PxQuat::createIdentity());
+
 	PxVec3 dimensions(0.5f, 0.5f, 0.5f);
-	PxBoxGeometry geometry(dimensions);
-	actor = PxCreateDynamic(*PhysicsManager::mPhysics, t, geometry, *PhysicsManager::mPhysics->createMaterial(0.1f, 0.1f, 0.5f), PxReal(1.0f));
-	actor->setAngularDamping(0.1);
-	PhysicsManager::mScene->addActor(*actor);
+	actor = PhysicsManager::createDynamic(t, dimensions);
 }
 
 void CenteredCube::update0(glm::mat4 parentTransform) {
-	if (Keyboard::keyDown(GLFW_KEY_W)) {
-		actor->addForce(PxVec3(0, 0, 10));
-	}
-	if (Keyboard::keyDown(GLFW_KEY_A)) {
-		actor->addForce(PxVec3(10, 0, 0));
-	}
-	if (Keyboard::keyDown(GLFW_KEY_S)) {
-		actor->addForce(PxVec3(00, 0, -10));
-	}
-	if (Keyboard::keyDown(GLFW_KEY_D)) {
-		actor->addForce(PxVec3(-10, 0, 0));
-	}
 
 	glm::mat4 m = glm::translate(glm::mat4(1), glm::vec3(actor->getGlobalPose().p.x, actor->getGlobalPose().p.y, actor->getGlobalPose().p.z));
 	PxReal a; PxVec3 b;  actor->getGlobalPose().q.toRadiansAndUnitAxis(a, b); m = glm::rotate(m, (float)a, glm::vec3(b.x, b.y, b.z));
