@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <list>
 #include <memory>
 #include "Graphics.h"
 #include "PhysicsManager.h"
@@ -9,6 +10,7 @@
 
 class Entity {
 public:
+	bool alive = true;
 	glm::mat4 transform;
 	virtual void update0(glm::mat4 parentTransform) {}
 	virtual void update(glm::mat4 parentTransform) {}
@@ -32,7 +34,7 @@ public:
 };
 
 namespace Game {
-	extern std::vector<std::unique_ptr<Entity> > entities;
+	extern std::list<std::unique_ptr<Entity> > entities;
 	void init();
 	void update();
 }

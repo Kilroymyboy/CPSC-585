@@ -40,8 +40,9 @@ void Aventador::update0(glm::mat4 parentTransform) {
 
 	mat4 t = translate(transform, modelDisplacement);
 
-	Viewport::position = mix(Viewport::position, vec3(transform* vec4(0, 1.25f, -5.5f, 1)), (float)Time::deltaTime);
-	Viewport::target = mix(Viewport::target, vec3(transform* vec4(0, 1.25f, 0, 1)), (float)Time::deltaTime);
+	float positionTightness = 4, targetTightness = 20;
+	Viewport::position = mix(Viewport::position, vec3(transform* vec4(0, 1.25f, -5.5f, 1)), min(1, Time::deltaTime*positionTightness));
+	Viewport::target = mix(Viewport::target, vec3(transform* vec4(0, 1.25f, 0, 1)), min(1, Time::deltaTime*targetTightness));
 
 	Light::renderShadowMap(&Resources::aventadorBody, t);
 	Light::renderShadowMap(&Resources::aventadorBodyGlow, t);
@@ -78,7 +79,7 @@ void AventadorWheel::update(glm::mat4 parentTransform) {
 }
 
 namespace Game {
-	vector<unique_ptr<Entity>> entities;
+	list<unique_ptr<Entity>> entities;
 
 	// we can customize this function as much as we want for now for debugging
 	void init() {
@@ -91,11 +92,17 @@ namespace Game {
 	void update() {
 		glfwPollEvents();
 
-		for (int i = 0; i < entities.size(); i++) {
-			entities[i].get()->update0(mat4(1));
+		for (auto it = entities.begin(); it != entities.end(); it++) {
+			if (it->get()->alive) {
+				it->get()->update0(mat4(1));
+			}
+			else {
+				it = entities.erase(it);
+			}
 		}
-		for (int i = 0; i < entities.size(); i++) {
-			entities[i].get()->update(mat4(1));
+
+		for (auto it = entities.begin(); it != entities.end(); it++) {
+			it->get()->update(mat4(1));
 		}
 
 		if (Keyboard::keyPressed(GLFW_KEY_Q))cout << "q pressed\n";
@@ -170,6 +177,9 @@ void CenteredCube::update0(glm::mat4 parentTransform) {
 	}
 	if (Keyboard::keyDown(GLFW_KEY_D)) {
 		actor->addForce(PxVec3(-10, 0, 0));
+	}
+	if (Keyboard::keyDown(GLFW_KEY_Q)) {
+		alive = 0;
 	}
 
 	glm::mat4 m = glm::translate(glm::mat4(1), glm::vec3(actor->getGlobalPose().p.x, actor->getGlobalPose().p.y, actor->getGlobalPose().p.z));
