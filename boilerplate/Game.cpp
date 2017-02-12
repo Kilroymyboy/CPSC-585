@@ -22,28 +22,46 @@ Aventador::Aventador() {
 
 	wheel0.get()->rotateSpeed = -.1f;
 	wheel3.get()->rotateSpeed = -.1f;
+
+	modelDisplacement = vec3(0, -0.55, 0);
+
+	PxTransform t(PxVec3(0, 2, 0), PxQuat::createIdentity());
+	PxVec3 dimensions(1, 0.5, 2.5);
+	PxBoxGeometry geometry(dimensions);
+	actor = PxCreateDynamic(*PhysicsManager::mPhysics, t, geometry, *PhysicsManager::mPhysics->createMaterial(0.1f, 0.1f, 0.5f), PxReal(1.0f));
+	actor->setAngularDamping(0.1);
+	PhysicsManager::mScene->addActor(*actor);
 }
 
 void Aventador::update0(glm::mat4 parentTransform) {
-	Light::renderShadowMap(&Resources::aventadorBody, parentTransform* transform);
-	Light::renderShadowMap(&Resources::aventadorBodyGlow, parentTransform*transform);
-	Light::renderShadowMap(&Resources::aventadorUnder, parentTransform*transform);
+	glm::mat4 m = glm::translate(glm::mat4(1), glm::vec3(actor->getGlobalPose().p.x, actor->getGlobalPose().p.y, actor->getGlobalPose().p.z));
+	PxReal a; PxVec3 b;  actor->getGlobalPose().q.toRadiansAndUnitAxis(a, b); m = glm::rotate(m, (float)a, glm::vec3(b.x, b.y, b.z));
+	transform = m;
+	mat4 t = translate(transform, modelDisplacement);
 
-	wheel1.get()->update0(parentTransform*transform);
-	wheel2.get()->update0(parentTransform*transform);
-	wheel0.get()->update0(parentTransform*transform);
-	wheel3.get()->update0(parentTransform*transform);
+
+
+	Light::renderShadowMap(&Resources::aventadorBody, parentTransform* t);
+	Light::renderShadowMap(&Resources::aventadorBodyGlow, parentTransform*t);
+	Light::renderShadowMap(&Resources::aventadorUnder, parentTransform*t);
+
+	wheel1.get()->update0(parentTransform*t);
+	wheel2.get()->update0(parentTransform*t);
+	wheel0.get()->update0(parentTransform*t);
+	wheel3.get()->update0(parentTransform*t);
 }
 
 void Aventador::update(glm::mat4 parentTransform) {
-	Graphics::RenderScene(&Resources::aventadorBody, &Resources::standardShader, &(Resources::darkGreyMaterial), parentTransform* transform);
-	Graphics::RenderScene(&Resources::aventadorBodyGlow, &Resources::standardShader, &Resources::emmisiveBlueMaterial, parentTransform*transform);
-	Graphics::RenderScene(&Resources::aventadorUnder, &Resources::standardShader, &Resources::pureBlackMaterial, parentTransform*transform);
+	mat4 t = translate(transform, modelDisplacement);
 
-	wheel1.get()->update(parentTransform*transform);
-	wheel2.get()->update(parentTransform*transform);
-	wheel0.get()->update(parentTransform*transform);
-	wheel3.get()->update(parentTransform*transform);
+	Graphics::RenderScene(&Resources::aventadorBody, &Resources::standardShader, &(Resources::darkGreyMaterial), parentTransform* t);
+	Graphics::RenderScene(&Resources::aventadorBodyGlow, &Resources::standardShader, &Resources::emmisiveBlueMaterial, parentTransform*t);
+	Graphics::RenderScene(&Resources::aventadorUnder, &Resources::standardShader, &Resources::pureBlackMaterial, parentTransform*t);
+
+	wheel1.get()->update(parentTransform*t);
+	wheel2.get()->update(parentTransform*t);
+	wheel0.get()->update(parentTransform*t);
+	wheel3.get()->update(parentTransform*t);
 }
 
 void AventadorWheel::update0(glm::mat4 parentTransform) {
@@ -62,7 +80,7 @@ namespace Game {
 
 	// we can customize this function as much as we want for now for debugging
 	void init() {
-		//	entities.push_back(unique_ptr<Aventador>(new Aventador));
+		entities.push_back(unique_ptr<Aventador>(new Aventador));
 		//	entities.push_back(unique_ptr<Cube>(new Cube));
 		entities.push_back(unique_ptr<CenteredCube>(new CenteredCube(vec3(0, 3, 0))));
 		entities.push_back(unique_ptr<Plane>(new Plane));
@@ -139,9 +157,17 @@ CenteredCube::CenteredCube(vec3 position) {
 }
 
 void CenteredCube::update0(glm::mat4 parentTransform) {
-	if (Keyboard::keyPressed(GLFW_KEY_P)) {
-		actor->addForce(PxVec3(0, 100, 0));
-		actor->addTorque(PxVec3(50, 10, 20));
+	if (Keyboard::keyDown(GLFW_KEY_W)) {
+		actor->addForce(PxVec3(0, 0, 10));
+	}
+	if (Keyboard::keyDown(GLFW_KEY_A)) {
+		actor->addForce(PxVec3(10, 0, 0));
+	}
+	if (Keyboard::keyDown(GLFW_KEY_S)) {
+		actor->addForce(PxVec3(00, 0, -10));
+	}
+	if (Keyboard::keyDown(GLFW_KEY_D)) {
+		actor->addForce(PxVec3(-10, 0, 0));
 	}
 
 	glm::mat4 m = glm::translate(glm::mat4(1), glm::vec3(actor->getGlobalPose().p.x, actor->getGlobalPose().p.y, actor->getGlobalPose().p.z));
