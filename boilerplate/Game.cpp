@@ -27,21 +27,41 @@ Aventador::Aventador() {
 
 	PxTransform t(PxVec3(0, 2, 0), PxQuat::createIdentity());
 	PxVec3 dimensions(1, 0.5, 2.5);
-	PxBoxGeometry geometry(dimensions);
-	actor = PxCreateDynamic(*PhysicsManager::mPhysics, t, geometry, *PhysicsManager::mPhysics->createMaterial(0.1f, 0.1f, 0.5f), PxReal(1.0f));
-	actor->setAngularDamping(0.1);
-	PhysicsManager::mScene->addActor(*actor);
+
+	actor = PhysicsManager::createDynamic(t, dimensions);
+
+
+	//PxBoxGeometry geometry(dimensions);
+	//actor = PxCreateDynamic(*PhysicsManager::mPhysics, t, geometry, *PhysicsManager::mPhysics->createMaterial(0.1f, 0.1f, 0.5f), PxReal(1.0f));
+	//actor->setAngularDamping(0.1);
+	//PhysicsManager::mScene->addActor(*actor);
 }
 
 void Aventador::update0(glm::mat4 parentTransform) {
+
+	if (Keyboard::keyDown(GLFW_KEY_W)) {
+		PxRigidBodyExt::addLocalForceAtLocalPos(*actor, PxVec3(0, 0, 100), PxVec3(0));
+	}
+	if (Keyboard::keyDown(GLFW_KEY_A)) {
+		PxRigidBodyExt::addLocalForceAtLocalPos(*actor, PxVec3(20, 0, 0), PxVec3(0, 0, 10));
+		//actor->addForce(PxVec3(100, 0, 0));
+	}
+	if (Keyboard::keyDown(GLFW_KEY_S)) {
+		PxRigidBodyExt::addLocalForceAtLocalPos(*actor, PxVec3(0, 0, -100), PxVec3(0));
+	}
+	if (Keyboard::keyDown(GLFW_KEY_D)) {
+		PxRigidBodyExt::addLocalForceAtLocalPos(*actor, PxVec3(20, 0, 0), PxVec3(0, 0, -10));
+	}
+
 	glm::mat4 m = glm::translate(glm::mat4(1), glm::vec3(actor->getGlobalPose().p.x, actor->getGlobalPose().p.y, actor->getGlobalPose().p.z));
 	PxReal a; PxVec3 b;  actor->getGlobalPose().q.toRadiansAndUnitAxis(a, b); m = glm::rotate(m, (float)a, glm::vec3(b.x, b.y, b.z));
 	transform = m;
 
 	mat4 t = translate(transform, modelDisplacement);
 
-	Viewport::position = mix(Viewport::position, vec3(transform* vec4(0, 1.25f, -5.5f, 1)), (float)Time::deltaTime);
-	Viewport::target = mix(Viewport::target, vec3(transform* vec4(0, 1.25f, 0, 1)), (float)Time::deltaTime);
+	float positionTightness = 4, targetTightness = 20;
+	Viewport::position = mix(Viewport::position, vec3(transform* vec4(0, 1.25f, -5.5f, 1)), min(1, Time::deltaTime*positionTightness));
+	Viewport::target = mix(Viewport::target, vec3(transform* vec4(0, 1.25f, 0, 1)), min(1, Time::deltaTime*targetTightness));
 
 	Light::renderShadowMap(&Resources::aventadorBody, t);
 	Light::renderShadowMap(&Resources::aventadorBodyGlow, t);
@@ -78,7 +98,7 @@ void AventadorWheel::update(glm::mat4 parentTransform) {
 }
 
 namespace Game {
-	vector<unique_ptr<Entity>> entities;
+	list<unique_ptr<Entity>> entities;
 
 	// we can customize this function as much as we want for now for debugging
 	void init() {
@@ -91,11 +111,17 @@ namespace Game {
 	void update() {
 		glfwPollEvents();
 
-		for (int i = 0; i < entities.size(); i++) {
-			entities[i].get()->update0(mat4(1));
+		for (auto it = entities.begin(); it != entities.end(); it++) {
+			if (it->get()->alive) {
+				it->get()->update0(mat4(1));
+			}
+			else {
+				it = entities.erase(it);
+			}
 		}
-		for (int i = 0; i < entities.size(); i++) {
-			entities[i].get()->update(mat4(1));
+
+		for (auto it = entities.begin(); it != entities.end(); it++) {
+			it->get()->update(mat4(1));
 		}
 
 		if (Keyboard::keyPressed(GLFW_KEY_Q))cout << "q pressed\n";
@@ -151,47 +177,15 @@ void Cube::update(glm::mat4 parentTransform) {
 
 CenteredCube::CenteredCube(vec3 position) {
 	PxTransform t(PxVec3(position.x, position.y, position.z), PxQuat::createIdentity());
+
 	PxVec3 dimensions(0.5f, 0.5f, 0.5f);
-	PxBoxGeometry geometry(dimensions);
-	actor = PxCreateDynamic(*PhysicsManager::mPhysics, t, geometry, *PhysicsManager::mPhysics->createMaterial(0.1f, 0.1f, 0.5f), PxReal(1.0f));
-	actor->setAngularDamping(0.1);
-	PhysicsManager::mScene->addActor(*actor);
+	actor = PhysicsManager::createDynamic(t, dimensions);
 }
 
 //We have to create a gamepad object I have no idea how to get around this
 Gamepad myGamepad = Gamepad();
 
 void CenteredCube::update0(glm::mat4 parentTransform) {
-	myGamepad.Update(); // Update the gamepad
-	myGamepad.GetState();
-
-	float z;
-	//stick controls that are unneeded
-	//float x = myGamepad.LeftStick_X()*-10;
-	//float z = myGamepad.LeftStick_Y() * 10;
-
-	//actor->addForce(PxVec3(x, 0.0, z));
-
-	if (Keyboard::keyDown(GLFW_KEY_W)) {
-		actor->addForce(PxVec3(0, 0, 10));
-	}
-	if (Keyboard::keyDown(GLFW_KEY_A)) {
-		actor->addForce(PxVec3(10, 0, 0));
-	}
-	if (Keyboard::keyDown(GLFW_KEY_S)) {
-		actor->addForce(PxVec3(00, 0, -10));
-	}
-	if (Keyboard::keyDown(GLFW_KEY_D)) {
-		actor->addForce(PxVec3(-10, 0, 0));
-	}
-	if (myGamepad.RightTrigger() > 0) {
-		z = myGamepad.RightTrigger() * 5;
-		actor->addForce(PxVec3(0, 0, z));
-	}
-	if (myGamepad.LeftTrigger() > 0) {
-		z = myGamepad.LeftTrigger() * -5;
-		actor->addForce(PxVec3(0, 0, z));
-	}
 
 	glm::mat4 m = glm::translate(glm::mat4(1), glm::vec3(actor->getGlobalPose().p.x, actor->getGlobalPose().p.y, actor->getGlobalPose().p.z));
 	PxReal a; PxVec3 b;  actor->getGlobalPose().q.toRadiansAndUnitAxis(a, b); m = glm::rotate(m, (float)a, glm::vec3(b.x, b.y, b.z));

@@ -1,16 +1,18 @@
 #include "PhysicsManager.h"
 #include "Game.h"
+#include "extensions\PxRigidBodyExt.h"
 
-using namespace physx;
 namespace PhysicsManager {
-	physx::PxFoundation *mFoundation;
-	physx::PxPhysics *mPhysics;
-	physx::PxScene *mScene;
-	physx::PxMaterial *mMaterial;
-	physx::PxVisualDebuggerConnection* gConnection;
+
+
+	PxFoundation *mFoundation;
+	PxPhysics *mPhysics;
+	PxScene *mScene;
+	PxMaterial *mMaterial;
+	PxVisualDebuggerConnection* gConnection;
 
 	//remove later
-	physx::PxRigidDynamic *actor;
+	PxRigidDynamic *player1;
 
 	void init()
 	{
@@ -42,26 +44,16 @@ namespace PhysicsManager {
 		sceneDesc.flags |= PxSceneFlag::eENABLE_ACTIVETRANSFORMS;
 		mScene = mPhysics->createScene(sceneDesc);
 
-		mMaterial = mPhysics->createMaterial(0.f, 0.f, 0.f);
-
-
+		mMaterial = mPhysics->createMaterial(0.0f, 0.3f, 0.f);
 
 		// infinite collision plane
 		PxRigidStatic* groundPlane = PxCreatePlane(*mPhysics, PxPlane(0, 1, 0, 0), *mMaterial);
-		//PxShape *shape = groundPlane->createShape(PxPlaneGeometry(), *mMaterial);
 		mScene->addActor(*groundPlane);
-
 
 		PxReal density = 1.0f;
 		PxTransform transform(PxVec3(0.0f, 2.0f, 0.0f), PxQuat::createIdentity());
 		PxVec3 dimensions(0.1f, 0.1f, 0.1f);
 		PxBoxGeometry geometry(dimensions);
-
-
-		actor = PxCreateDynamic(*mPhysics, transform, geometry, *mMaterial, density);
-	//	mScene->addActor(*actor);
-		actor->setAngularDamping(0.75);
-		actor->setLinearVelocity(PxVec3(0, 0, 2));
 
 
 
@@ -95,58 +87,38 @@ namespace PhysicsManager {
 	{
 		if (delta == 0) return;
 
-		//mScene->simulate(delta);
-		//mScene->fetchResults(true);
-
 		mScene->simulate(1.0f / 60.0f);
 		mScene->fetchResults(true);
-		PxVec3 test = actor->getGlobalPose().p;
 
 		PxU32 numTransforms;
 		const PxActiveTransform *transforms = mScene->getActiveTransforms(numTransforms);
 
 
-		for (PxU32 i = 0; i < numTransforms; ++i)
-		{
-			glm::mat4 rotMatrix = glm::translate(glm::mat4(1), glm::vec3(transforms->actor2World.p.x, transforms->actor2World.p.y, transforms->actor2World.p.z));
-			PxReal a; PxVec3 b; transforms->actor2World.q.toRadiansAndUnitAxis(a, b); rotMatrix = glm::rotate(rotMatrix, (float)a, glm::vec3(b.x, b.y, b.z));
+		//for (PxU32 i = 0; i < numTransforms; ++i)
+		//{
+		//	glm::mat4 rotMatrix = glm::translate(glm::mat4(1), glm::vec3(transforms->actor2World.p.x, transforms->actor2World.p.y, transforms->actor2World.p.z));
+		//	PxReal a; PxVec3 b; transforms->actor2World.q.toRadiansAndUnitAxis(a, b); rotMatrix = glm::rotate(rotMatrix, (float)a, glm::vec3(b.x, b.y, b.z));
 		//	Game::entities[0]->transform = rotMatrix;
-		}
+		//}
 
 		// glm::mat4_cast(glm::quat(transforms->actor2World.q.x, transforms->actor2World.q.y, transforms->actor2World.q.z, transforms->actor2World.q.w));
-
-
-
-//printf("1  this loc: %f , %f , %f\n", test.x, test.y, test.z);
-//printf("2  this loc: %f , %f , %f\n", transforms->actor2World.p.x, transforms->actor2World.p.y, transforms->actor2World.p.z);
-
-
-//PxRigidBodyExt::addForceAtLocalPos(*actor, PxVec3(0, 0, 5), PxVec3(0));
 	}
 
-	PxRigidDynamic* createDynamic(const PxTransform& t, const PxGeometry& geometry, const PxVec3& velocity = PxVec3(0))
+
+	PxRigidDynamic* createDynamic(const PxTransform& t, const PxVec3& dimensions, const PxVec3& velocity)
 	{
-		PxRigidDynamic* dynamic = PxCreateDynamic(*mPhysics, t, geometry, *mMaterial, 10.0f);
-		dynamic->setAngularDamping(0.5f);
+		PxBoxGeometry geometry(dimensions);
+		PxRigidDynamic* dynamic = PxCreateDynamic(*mPhysics, t, geometry, *mMaterial, 1.0f);
+		//actor = PxCreateDynamic(*PhysicsManager::mPhysics, t, geometry, *PhysicsManager::mPhysics->createMaterial(0.1f, 0.1f, 0.5f), PxReal(1.0f));
+
+		dynamic->setAngularDamping(0.2f);
 		dynamic->setLinearVelocity(velocity);
 		mScene->addActor(*dynamic);
 		return dynamic;
 	}
 
-	void createStack(const PxTransform& t, PxU32 size, PxReal halfExtent)
+	void updateSelf(const PxRigidDynamic *actor)
 	{
-		PxShape* shape = mPhysics->createShape(PxBoxGeometry(halfExtent, halfExtent, halfExtent), *mMaterial);
-		for (PxU32 i = 0; i < size; i++)
-		{
-			for (PxU32 j = 0; j < size - i; j++)
-			{
-				PxTransform localTm(PxVec3(PxReal(j * 2) - PxReal(size - i), PxReal(i * 2 + 1), 0) * halfExtent);
-				PxRigidDynamic* body = mPhysics->createRigidDynamic(t.transform(localTm));
-				body->attachShape(*shape);
-				PxRigidBodyExt::updateMassAndInertia(*body, 10.0f);
-				mScene->addActor(*body);
-			}
-		}
-		shape->release();
+
 	}
 }
