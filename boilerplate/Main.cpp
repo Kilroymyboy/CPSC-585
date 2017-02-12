@@ -60,14 +60,14 @@ int main(int argc, char *argv[])
 	if (Graphics::init() == -1)return -1;
 
 	//init physics as well
-	PhysicsManager *mPhysx = new PhysicsManager();
+	PhysicsManager::init();
 
 	Light::init();
 	Viewport::init();
 	Resources::init();
 	Time::init();
+	Keyboard::init();
 	Game::init();
-	PxU64 frameNum = 0;
 	while (!Graphics::shouldClose()) {
 		Graphics::clearFrameBuffer();
 		Time::update();
@@ -78,10 +78,13 @@ int main(int argc, char *argv[])
 		myGamepad.Update(); // Update the gamepad
 		myGamepad.GetState();
 		GetGamepadInput();
-		mPhysx->update(frameNum++);
+		PhysicsManager::update(1);
 
 		InputManager::GetGamepadInput(gamepad);
 		InputManager::GetGamepadInput(gamepad2);
+
+		Keyboard::update();
 	}
+	PhysicsManager::destroy();
 	Graphics::destroy();
 }

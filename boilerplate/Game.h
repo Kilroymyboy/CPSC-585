@@ -3,8 +3,9 @@
 #include <vector>
 #include <memory>
 #include "Graphics.h"
+#include "PhysicsManager.h"
 
-#define PRINT_FPS true
+#define PRINT_FPS 0
 
 class Entity {
 public:
@@ -21,6 +22,8 @@ public:
 };
 
 class Aventador : public Entity {
+	glm::vec3 modelDisplacement;
+	physx::PxRigidDynamic *actor;
 public:
 	std::unique_ptr<AventadorWheel> wheel1, wheel2, wheel3, wheel0;
 	void update0(glm::mat4 parentTransform)override;
@@ -54,7 +57,9 @@ public:
 };
 
 class CenteredCube :public Entity {
+	physx::PxRigidDynamic *actor;
 public:
+	CenteredCube(glm::vec3);
 	void update0(glm::mat4 parentTransform)override;
 	void update(glm::mat4 parentTransform)override;
 };

@@ -1,7 +1,10 @@
 #include "Game.h"
 #include "Resources.h"
+#include "InputManager.h"
+
 using namespace std;
 using namespace glm;
+using namespace physx;
 
 Aventador::Aventador() {
 	wheel1 = std::unique_ptr<AventadorWheel>(new AventadorWheel);
@@ -19,28 +22,48 @@ Aventador::Aventador() {
 
 	wheel0.get()->rotateSpeed = -.1f;
 	wheel3.get()->rotateSpeed = -.1f;
+
+	modelDisplacement = vec3(0, -0.55, 0);
+
+	PxTransform t(PxVec3(0, 2, 0), PxQuat::createIdentity());
+	PxVec3 dimensions(1, 0.5, 2.5);
+	PxBoxGeometry geometry(dimensions);
+	actor = PxCreateDynamic(*PhysicsManager::mPhysics, t, geometry, *PhysicsManager::mPhysics->createMaterial(0.1f, 0.1f, 0.5f), PxReal(1.0f));
+	actor->setAngularDamping(0.1);
+	PhysicsManager::mScene->addActor(*actor);
 }
 
 void Aventador::update0(glm::mat4 parentTransform) {
-	Light::renderShadowMap(&Resources::aventadorBody, parentTransform* transform);
-	Light::renderShadowMap(&Resources::aventadorBodyGlow, parentTransform*transform);
-	Light::renderShadowMap(&Resources::aventadorUnder, parentTransform*transform);
+	glm::mat4 m = glm::translate(glm::mat4(1), glm::vec3(actor->getGlobalPose().p.x, actor->getGlobalPose().p.y, actor->getGlobalPose().p.z));
+	PxReal a; PxVec3 b;  actor->getGlobalPose().q.toRadiansAndUnitAxis(a, b); m = glm::rotate(m, (float)a, glm::vec3(b.x, b.y, b.z));
+	transform = m;
 
-	wheel1.get()->update0(parentTransform*transform);
-	wheel2.get()->update0(parentTransform*transform);
-	wheel0.get()->update0(parentTransform*transform);
-	wheel3.get()->update0(parentTransform*transform);
+	mat4 t = translate(transform, modelDisplacement);
+
+	Viewport::position = mix(Viewport::position, vec3(transform* vec4(0, 1.25f, -5.5f, 1)), (float)Time::deltaTime);
+	Viewport::target = mix(Viewport::target, vec3(transform* vec4(0, 1.25f, 0, 1)), (float)Time::deltaTime);
+
+	Light::renderShadowMap(&Resources::aventadorBody, t);
+	Light::renderShadowMap(&Resources::aventadorBodyGlow, t);
+	Light::renderShadowMap(&Resources::aventadorUnder, t);
+
+	wheel1.get()->update0(t);
+	wheel2.get()->update0(t);
+	wheel0.get()->update0(t);
+	wheel3.get()->update0(t);
 }
 
 void Aventador::update(glm::mat4 parentTransform) {
-	Graphics::RenderScene(&Resources::aventadorBody, &Resources::standardShader, &(Resources::darkGreyMaterial), parentTransform* transform);
-	Graphics::RenderScene(&Resources::aventadorBodyGlow, &Resources::standardShader, &Resources::emmisiveBlueMaterial, parentTransform*transform);
-	Graphics::RenderScene(&Resources::aventadorUnder, &Resources::standardShader, &Resources::pureBlackMaterial, parentTransform*transform);
+	mat4 t = translate(transform, modelDisplacement);
 
-	wheel1.get()->update(parentTransform*transform);
-	wheel2.get()->update(parentTransform*transform);
-	wheel0.get()->update(parentTransform*transform);
-	wheel3.get()->update(parentTransform*transform);
+	Graphics::RenderScene(&Resources::aventadorBody, &Resources::standardShader, &(Resources::darkGreyMaterial), t);
+	Graphics::RenderScene(&Resources::aventadorBodyGlow, &Resources::standardShader, &Resources::emmisiveBlueMaterial, t);
+	Graphics::RenderScene(&Resources::aventadorUnder, &Resources::standardShader, &Resources::pureBlackMaterial, t);
+
+	wheel1.get()->update(t);
+	wheel2.get()->update(t);
+	wheel0.get()->update(t);
+	wheel3.get()->update(t);
 }
 
 void AventadorWheel::update0(glm::mat4 parentTransform) {
@@ -60,18 +83,23 @@ namespace Game {
 	// we can customize this function as much as we want for now for debugging
 	void init() {
 		entities.push_back(unique_ptr<Aventador>(new Aventador));
-	//	entities.push_back(unique_ptr<Cube>(new Cube));
-	//	entities.push_back(unique_ptr<CenteredCube>(new CenteredCube));
+		//	entities.push_back(unique_ptr<Cube>(new Cube));
+		entities.push_back(unique_ptr<CenteredCube>(new CenteredCube(vec3(0, 3, 0))));
 		entities.push_back(unique_ptr<Plane>(new Plane));
 	}
 
 	void update() {
+		glfwPollEvents();
+
 		for (int i = 0; i < entities.size(); i++) {
 			entities[i].get()->update0(mat4(1));
 		}
 		for (int i = 0; i < entities.size(); i++) {
 			entities[i].get()->update(mat4(1));
 		}
+
+		if (Keyboard::keyPressed(GLFW_KEY_Q))cout << "q pressed\n";
+		if (Keyboard::keyReleased(GLFW_KEY_Q))cout << "q released\n";
 	}
 }
 
@@ -121,11 +149,36 @@ void Cube::update(glm::mat4 parentTransform) {
 	Graphics::RenderScene(&Resources::cube, &Resources::standardShader, &Resources::defaultMaterial, parentTransform*transform);
 }
 
+CenteredCube::CenteredCube(vec3 position) {
+	PxTransform t(PxVec3(position.x, position.y, position.z), PxQuat::createIdentity());
+	PxVec3 dimensions(0.5f, 0.5f, 0.5f);
+	PxBoxGeometry geometry(dimensions);
+	actor = PxCreateDynamic(*PhysicsManager::mPhysics, t, geometry, *PhysicsManager::mPhysics->createMaterial(0.1f, 0.1f, 0.5f), PxReal(1.0f));
+	actor->setAngularDamping(0.1);
+	PhysicsManager::mScene->addActor(*actor);
+}
 
 void CenteredCube::update0(glm::mat4 parentTransform) {
-	Light::renderShadowMap(&Resources::centeredCube, parentTransform*transform);
+	if (Keyboard::keyDown(GLFW_KEY_W)) {
+		actor->addForce(PxVec3(0, 0, 10));
+	}
+	if (Keyboard::keyDown(GLFW_KEY_A)) {
+		actor->addForce(PxVec3(10, 0, 0));
+	}
+	if (Keyboard::keyDown(GLFW_KEY_S)) {
+		actor->addForce(PxVec3(00, 0, -10));
+	}
+	if (Keyboard::keyDown(GLFW_KEY_D)) {
+		actor->addForce(PxVec3(-10, 0, 0));
+	}
+
+	glm::mat4 m = glm::translate(glm::mat4(1), glm::vec3(actor->getGlobalPose().p.x, actor->getGlobalPose().p.y, actor->getGlobalPose().p.z));
+	PxReal a; PxVec3 b;  actor->getGlobalPose().q.toRadiansAndUnitAxis(a, b); m = glm::rotate(m, (float)a, glm::vec3(b.x, b.y, b.z));
+	transform = m;
+
+	Light::renderShadowMap(&Resources::centeredCube, transform);
 }
 
 void CenteredCube::update(glm::mat4 parentTransform) {
-	Graphics::RenderScene(&Resources::centeredCube, &Resources::standardShader, &Resources::defaultMaterial, parentTransform*transform);
+	Graphics::RenderScene(&Resources::centeredCube, &Resources::standardShader, &Resources::defaultMaterial, transform);
 }

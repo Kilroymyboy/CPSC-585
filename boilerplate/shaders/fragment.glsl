@@ -30,14 +30,19 @@ out vec4 FragmentColour;
 
 void main(void)
 {
-    FragmentColour = vec4(1, 1, 1, 0)*dot(-LightDirection, Normal);
-    if(FragmentColour.x<0)FragmentColour.x=0;
-    if(FragmentColour.y<0)FragmentColour.y=0;
-    if(FragmentColour.z<0)FragmentColour.z=0;
+	float cosTheta = dot(-LightDirection, Normal);
+    FragmentColour = vec4(1, 1, 1, 0)*cosTheta;
+	FragmentColour.xyz=max(FragmentColour.xyz, vec3(0));
     FragmentColour.xyz+=AmbientLight;
+
 	int hits=0;
-	for(int i=-2;i<3;i++)for(int j=-1;j<2;j++)
-		if(texture(shadowMap, ShadowCoord.xy+vec2(j/3201.1,i/2402.9)).x >= ShadowCoord.z -0.002)
+	float bias = 0.002*tan(acos(cosTheta));
+	bias = max(0, min(0.004, bias));
+
+	if(ShadowCoord.x<0||ShadowCoord.x>1||ShadowCoord.y<0||ShadowCoord.y>1)
+		hits=15;
+	else for(int i=-2;i<3;i++)for(int j=-1;j<2;j++)
+		if(texture(shadowMap, ShadowCoord.xy+vec2(j/3201.1,i/2402.9)).x >= ShadowCoord.z - bias)
 			hits++;
 	FragmentColour.xyz*=Color/15.0*hits;
 	FragmentColour.xyz+=EmissionColor;

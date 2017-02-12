@@ -1,6 +1,8 @@
 #include "InputManager.h"
 #include "Gamepad.h"
 
+#include <vector>
+
 using namespace std;
 
 InputManager::InputManager()
@@ -19,54 +21,54 @@ void InputManager::keyBoard(unsigned char key, int x, int y)
 
 	switch (key)
 	{
-	case (27) :
+	case (27):
 		exit(EXIT_FAILURE);
 
-	case (GLFW_KEY_A) :
+	case (GLFW_KEY_A):
 		cout << " A pressed " << endl;
 		break;
 
-	case (GLFW_KEY_D) :
+	case (GLFW_KEY_D):
 		cout << " D pressed " << endl;
 		break;
 
-	case (GLFW_KEY_S) :
+	case (GLFW_KEY_S):
 		cout << " S pressed " << endl;
 		break;
 
-	case (GLFW_KEY_W) :
+	case (GLFW_KEY_W):
 		cout << " W pressed " << endl;
 		break;
 
-	case (GLFW_KEY_Q) :
+	case (GLFW_KEY_Q):
 		cout << " Q pressed " << endl;
 		break;
 
-	case (GLFW_KEY_E) :
+	case (GLFW_KEY_E):
 		cout << " E pressed " << endl;
 		break;
 
-	case (GLFW_KEY_J) :
+	case (GLFW_KEY_J):
 		cout << " J " << endl;
 		break;
 
-	case (GLFW_KEY_K) :
+	case (GLFW_KEY_K):
 		cout << " K pressed " << endl;
 		break;
 
-	case (GLFW_KEY_L) :
+	case (GLFW_KEY_L):
 		cout << " L pressed " << endl;
 		break;
 
-	case (GLFW_KEY_I) :
+	case (GLFW_KEY_I):
 		cout << " I pressed " << endl;
 		break;
 
-	case (GLFW_KEY_U) :
+	case (GLFW_KEY_U):
 		cout << " U pressed " << endl;
 		break;
 
-	case (GLFW_KEY_O) :
+	case (GLFW_KEY_O):
 		cout << " O pressed " << endl;
 		break;
 	}
@@ -103,7 +105,7 @@ void InputManager::GetGamepadInput(Gamepad myGamepad)
 	{
 		cout << "GAME START!!!!" << endl;
 	}
-	
+
 	//four test calls to get stick x y every time implement it later for what we need to control the car but they all work
 	//myGamepad.RightStick_X();
 	//myGamepad.RightStick_Y();
@@ -151,3 +153,37 @@ void InputManager::motion(GLFWwindow* w, double x, double y)
 	mouse_old_x = x;
 	mouse_old_y = y;
 }*/
+
+namespace Keyboard {
+	vector<bool> v, pv;
+	void init() {
+		v.assign(256, 0);
+		pv.assign(256, 0);
+	}
+
+	void update() {
+		for (int i = 0; i < 256; i++) pv[i] = v[i];
+	}
+
+	bool keyDown(int key) {
+		return pv[key];
+	}
+
+	bool keyPressed(int key) {
+		return v[key] && !pv[key];
+	}
+
+	bool keyReleased(int key) {
+		return !v[key] && pv[key];
+	}
+
+	void Callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+		if (key < 0 || key >= 256)return;
+		if (action == GLFW_PRESS) {
+			v[key] = 1;
+		}
+		else if (action == GLFW_RELEASE) {
+			v[key] = 0;
+		}
+	}
+}
