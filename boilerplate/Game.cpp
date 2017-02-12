@@ -158,7 +158,20 @@ CenteredCube::CenteredCube(vec3 position) {
 	PhysicsManager::mScene->addActor(*actor);
 }
 
+//We have to create a gamepad object I have no idea how to get around this
+Gamepad myGamepad = Gamepad();
+
 void CenteredCube::update0(glm::mat4 parentTransform) {
+	myGamepad.Update(); // Update the gamepad
+	myGamepad.GetState();
+
+	float z;
+	//stick controls that are unneeded
+	//float x = myGamepad.LeftStick_X()*-10;
+	//float z = myGamepad.LeftStick_Y() * 10;
+
+	//actor->addForce(PxVec3(x, 0.0, z));
+
 	if (Keyboard::keyDown(GLFW_KEY_W)) {
 		actor->addForce(PxVec3(0, 0, 10));
 	}
@@ -171,13 +184,22 @@ void CenteredCube::update0(glm::mat4 parentTransform) {
 	if (Keyboard::keyDown(GLFW_KEY_D)) {
 		actor->addForce(PxVec3(-10, 0, 0));
 	}
+	if (myGamepad.RightTrigger() > 0) {
+		z = myGamepad.RightTrigger() * 5;
+		actor->addForce(PxVec3(0, 0, z));
+	}
+	if (myGamepad.LeftTrigger() > 0) {
+		z = myGamepad.LeftTrigger() * -5;
+		actor->addForce(PxVec3(0, 0, z));
+	}
 
 	glm::mat4 m = glm::translate(glm::mat4(1), glm::vec3(actor->getGlobalPose().p.x, actor->getGlobalPose().p.y, actor->getGlobalPose().p.z));
 	PxReal a; PxVec3 b;  actor->getGlobalPose().q.toRadiansAndUnitAxis(a, b); m = glm::rotate(m, (float)a, glm::vec3(b.x, b.y, b.z));
 	transform = m;
-
+	myGamepad.RefreshState();
 	Light::renderShadowMap(&Resources::centeredCube, transform);
 }
+
 
 void CenteredCube::update(glm::mat4 parentTransform) {
 	Graphics::RenderScene(&Resources::centeredCube, &Resources::standardShader, &Resources::defaultMaterial, transform);
