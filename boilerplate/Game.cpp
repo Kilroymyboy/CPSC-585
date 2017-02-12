@@ -37,31 +37,33 @@ void Aventador::update0(glm::mat4 parentTransform) {
 	glm::mat4 m = glm::translate(glm::mat4(1), glm::vec3(actor->getGlobalPose().p.x, actor->getGlobalPose().p.y, actor->getGlobalPose().p.z));
 	PxReal a; PxVec3 b;  actor->getGlobalPose().q.toRadiansAndUnitAxis(a, b); m = glm::rotate(m, (float)a, glm::vec3(b.x, b.y, b.z));
 	transform = m;
+
 	mat4 t = translate(transform, modelDisplacement);
 
+	Viewport::position = mix(Viewport::position, vec3(transform* vec4(0, 1.25f, -5.5f, 1)), (float)Time::deltaTime);
+	Viewport::target = mix(Viewport::target, vec3(transform* vec4(0, 1.25f, 0, 1)), (float)Time::deltaTime);
 
+	Light::renderShadowMap(&Resources::aventadorBody, t);
+	Light::renderShadowMap(&Resources::aventadorBodyGlow, t);
+	Light::renderShadowMap(&Resources::aventadorUnder, t);
 
-	Light::renderShadowMap(&Resources::aventadorBody, parentTransform* t);
-	Light::renderShadowMap(&Resources::aventadorBodyGlow, parentTransform*t);
-	Light::renderShadowMap(&Resources::aventadorUnder, parentTransform*t);
-
-	wheel1.get()->update0(parentTransform*t);
-	wheel2.get()->update0(parentTransform*t);
-	wheel0.get()->update0(parentTransform*t);
-	wheel3.get()->update0(parentTransform*t);
+	wheel1.get()->update0(t);
+	wheel2.get()->update0(t);
+	wheel0.get()->update0(t);
+	wheel3.get()->update0(t);
 }
 
 void Aventador::update(glm::mat4 parentTransform) {
 	mat4 t = translate(transform, modelDisplacement);
 
-	Graphics::RenderScene(&Resources::aventadorBody, &Resources::standardShader, &(Resources::darkGreyMaterial), parentTransform* t);
-	Graphics::RenderScene(&Resources::aventadorBodyGlow, &Resources::standardShader, &Resources::emmisiveBlueMaterial, parentTransform*t);
-	Graphics::RenderScene(&Resources::aventadorUnder, &Resources::standardShader, &Resources::pureBlackMaterial, parentTransform*t);
+	Graphics::RenderScene(&Resources::aventadorBody, &Resources::standardShader, &(Resources::darkGreyMaterial), t);
+	Graphics::RenderScene(&Resources::aventadorBodyGlow, &Resources::standardShader, &Resources::emmisiveBlueMaterial, t);
+	Graphics::RenderScene(&Resources::aventadorUnder, &Resources::standardShader, &Resources::pureBlackMaterial, t);
 
-	wheel1.get()->update(parentTransform*t);
-	wheel2.get()->update(parentTransform*t);
-	wheel0.get()->update(parentTransform*t);
-	wheel3.get()->update(parentTransform*t);
+	wheel1.get()->update(t);
+	wheel2.get()->update(t);
+	wheel0.get()->update(t);
+	wheel3.get()->update(t);
 }
 
 void AventadorWheel::update0(glm::mat4 parentTransform) {

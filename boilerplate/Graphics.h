@@ -110,8 +110,9 @@ namespace Graphics {
 }
 
 namespace Viewport {
-	extern glm::mat4 transform;
 	extern glm::mat4 projection;
+
+	extern glm::vec3 position, target;
 
 	void init();
 	void update(glm::mat4);
