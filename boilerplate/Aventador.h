@@ -5,6 +5,10 @@
 #include "InputManager.h"
 #include <vector>
 
+class VehicleData {
+
+};
+
 class AventadorWheel :public Entity {
 public:
 	float rotateSpeed;
@@ -15,6 +19,7 @@ public:
 class Aventador : public Entity {
 	glm::vec3 modelDisplacement;
 	physx::PxRigidDynamic *actor;
+	void updateSuspension();
 public:
 	// 0: front right, 1: front left, 2: rear left, 3: rear right
 	std::vector<std::unique_ptr<AventadorWheel> > wheel;

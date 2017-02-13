@@ -5,6 +5,7 @@
 #include <memory>
 #include "Graphics.h"
 #include "PhysicsManager.h"
+#include "Util.h"
 
 #define PRINT_FPS 1
 

@@ -30,10 +30,11 @@ Aventador::Aventador() {
 	wheel[0].get()->rotateSpeed = -.1f;
 	wheel[3].get()->rotateSpeed = -.1f;
 
-	PxTransform t(PxVec3(0, 2, 0), PxQuat::createIdentity());
+	PxTransform t(PxVec3(0, 5, 0), PxQuat::createIdentity());
 	PxVec3 dimensions(1, 0.45, 2.5);
 
 	actor = PhysicsManager::createDynamic(t, dimensions);
+	actor->setMass(5.5);
 }
 
 void Aventador::update0(glm::mat4 parentTransform) {
@@ -63,6 +64,11 @@ void Aventador::update0(glm::mat4 parentTransform) {
 	if (Keyboard::keyDown(GLFW_KEY_Q)) {
 		Viewport::position = transform* vec4(5.5f, 1.25f, 0.0f, 1);
 	}
+	else	if (Keyboard::keyDown(GLFW_KEY_E)) {
+		Viewport::position = transform* vec4(-5.5f, 1.25f, 0.0f, 1);
+	}
+
+	updateSuspension();
 
 	Light::position = pos + vec3(3, 5, 4);
 	Light::target = pos;
@@ -86,6 +92,22 @@ void Aventador::update(glm::mat4 parentTransform) {
 	for (int i = 0; i < wheel.size(); i++) {
 		//	wheel[i].get()->update(t);
 	}
+}
+
+void Aventador::updateSuspension() {
+	PxRaycastBuffer hit;
+	PxHitFlags hitFlags = PxHitFlag::ePOSITION | PxHitFlag::eNORMAL | PxHitFlag::eDISTANCE;
+	PxQueryFilterData filterData(PxQueryFlag::eSTATIC);
+
+	for (int i = 0; i < 4; i++)
+		if (PhysicsManager::mScene->raycast(
+			Util::g2p(vec3(transform*vec4(wheelPos[i], 1))),
+			Util::g2p(mat3(transform)*vec3(0, -1, 0)), 1,
+			hit, hitFlags, filterData)) {
+			PxRigidBodyExt::addForceAtLocalPos(*actor,
+				PxVec3(0, -28.5 * min(0, (wheelPos[i].y - hit.block.distance)), 0),
+				Util::g2p(wheelPos[i]));
+		}
 }
 
 void AventadorWheel::update0(glm::mat4 parentTransform) {
