@@ -53,15 +53,19 @@ void Aventador::update0(glm::mat4 parentTransform) {
 		PxRigidBodyExt::addLocalForceAtLocalPos(*actor, PxVec3(20, 0, 0), PxVec3(0, 0, -10));
 	}
 
-	glm::mat4 m = glm::translate(glm::mat4(1), glm::vec3(actor->getGlobalPose().p.x, actor->getGlobalPose().p.y, actor->getGlobalPose().p.z));
+	vec3 pos(actor->getGlobalPose().p.x, actor->getGlobalPose().p.y, actor->getGlobalPose().p.z);
+	glm::mat4 m = glm::translate(glm::mat4(1), pos);
 	PxReal a; PxVec3 b;  actor->getGlobalPose().q.toRadiansAndUnitAxis(a, b); m = glm::rotate(m, (float)a, glm::vec3(b.x, b.y, b.z));
 	transform = m;
 
 	mat4 t = translate(transform, modelDisplacement);
 
-	float positionTightness = 4, targetTightness = 20;
-	Viewport::position = mix(Viewport::position, vec3(transform* vec4(0, 1.25f, -5.5f, 1)), min(1, Time::deltaTime*positionTightness));
-	Viewport::target = mix(Viewport::target, vec3(transform* vec4(0, 1.25f, 0, 1)), min(1, Time::deltaTime*targetTightness));
+	float positionTightness = .2, targetTightness = .5;
+	Viewport::position = mix(Viewport::position, vec3(transform* vec4(0, 1.25f, -5.5f, 1)), positionTightness);
+	Viewport::target = mix(Viewport::target, vec3(transform* vec4(0, 1.25f, 0, 1)), targetTightness);
+
+	Light::position = pos + vec3(3, 5, 4);
+	Light::target = pos;
 
 	Light::renderShadowMap(&Resources::aventadorBody, t);
 	Light::renderShadowMap(&Resources::aventadorBodyGlow, t);
@@ -160,11 +164,21 @@ namespace Time {
 }
 
 void Plane::update0(glm::mat4 parentTransform) {
-	Light::renderShadowMap(&Resources::plane, parentTransform*transform);
+	for (int i = -5; i < 6; i++) {
+		for (int j = -5; j < 6; j++) {
+			mat4 t = translate(transform, vec3(i * 16, 0, j * 16));
+			Light::renderShadowMap(&Resources::plane, parentTransform*t);
+		}
+	}
 }
 
 void Plane::update(glm::mat4 parentTransform) {
-	Graphics::RenderScene(&Resources::plane, &Resources::standardShader, &Resources::defaultMaterial, parentTransform*transform);
+	for (int i = -5; i < 6; i++) {
+		for (int j = -5; j < 6; j++) {
+			mat4 t = translate(transform, vec3(i * 16, 0, j * 16));
+			Graphics::RenderScene(&Resources::plane, &Resources::standardShader, &Resources::defaultMaterial, parentTransform*t);
+		}
+	}
 }
 
 void Cube::update0(glm::mat4 parentTransform) {

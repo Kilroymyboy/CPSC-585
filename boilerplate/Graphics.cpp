@@ -884,17 +884,18 @@ namespace Light {
 	glm::mat4 transform;
 	glm::mat4 projection;
 
+	glm::vec3 position, target;
+
 	void init() {
 		color = vec3(.1f, .1f, .1f);
 		direction = vec3(0, -1, 0);
 		ambient = vec3(0.05, 0.05, 0.05);
 		projection = ortho<float>(-5, 5, -5, 5, -5, 30);
-		transform = lookAt(vec3(5, 4, 3), vec3(0, 0, 0), vec3(0, 1, 0));
 	}
 
 	void update() {
-		transform = lookAt(vec3(cos(glfwGetTime() / 3.5f) * 5.0f, 4, sin(glfwGetTime() / 3.5f) * 3.0f), vec3(0, 0, 0), vec3(0, 1, 0));
-		direction = normalize(vec3(-cos(glfwGetTime() / 3.5f) * 5.0f, -4, -sin(glfwGetTime() / 3.5f) * 3.0f));
+		transform = lookAt(position, target, vec3(0, 1, 0));
+		direction = normalize(target - position);
 		glUniform3f(LIGHT_LOCATION, direction.x, direction.y, direction.z);
 		glUniform3f(AMBIENT_LOCATION, ambient.x, ambient.y, ambient.z);
 	}

@@ -32,8 +32,8 @@
 #define EMISSION_COLOR_LOCATION 8
 #define SHADOW_MVP_LOCATION 9
 
-#define WINDOW_WIDTH 2080
-#define WINDOW_HEIGHT 1280
+#define WINDOW_WIDTH 1280
+#define WINDOW_HEIGHT 720
 
 #define MSAA 1
 #define VSYNC 1
@@ -127,6 +127,7 @@ namespace Light {
 
 	extern glm::mat4 transform;
 	extern glm::mat4 projection;
+	extern glm::vec3 position, target;
 
 	void init();
 	void update();
