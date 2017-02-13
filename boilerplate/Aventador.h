@@ -3,6 +3,7 @@
 #include "Game.h"
 #include "Resources.h"
 #include "InputManager.h"
+#include <vector>
 
 class AventadorWheel :public Entity {
 public:
@@ -15,7 +16,9 @@ class Aventador : public Entity {
 	glm::vec3 modelDisplacement;
 	physx::PxRigidDynamic *actor;
 public:
-	std::unique_ptr<AventadorWheel> wheel1, wheel2, wheel3, wheel0;
+	// 0: front right, 1: front left, 2: rear left, 3: rear right
+	std::vector<std::unique_ptr<AventadorWheel> > wheel;
+	std::vector<glm::vec3> wheelPos;
 	void update0(glm::mat4 parentTransform)override;
 	void update(glm::mat4 parentTransform)override;
 	Aventador();

@@ -5,34 +5,35 @@ using namespace glm;
 using namespace physx;
 
 Aventador::Aventador() {
-	wheel1 = std::unique_ptr<AventadorWheel>(new AventadorWheel);
-	wheel1.get()->transform = translate(mat4(1), vec3(.851f, .331f, 1.282f));
-	wheel2 = std::unique_ptr<AventadorWheel>(new AventadorWheel);
-	wheel2.get()->transform = scale(translate(mat4(1), vec3(.858f, .356f, -1.427f)), vec3(1.07f, 1.07f, 1.07f));
+	wheel.resize(4);
+	wheelPos.resize(4);
 
-	wheel1.get()->rotateSpeed = .1f;
-	wheel2.get()->rotateSpeed = .1f;
-
-	wheel0 = std::unique_ptr<AventadorWheel>(new AventadorWheel);
-	wheel0.get()->transform = rotate(translate(mat4(1), vec3(-.851f, .331f, 1.282f)), (float)PI, vec3(0, 1, 0));
-	wheel3 = std::unique_ptr<AventadorWheel>(new AventadorWheel);
-	wheel3.get()->transform = scale(rotate(translate(mat4(1), vec3(-.858f, .356f, -1.427f)), (float)PI, vec3(0, 1, 0)), vec3(1.07f, 1.07f, 1.07f));
-
-	wheel0.get()->rotateSpeed = -.1f;
-	wheel3.get()->rotateSpeed = -.1f;
-
+	wheelPos[0] = vec3(-.851f, .331f, 1.282f);
+	wheelPos[1] = vec3(.851f, .331f, 1.282f);
+	wheelPos[2] = vec3(.858f, .356f, -1.427f);
+	wheelPos[3] = vec3(-.858f, .356f, -1.427f);
 	modelDisplacement = vec3(0, -0.55, 0);
+	
+	wheel[1] = std::unique_ptr<AventadorWheel>(new AventadorWheel);
+	wheel[1].get()->transform = translate(mat4(1), wheelPos[1]);
+	wheel[2] = std::unique_ptr<AventadorWheel>(new AventadorWheel);
+	wheel[2].get()->transform = scale(translate(mat4(1), wheelPos[2]), vec3(1.07f, 1.07f, 1.07f));
 
+	wheel[1].get()->rotateSpeed = .1f;
+	wheel[2].get()->rotateSpeed = .1f;
+
+	wheel[0] = std::unique_ptr<AventadorWheel>(new AventadorWheel);
+	wheel[0].get()->transform = rotate(translate(mat4(1), wheelPos[0]), (float)PI, vec3(0, 1, 0));
+	wheel[3] = std::unique_ptr<AventadorWheel>(new AventadorWheel);
+	wheel[3].get()->transform = scale(rotate(translate(mat4(1), wheelPos[3]), (float)PI, vec3(0, 1, 0)), vec3(1.07f, 1.07f, 1.07f));
+
+	wheel[0].get()->rotateSpeed = -.1f;
+	wheel[3].get()->rotateSpeed = -.1f;
+	
 	PxTransform t(PxVec3(0, 2, 0), PxQuat::createIdentity());
 	PxVec3 dimensions(1, 0.5, 2.5);
 
 	actor = PhysicsManager::createDynamic(t, dimensions);
-
-
-	//PxBoxGeometry geometry(dimensions);
-	//actor = PxCreateDynamic(*PhysicsManager::mPhysics, t, geometry, *PhysicsManager::mPhysics->createMaterial(0.1f, 0.1f, 0.5f), PxReal(1.0f));
-	//actor->setAngularDamping(0.1);
-	//PhysicsManager::mScene->addActor(*actor);
 }
 
 void Aventador::update0(glm::mat4 parentTransform) {
@@ -42,7 +43,6 @@ void Aventador::update0(glm::mat4 parentTransform) {
 	}
 	if (Keyboard::keyDown(GLFW_KEY_A)) {
 		PxRigidBodyExt::addLocalForceAtLocalPos(*actor, PxVec3(20, 0, 0), PxVec3(0, 0, 10));
-		//actor->addForce(PxVec3(100, 0, 0));
 	}
 	if (Keyboard::keyDown(GLFW_KEY_S)) {
 		PxRigidBodyExt::addLocalForceAtLocalPos(*actor, PxVec3(0, 0, -100), PxVec3(0));
@@ -69,10 +69,9 @@ void Aventador::update0(glm::mat4 parentTransform) {
 	Light::renderShadowMap(&Resources::aventadorBodyGlow, t);
 	Light::renderShadowMap(&Resources::aventadorUnder, t);
 
-	wheel1.get()->update0(t);
-	wheel2.get()->update0(t);
-	wheel0.get()->update0(t);
-	wheel3.get()->update0(t);
+	for (int i = 0; i < wheel.size(); i++) {
+		wheel[i].get()->update0(t);
+	}
 }
 
 void Aventador::update(glm::mat4 parentTransform) {
@@ -82,10 +81,9 @@ void Aventador::update(glm::mat4 parentTransform) {
 	Graphics::RenderScene(&Resources::aventadorBodyGlow, &Resources::standardShader, &Resources::emmisiveBlueMaterial, t);
 	Graphics::RenderScene(&Resources::aventadorUnder, &Resources::standardShader, &Resources::pureBlackMaterial, t);
 
-	wheel1.get()->update(t);
-	wheel2.get()->update(t);
-	wheel0.get()->update(t);
-	wheel3.get()->update(t);
+	for (int i = 0; i < wheel.size(); i++) {
+		wheel[i].get()->update(t);
+	}
 }
 
 void AventadorWheel::update0(glm::mat4 parentTransform) {
