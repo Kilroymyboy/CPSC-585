@@ -13,7 +13,7 @@ Aventador::Aventador() {
 	wheelPos[2] = vec3(.858f, .356f, -1.427f);
 	wheelPos[3] = vec3(-.858f, .356f, -1.427f);
 	modelDisplacement = vec3(0, -0.55, 0);
-	
+
 	wheel[1] = std::unique_ptr<AventadorWheel>(new AventadorWheel);
 	wheel[1].get()->transform = translate(mat4(1), wheelPos[1]);
 	wheel[2] = std::unique_ptr<AventadorWheel>(new AventadorWheel);
@@ -29,25 +29,24 @@ Aventador::Aventador() {
 
 	wheel[0].get()->rotateSpeed = -.1f;
 	wheel[3].get()->rotateSpeed = -.1f;
-	
+
 	PxTransform t(PxVec3(0, 2, 0), PxQuat::createIdentity());
-	PxVec3 dimensions(1, 0.5, 2.5);
+	PxVec3 dimensions(1, 0.45, 2.5);
 
 	actor = PhysicsManager::createDynamic(t, dimensions);
 }
 
 void Aventador::update0(glm::mat4 parentTransform) {
-
-	if (Keyboard::keyDown(GLFW_KEY_W)) {
+	if (Keyboard::keyDown(GLFW_KEY_W) || Keyboard::keyDown(GLFW_KEY_UP)) {
 		PxRigidBodyExt::addLocalForceAtLocalPos(*actor, PxVec3(0, 0, 100), PxVec3(0));
 	}
-	if (Keyboard::keyDown(GLFW_KEY_A)) {
+	if (Keyboard::keyDown(GLFW_KEY_A) || Keyboard::keyDown(GLFW_KEY_LEFT)) {
 		PxRigidBodyExt::addLocalForceAtLocalPos(*actor, PxVec3(20, 0, 0), PxVec3(0, 0, 10));
 	}
-	if (Keyboard::keyDown(GLFW_KEY_S)) {
+	if (Keyboard::keyDown(GLFW_KEY_S) || Keyboard::keyDown(GLFW_KEY_DOWN)) {
 		PxRigidBodyExt::addLocalForceAtLocalPos(*actor, PxVec3(0, 0, -100), PxVec3(0));
 	}
-	if (Keyboard::keyDown(GLFW_KEY_D)) {
+	if (Keyboard::keyDown(GLFW_KEY_D) || Keyboard::keyDown(GLFW_KEY_RIGHT)) {
 		PxRigidBodyExt::addLocalForceAtLocalPos(*actor, PxVec3(20, 0, 0), PxVec3(0, 0, -10));
 	}
 
@@ -61,6 +60,9 @@ void Aventador::update0(glm::mat4 parentTransform) {
 	float positionTightness = .2, targetTightness = .5;
 	Viewport::position = mix(Viewport::position, vec3(transform* vec4(0, 1.25f, -5.5f, 1)), positionTightness);
 	Viewport::target = mix(Viewport::target, vec3(transform* vec4(0, 1.25f, 0, 1)), targetTightness);
+	if (Keyboard::keyDown(GLFW_KEY_Q)) {
+		Viewport::position = transform* vec4(5.5f, 1.25f, 0.0f, 1);
+	}
 
 	Light::position = pos + vec3(3, 5, 4);
 	Light::target = pos;
@@ -70,7 +72,7 @@ void Aventador::update0(glm::mat4 parentTransform) {
 	Light::renderShadowMap(&Resources::aventadorUnder, t);
 
 	for (int i = 0; i < wheel.size(); i++) {
-		wheel[i].get()->update0(t);
+		//	wheel[i].get()->update0(t);
 	}
 }
 
@@ -82,7 +84,7 @@ void Aventador::update(glm::mat4 parentTransform) {
 	Graphics::RenderScene(&Resources::aventadorUnder, &Resources::standardShader, &Resources::pureBlackMaterial, t);
 
 	for (int i = 0; i < wheel.size(); i++) {
-		wheel[i].get()->update(t);
+		//	wheel[i].get()->update(t);
 	}
 }
 
