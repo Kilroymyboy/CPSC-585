@@ -1,0 +1,100 @@
+#include "Aventador.h"
+
+using namespace std;
+using namespace glm;
+using namespace physx;
+
+Aventador::Aventador() {
+	wheel1 = std::unique_ptr<AventadorWheel>(new AventadorWheel);
+	wheel1.get()->transform = translate(mat4(1), vec3(.851f, .331f, 1.282f));
+	wheel2 = std::unique_ptr<AventadorWheel>(new AventadorWheel);
+	wheel2.get()->transform = scale(translate(mat4(1), vec3(.858f, .356f, -1.427f)), vec3(1.07f, 1.07f, 1.07f));
+
+	wheel1.get()->rotateSpeed = .1f;
+	wheel2.get()->rotateSpeed = .1f;
+
+	wheel0 = std::unique_ptr<AventadorWheel>(new AventadorWheel);
+	wheel0.get()->transform = rotate(translate(mat4(1), vec3(-.851f, .331f, 1.282f)), (float)PI, vec3(0, 1, 0));
+	wheel3 = std::unique_ptr<AventadorWheel>(new AventadorWheel);
+	wheel3.get()->transform = scale(rotate(translate(mat4(1), vec3(-.858f, .356f, -1.427f)), (float)PI, vec3(0, 1, 0)), vec3(1.07f, 1.07f, 1.07f));
+
+	wheel0.get()->rotateSpeed = -.1f;
+	wheel3.get()->rotateSpeed = -.1f;
+
+	modelDisplacement = vec3(0, -0.55, 0);
+
+	PxTransform t(PxVec3(0, 2, 0), PxQuat::createIdentity());
+	PxVec3 dimensions(1, 0.5, 2.5);
+
+	actor = PhysicsManager::createDynamic(t, dimensions);
+
+
+	//PxBoxGeometry geometry(dimensions);
+	//actor = PxCreateDynamic(*PhysicsManager::mPhysics, t, geometry, *PhysicsManager::mPhysics->createMaterial(0.1f, 0.1f, 0.5f), PxReal(1.0f));
+	//actor->setAngularDamping(0.1);
+	//PhysicsManager::mScene->addActor(*actor);
+}
+
+void Aventador::update0(glm::mat4 parentTransform) {
+
+	if (Keyboard::keyDown(GLFW_KEY_W)) {
+		PxRigidBodyExt::addLocalForceAtLocalPos(*actor, PxVec3(0, 0, 100), PxVec3(0));
+	}
+	if (Keyboard::keyDown(GLFW_KEY_A)) {
+		PxRigidBodyExt::addLocalForceAtLocalPos(*actor, PxVec3(20, 0, 0), PxVec3(0, 0, 10));
+		//actor->addForce(PxVec3(100, 0, 0));
+	}
+	if (Keyboard::keyDown(GLFW_KEY_S)) {
+		PxRigidBodyExt::addLocalForceAtLocalPos(*actor, PxVec3(0, 0, -100), PxVec3(0));
+	}
+	if (Keyboard::keyDown(GLFW_KEY_D)) {
+		PxRigidBodyExt::addLocalForceAtLocalPos(*actor, PxVec3(20, 0, 0), PxVec3(0, 0, -10));
+	}
+
+	vec3 pos(actor->getGlobalPose().p.x, actor->getGlobalPose().p.y, actor->getGlobalPose().p.z);
+	glm::mat4 m = glm::translate(glm::mat4(1), pos);
+	PxReal a; PxVec3 b;  actor->getGlobalPose().q.toRadiansAndUnitAxis(a, b); m = glm::rotate(m, (float)a, glm::vec3(b.x, b.y, b.z));
+	transform = m;
+
+	mat4 t = translate(transform, modelDisplacement);
+
+	float positionTightness = .2, targetTightness = .5;
+	Viewport::position = mix(Viewport::position, vec3(transform* vec4(0, 1.25f, -5.5f, 1)), positionTightness);
+	Viewport::target = mix(Viewport::target, vec3(transform* vec4(0, 1.25f, 0, 1)), targetTightness);
+
+	Light::position = pos + vec3(3, 5, 4);
+	Light::target = pos;
+
+	Light::renderShadowMap(&Resources::aventadorBody, t);
+	Light::renderShadowMap(&Resources::aventadorBodyGlow, t);
+	Light::renderShadowMap(&Resources::aventadorUnder, t);
+
+	wheel1.get()->update0(t);
+	wheel2.get()->update0(t);
+	wheel0.get()->update0(t);
+	wheel3.get()->update0(t);
+}
+
+void Aventador::update(glm::mat4 parentTransform) {
+	mat4 t = translate(transform, modelDisplacement);
+
+	Graphics::RenderScene(&Resources::aventadorBody, &Resources::standardShader, &(Resources::darkGreyMaterial), t);
+	Graphics::RenderScene(&Resources::aventadorBodyGlow, &Resources::standardShader, &Resources::emmisiveBlueMaterial, t);
+	Graphics::RenderScene(&Resources::aventadorUnder, &Resources::standardShader, &Resources::pureBlackMaterial, t);
+
+	wheel1.get()->update(t);
+	wheel2.get()->update(t);
+	wheel0.get()->update(t);
+	wheel3.get()->update(t);
+}
+
+void AventadorWheel::update0(glm::mat4 parentTransform) {
+	transform = rotate(transform, rotateSpeed, vec3(1.0f, 0.0f, 0.0f));
+	Light::renderShadowMap(&Resources::aventadorWheel, parentTransform*transform);
+	Light::renderShadowMap(&Resources::aventadorWheelGlow, parentTransform*transform);
+}
+
+void AventadorWheel::update(glm::mat4 parentTransform) {
+	Graphics::RenderScene(&Resources::aventadorWheel, &Resources::standardShader, &Resources::darkGreyMaterial, parentTransform*transform);
+	Graphics::RenderScene(&Resources::aventadorWheelGlow, &Resources::standardShader, &Resources::emmisiveBlueMaterial, parentTransform*transform);
+}
