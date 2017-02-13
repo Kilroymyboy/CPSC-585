@@ -35,14 +35,14 @@
 #define WINDOW_WIDTH 1280
 #define WINDOW_HEIGHT 720
 
-#define MSAA 1
+#define MSAA 2
 #define VSYNC 1
 #define SHADOWMAP_SIZE 1600
 
 #define BLOOM_DOWNSAMPLE 2
 #define BLOOM_DOWNSAMPLE1 8
 
-#define EFFECTS 0
+#define EFFECTS 1
 
 namespace Graphics {
 	int init();
