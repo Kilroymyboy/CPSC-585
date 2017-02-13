@@ -6,7 +6,7 @@
 #include "Graphics.h"
 #include "PhysicsManager.h"
 
-#define PRINT_FPS 0
+#define PRINT_FPS 1
 
 class Entity {
 public:
