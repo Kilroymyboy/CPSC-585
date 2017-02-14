@@ -6,7 +6,7 @@
 #include "Graphics.h"
 #include "PhysicsManager.h"
 
-#define PRINT_FPS 0
+#define PRINT_FPS 1
 
 class Entity {
 public:
@@ -14,23 +14,6 @@ public:
 	glm::mat4 transform;
 	virtual void update0(glm::mat4 parentTransform) {}
 	virtual void update(glm::mat4 parentTransform) {}
-};
-
-class AventadorWheel :public Entity {
-public:
-	float rotateSpeed;
-	void update0(glm::mat4 parentTransform)override;
-	void update(glm::mat4 parentTransform)override;
-};
-
-class Aventador : public Entity {
-	glm::vec3 modelDisplacement;
-	physx::PxRigidDynamic *actor;
-public:
-	std::unique_ptr<AventadorWheel> wheel1, wheel2, wheel3, wheel0;
-	void update0(glm::mat4 parentTransform)override;
-	void update(glm::mat4 parentTransform)override;
-	Aventador();
 };
 
 namespace Game {

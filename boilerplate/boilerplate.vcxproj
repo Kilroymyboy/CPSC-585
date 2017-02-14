@@ -136,6 +136,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\middleware\glad\src\glad.c" />
+    <ClCompile Include="Aventador.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="Gamepad.cpp" />
     <ClCompile Include="Graphics.cpp" />
@@ -145,6 +146,7 @@
     <ClCompile Include="Resources.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Aventador.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="Graphics.h" />
     <ClInclude Include="PhysicsManager.h" />
