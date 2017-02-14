@@ -25,6 +25,7 @@ class Aventador : public Entity {
 	physx::PxRigidDynamic *actor;
 	void updateSuspension();
 	float springForce = 155;
+	float damperForce = 5;
 public:
 	// 0: front right, 1: front left, 2: rear left, 3: rear right
 	std::vector<std::unique_ptr<AventadorWheel> > wheel;

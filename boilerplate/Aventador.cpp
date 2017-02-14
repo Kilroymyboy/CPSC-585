@@ -35,6 +35,7 @@ Aventador::Aventador() {
 
 	actor = PhysicsManager::createDynamic(t, dimensions);
 	actor->setMass(5.5);
+	actor->setAngularDamping(5);
 }
 
 void Aventador::update0(glm::mat4 parentTransform) {
@@ -107,14 +108,22 @@ void Aventador::updateSuspension() {
 	float m = 0.5;
 
 	for (int i = 0; i < 4; i++) {
+		vec3 wheelP(transform*vec4(wheelPos[i] - vec3(0, .45, 0), 1));
 		if (PhysicsManager::mScene->raycast(
-			Util::g2p(vec3(transform*vec4(wheelPos[i] - vec3(0, .45, 0), 1))),
+			Util::g2p(wheelP),
 			Util::g2p(mat3(transform)*vec3(0, -1, 0)), m,
 			hit, hitFlags, filterData)) {
 			PxRigidBodyExt::addForceAtLocalPos(*actor,
 				PxVec3(0, springForce * max(0, (m - hit.block.distance)), 0),
 				Util::g2p(wheelPos[i]), PxForceMode::eFORCE);
 			wheel[i].get()->height = (-hit.block.distance + wheelPos[i].y) + 0.09;
+
+			PxVec3 wspeed = PxRigidBodyExt::getLocalVelocityAtLocalPos(*actor, Util::g2p(wheelPos[i]));
+			PxRigidBodyExt::addForceAtLocalPos(*actor,
+				PxVec3(0, damperForce * -wspeed.y, 0),
+				Util::g2p(wheelPos[i]), PxForceMode::eFORCE);
+
+			wheel[i].get()->rotateSpeed = (mat3(transform)*Util::p2g(wspeed)).z *0.045;
 		}
 		else {
 			wheel[i].get()->height = (-m + wheelPos[i].y) + 0.09;
