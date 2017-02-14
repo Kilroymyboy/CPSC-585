@@ -13,6 +13,7 @@ class AventadorWheel :public Entity {
 public:
 	float rotation = 0;
 	float rotateSpeed;
+	float rotateInverse;
 	float height;
 	glm::mat4 tempTransform;
 	void update0(glm::mat4 parentTransform)override;
@@ -23,7 +24,15 @@ class Aventador : public Entity {
 	glm::mat4 tempTransform;
 	glm::vec3 modelDisplacement;
 	physx::PxRigidDynamic *actor;
+
+	float maxWheelDist;
+
+	std::vector<bool> wheelHit;
+	std::vector<physx::PxRaycastBuffer> wheelHitInfo;
+
+	void raycastWheels();
 	void updateSuspension();
+	void updateFriction();
 	float springForce = 155;
 	float damperForce = 5;
 public:
