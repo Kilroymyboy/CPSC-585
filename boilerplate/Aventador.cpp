@@ -187,8 +187,8 @@ void Aventador::updateFriction() {
 	{
 		PxVec3 v = actor->getLinearVelocity();
 		v = Util::g2p(inverseRotation*Util::p2g(v));
-		actor->addTorque(PxVec3(0, wheelAngle * 75* log(v.z), 0));
-		cout << wheelAngle * 75 * sqrt(v.z) << endl;
+		actor->addTorque(PxVec3(0, wheelAngle * 45*sign(v.z)* sqrt(abs(v.z)), 0));
+		cout << v.z << endl;
 	}
 }
 
