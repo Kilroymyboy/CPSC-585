@@ -10,6 +10,8 @@ Aventador::Aventador() {
 	wheelHit.resize(4);
 	wheelHitInfo.resize(4);
 
+	wheelAngle = 0;
+
 	wheelPos[0] = vec3(-.851f, .331f, 1.282f);
 	wheelPos[1] = vec3(.851f, .331f, 1.282f);
 	wheelPos[2] = vec3(.858f, .356f, -1.427f);
@@ -41,15 +43,6 @@ Aventador::Aventador() {
 }
 
 void Aventador::update0(glm::mat4 parentTransform) {
-
-
-	if (Keyboard::keyDown(GLFW_KEY_A) || Keyboard::keyDown(GLFW_KEY_LEFT)) {
-		PxRigidBodyExt::addLocalForceAtLocalPos(*actor, PxVec3(20, 0, 0), PxVec3(0, 0, 10));
-	}
-
-	if (Keyboard::keyDown(GLFW_KEY_D) || Keyboard::keyDown(GLFW_KEY_RIGHT)) {
-		PxRigidBodyExt::addLocalForceAtLocalPos(*actor, PxVec3(20, 0, 0), PxVec3(0, 0, -10));
-	}
 	if (Keyboard::keyPressed(GLFW_KEY_SPACE)) {
 		actor->addForce(PxVec3(0, 35, 0), PxForceMode::eIMPULSE);
 	}
@@ -77,6 +70,7 @@ void Aventador::update0(glm::mat4 parentTransform) {
 	raycastWheels();
 	updateSuspension();
 	updateFriction();
+	updateSteering();
 
 	Light::position = pos + vec3(3, 5, 4);
 	Light::target = pos;
@@ -166,11 +160,27 @@ void Aventador::updateFriction() {
 	}
 }
 
+void Aventador::updateSteering() {
+	if (Keyboard::keyDown(GLFW_KEY_LEFT)) {
+		wheelAngle += 0.035;
+	}
+	if (Keyboard::keyDown(GLFW_KEY_RIGHT)) {
+		wheelAngle -= 0.035;
+	}
+	if (!(Keyboard::keyDown(GLFW_KEY_LEFT) || Keyboard::keyDown(GLFW_KEY_RIGHT))) {
+		wheelAngle *= 0.9;
+	}
+	wheelAngle = min(max(wheelAngle, -maxWheelAngle), maxWheelAngle);
+	wheel[0].get()->facingAngle = wheelAngle;
+	wheel[1].get()->facingAngle = wheelAngle;
+}
+
 void AventadorWheel::update0(glm::mat4 parentTransform) {
 	rotation += rotateSpeed*rotateInverse;
 	if (rotation > 2 * PI)rotation = 0;
 	if (rotation < -2 * PI)rotation = 0;
 	tempTransform = translate(transform, vec3(0.0f, height, 0.0f));
+	tempTransform = rotate(tempTransform, facingAngle, vec3(0.0f, 1.0f, 0.0f));
 	tempTransform = rotate(tempTransform, rotation, vec3(1.0f, 0.0f, 0.0f));
 	Light::renderShadowMap(&Resources::aventadorWheel, parentTransform*tempTransform);
 	Light::renderShadowMap(&Resources::aventadorWheelGlow, parentTransform*tempTransform);

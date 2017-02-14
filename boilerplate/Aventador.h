@@ -14,6 +14,7 @@ public:
 	float rotation = 0;
 	float rotateSpeed;
 	float rotateInverse;
+	float facingAngle = 0;
 	float height;
 	glm::mat4 tempTransform;
 	void update0(glm::mat4 parentTransform)override;
@@ -33,8 +34,13 @@ class Aventador : public Entity {
 	void raycastWheels();
 	void updateSuspension();
 	void updateFriction();
+	void updateSteering();
+
 	float springForce = 155;
 	float damperForce = 5;
+	float maxWheelAngle = 0.6;
+
+	float wheelAngle;
 public:
 	// 0: front right, 1: front left, 2: rear left, 3: rear right
 	std::vector<std::unique_ptr<AventadorWheel> > wheel;
