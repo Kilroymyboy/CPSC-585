@@ -845,6 +845,8 @@ namespace Light {
 		glUseProgram(Graphics::shadowFbo.shader.program);
 		glBindVertexArray(geometry->vertexArray);
 
+		transform = lookAt(position, target, vec3(0, 1, 0));
+		direction = normalize(target - position);
 		mat4 mvp = projection*transform*obj;
 		glUniformMatrix4fv(1, 1, GL_FALSE, &mvp[0][0]);
 
