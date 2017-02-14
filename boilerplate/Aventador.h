@@ -23,6 +23,7 @@ public:
 
 class Aventador : public Entity {
 	glm::mat4 tempTransform;
+	glm::mat3 inverseRotation;
 	glm::vec3 modelDisplacement;
 	physx::PxRigidDynamic *actor;
 
@@ -38,7 +39,7 @@ class Aventador : public Entity {
 
 	float springForce = 155;
 	float damperForce = 5;
-	float maxWheelAngle = 0.6;
+	float maxWheelAngle = 0.65;
 
 	float wheelAngle;
 public:
