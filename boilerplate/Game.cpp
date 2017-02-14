@@ -52,6 +52,9 @@ void Aventador::update0(glm::mat4 parentTransform) {
 	if (Keyboard::keyDown(GLFW_KEY_D)) {
 		PxRigidBodyExt::addLocalForceAtLocalPos(*actor, PxVec3(20, 0, 0), PxVec3(0, 0, -10));
 	}
+	if (Keyboard::keyPressed(GLFW_KEY_SPACE)) {
+		PxRigidBodyExt::addLocalForceAtLocalPos(*actor, PxVec3(0, 5000, 0), PxVec3(0));
+	}
 
 	glm::mat4 m = glm::translate(glm::mat4(1), glm::vec3(actor->getGlobalPose().p.x, actor->getGlobalPose().p.y, actor->getGlobalPose().p.z));
 	PxReal a; PxVec3 b;  actor->getGlobalPose().q.toRadiansAndUnitAxis(a, b); m = glm::rotate(m, (float)a, glm::vec3(b.x, b.y, b.z));
@@ -59,7 +62,7 @@ void Aventador::update0(glm::mat4 parentTransform) {
 
 	mat4 t = translate(transform, modelDisplacement);
 
-	float positionTightness = 4, targetTightness = 20;
+	float positionTightness = 4, targetTightness = 50;
 	Viewport::position = mix(Viewport::position, vec3(transform* vec4(0, 1.25f, -5.5f, 1)), min(1, Time::deltaTime*positionTightness));
 	Viewport::target = mix(Viewport::target, vec3(transform* vec4(0, 1.25f, 0, 1)), min(1, Time::deltaTime*targetTightness));
 
