@@ -3,6 +3,7 @@
 #include "Game.h"
 #include "Resources.h"
 #include "InputManager.h"
+#include "Graphics.h"
 #include <vector>
 
 class VehicleData {
@@ -37,9 +38,9 @@ class Aventador : public Entity {
 	void updateFriction();
 	void updateSteering();
 
-	float springForce = 155;
-	float damperForce = 5;
-	float maxWheelAngle = 0.65;
+	float springForce = 325;
+	float damperForce = 20;
+	float maxWheelAngle = PI / 4;
 
 	float wheelAngle;
 public:
