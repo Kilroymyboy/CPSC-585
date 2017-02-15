@@ -110,18 +110,16 @@ void Aventador::raycastWheels() {
 	PxQueryFilterData filterData(PxQueryFlag::eSTATIC);
 
 	for (int i = 0; i < 4; i++) {
-		for (int i = 0; i < 4; i++) {
-			vec3 wheelP(transform*vec4(wheelPos[i] - vec3(0, .45, 0), 1));
-			if (PhysicsManager::mScene->raycast(
-				Util::g2p(wheelP),
-				Util::g2p(mat3(transform)*vec3(0, -1, 0)), maxWheelDist,
-				hit, hitFlags, filterData)) {
-				wheelHit[i] = 1;
-				wheelHitInfo[i] = hit;
-			}
-			else {
-				wheelHit[i] = 0;
-			}
+		vec3 wheelP(transform*vec4(wheelPos[i] - vec3(0, .45, 0), 1));
+		if (PhysicsManager::mScene->raycast(
+			Util::g2p(wheelP),
+			Util::g2p(mat3(transform)*vec3(0, -1, 0)), maxWheelDist,
+			hit, hitFlags, filterData)) {
+			wheelHit[i] = 1;
+			wheelHitInfo[i] = hit;
+		}
+		else {
+			wheelHit[i] = 0;
 		}
 	}
 }
@@ -191,7 +189,7 @@ void Aventador::updateFriction() {
 		v.y = 0;
 		v = Util::g2p(inverseRotation*Util::p2g(v));
 		if (v.z > 0.05) {
-		//	actor->addTorque(PxVec3(0, wheelAngle * min(2, abs(v.z)) * sign(v.z), 0));
+			//	actor->addTorque(PxVec3(0, wheelAngle * min(2, abs(v.z)) * sign(v.z), 0));
 		}
 	}
 }
