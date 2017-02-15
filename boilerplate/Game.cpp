@@ -33,9 +33,6 @@ namespace Game {
 		for (auto it = entities.begin(); it != entities.end(); it++) {
 			it->get()->update(mat4(1));
 		}
-
-		if (Keyboard::keyPressed(GLFW_KEY_Q))cout << "q pressed\n";
-		if (Keyboard::keyReleased(GLFW_KEY_Q))cout << "q released\n";
 	}
 }
 

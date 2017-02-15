@@ -145,7 +145,7 @@ void Aventador::updateSuspension() {
 		}
 		else {
 			wheel[i].get()->height = (-maxWheelDist + wheelPos[i].y) + 0.09;
-			wheel[i].get()->rotateSpeed *= 0.9;
+			wheel[i].get()->rotateSpeed *= 0.95;
 		}
 	}
 }
@@ -196,7 +196,7 @@ void Aventador::updateFriction() {
 		v.y = 0;
 		v = Util::g2p(inverseRotation*Util::p2g(v));
 		if (v.z > 0.05) {
-			//	actor->addTorque(PxVec3(0, wheelAngle * min(2, abs(v.z)) * sign(v.z), 0));
+		//	actor->addTorque(PxVec3(0, wheelAngle * min(2, abs(v.z)) * sign(v.z), 0));
 		}
 	}
 }
