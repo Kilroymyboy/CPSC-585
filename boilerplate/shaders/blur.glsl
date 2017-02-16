@@ -17,9 +17,9 @@ uniform sampler2D texFramebuffer;
 
 layout(location = 0) uniform vec2 direction;
 layout(location = 1) uniform float darken;
+layout(location = 2) uniform float sigma;
 
 float g(float x){
-	float sigma=15;
 	return 1/sqrt(2*3.14159265359*sigma*sigma)*pow(2.71828, -x*x/(2*sigma*sigma));
 }
 
@@ -27,7 +27,7 @@ void main()
 {
 	outColor=vec4(0);
 
-	for(int i=-127;i<128;i++)
+	for(int i=-95;i<96;i++)
 		outColor.xyz+=g(i)*(texture(texFramebuffer, Texcoord+(i)*direction).xyz);
 	outColor.xyz=max(outColor.xyz-vec3(darken), vec3(0));
 	outColor.w=1;

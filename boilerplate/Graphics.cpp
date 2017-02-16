@@ -20,7 +20,6 @@ namespace Graphics {
 
 	MyFrameBuffer shadowFbo;
 
-	MyFrameBuffer downsampleFbo;
 	MyFrameBuffer hBlurFbo;
 	MyFrameBuffer vBlurFbo;
 	MyFrameBuffer additiveFbo;
@@ -390,14 +389,10 @@ namespace Graphics {
 			return -1;
 		}
 
-		if (!InitializeFrameBuffer(&downsampleFbo, "downsample.glsl", vec2(WINDOW_WIDTH / BLOOM_DOWNSAMPLE, WINDOW_HEIGHT / BLOOM_DOWNSAMPLE), 1)) {
+		if (!InitializeFrameBuffer(&hBlurFbo, "blur.glsl", vec2(WINDOW_WIDTH, WINDOW_HEIGHT), 1)) {
 			return -1;
 		}
-
-		if (!InitializeFrameBuffer(&hBlurFbo, "blur.glsl", vec2(WINDOW_WIDTH / BLOOM_DOWNSAMPLE, WINDOW_HEIGHT / BLOOM_DOWNSAMPLE), 1)) {
-			return -1;
-		}
-		if (!InitializeFrameBuffer(&vBlurFbo, "blur.glsl", vec2(WINDOW_WIDTH / BLOOM_DOWNSAMPLE, WINDOW_HEIGHT / BLOOM_DOWNSAMPLE), 1)) {
+		if (!InitializeFrameBuffer(&vBlurFbo, "blur.glsl", vec2(WINDOW_WIDTH, WINDOW_HEIGHT), 1)) {
 			return -1;
 		}
 
@@ -537,44 +532,24 @@ namespace Graphics {
 		return glfwWindowShouldClose(window);
 	}
 
-	void renderDownsample() {
-		glBindFramebuffer(GL_FRAMEBUFFER, hBlurFbo.fbo);
-		glBindTexture(GL_TEXTURE_2D, hBlurFbo.texture);
-
-		glScissor(0, 0, WINDOW_WIDTH / BLOOM_DOWNSAMPLE, WINDOW_HEIGHT / BLOOM_DOWNSAMPLE);
-		glViewport(0, 0, WINDOW_WIDTH / BLOOM_DOWNSAMPLE, WINDOW_HEIGHT / BLOOM_DOWNSAMPLE);
-
-		glBindVertexArray(downsampleFbo.vao);
-		glDisable(GL_DEPTH_TEST);
-		glUseProgram(downsampleFbo.shader.program);
-
-		glUniform2f(1, WINDOW_WIDTH*MSAA, WINDOW_HEIGHT*MSAA);
-		glUniform1i(2, BLOOM_DOWNSAMPLE*MSAA);
-
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, defaultFbo.texture);
-
-		glDrawArrays(GL_TRIANGLES, 0, 6);
-
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	}
-
 	void renderHBlur() {
+
 		glBindFramebuffer(GL_FRAMEBUFFER, vBlurFbo.fbo);
 		glBindTexture(GL_TEXTURE_2D, vBlurFbo.texture);
 
-		glScissor(0, 0, WINDOW_WIDTH / BLOOM_DOWNSAMPLE, WINDOW_HEIGHT / BLOOM_DOWNSAMPLE);
-		glViewport(0, 0, WINDOW_WIDTH / BLOOM_DOWNSAMPLE, WINDOW_HEIGHT / BLOOM_DOWNSAMPLE);
+		glScissor(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+		glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 
 		glBindVertexArray(hBlurFbo.vao);
 		glDisable(GL_DEPTH_TEST);
 		glUseProgram(hBlurFbo.shader.program);
 
-		glUniform2f(0, 1.0f / (WINDOW_WIDTH / BLOOM_DOWNSAMPLE), 0.00f);
+		glUniform2f(0, 1.0f / (WINDOW_WIDTH), 0.00f);
 		glUniform1f(1, 1.0f);
+		glUniform1f(2, Effects::sigma);
 
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, hBlurFbo.texture);
+		glBindTexture(GL_TEXTURE_2D, defaultFbo.texture);
 
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 
@@ -585,15 +560,16 @@ namespace Graphics {
 		glBindFramebuffer(GL_FRAMEBUFFER, hBlurFbo.fbo);
 		glBindTexture(GL_TEXTURE_2D, hBlurFbo.texture);
 
-		glScissor(0, 0, WINDOW_WIDTH / BLOOM_DOWNSAMPLE, WINDOW_HEIGHT / BLOOM_DOWNSAMPLE);
-		glViewport(0, 0, WINDOW_WIDTH / BLOOM_DOWNSAMPLE, WINDOW_HEIGHT / BLOOM_DOWNSAMPLE);
+		glScissor(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+		glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 
 		glBindVertexArray(vBlurFbo.vao);
 		glDisable(GL_DEPTH_TEST);
 		glUseProgram(vBlurFbo.shader.program);
 
-		glUniform2f(0, 0.0f, 1.0f / (WINDOW_WIDTH / BLOOM_DOWNSAMPLE));
+		glUniform2f(0, 0.0f, 1.0f / (WINDOW_WIDTH));
 		glUniform1f(1, 0.0f);
+		glUniform1f(2, Effects::sigma);
 
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, vBlurFbo.texture);
@@ -687,7 +663,6 @@ namespace Graphics {
 
 	void update() {
 		if (EFFECTS) {
-			renderDownsample();
 			renderHBlur();
 			renderVBlur();
 			renderAdditive();
@@ -807,7 +782,7 @@ namespace Light {
 		0.0, 0.5, 0.0, 0.0,
 		0.0, 0.0, 0.5, 0.0,
 		0.5, 0.5, 0.5, 1.0
-	);
+		);
 
 	glm::vec3 color;
 	glm::vec3 direction;
@@ -853,4 +828,8 @@ namespace Light {
 		glDrawArrays(GL_TRIANGLES, 0, geometry->elementCount);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
+}
+
+namespace Effects {
+	float sigma = 15;
 }

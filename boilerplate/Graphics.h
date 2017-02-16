@@ -39,9 +39,6 @@
 #define VSYNC 1
 #define SHADOWMAP_SIZE 1600
 
-#define BLOOM_DOWNSAMPLE 2
-#define BLOOM_DOWNSAMPLE1 8
-
 #define EFFECTS 1
 
 namespace Graphics {
@@ -132,4 +129,8 @@ namespace Light {
 	void init();
 	void update();
 	void renderShadowMap(Graphics::MyGeometry* geometry, glm::mat4 obj);
+}
+
+namespace Effects {
+	extern float sigma;
 }
