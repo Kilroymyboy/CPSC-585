@@ -7,10 +7,12 @@
 #include <vector>
 
 class VehicleData {
+public:
 	float springForce = 200;
 	float damperForce = 12;
 	float maxWheelAngle = PI / 5;
-	float dimensionHeight;
+	float dimensionHeight = 0.45;
+	float maxWheelDist = 0.46;
 };
 
 class AventadorWheel :public Entity {
@@ -31,8 +33,6 @@ class Aventador : public Entity {
 	glm::vec3 modelDisplacement;
 	physx::PxRigidDynamic *actor;
 
-	float maxWheelDist;
-
 	std::vector<bool> wheelHit;
 	std::vector<physx::PxRaycastBuffer> wheelHitInfo;
 
@@ -40,13 +40,8 @@ class Aventador : public Entity {
 	void updateSuspension();
 	void updateFriction();
 	void updateSteering();
-
-	float springForce = 200;
-	float damperForce = 12;
-	float maxWheelAngle = PI / 4;
-
-	float height;
-
+	
+	VehicleData aventadorData;
 	float wheelAngle;
 public:
 	// 0: front right, 1: front left, 2: rear left, 3: rear right

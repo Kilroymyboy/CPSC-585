@@ -12,14 +12,12 @@ Aventador::Aventador() {
 	wheelHitInfo.resize(4);
 
 	wheelAngle = 0;
-	maxWheelDist = 0.46;
-	height = 0.45;
 
 	wheelPos[0] = vec3(-.851f, .331f, 1.282f);
 	wheelPos[1] = vec3(.851f, .331f, 1.282f);
 	wheelPos[2] = vec3(.858f, .356f, -1.427f);
 	wheelPos[3] = vec3(-.858f, .356f, -1.427f);
-	modelDisplacement = vec3(0, -height, 0);
+	modelDisplacement = vec3(0, -aventadorData.dimensionHeight, 0);
 
 	wheel[1] = std::unique_ptr<AventadorWheel>(new AventadorWheel);
 	wheel[1].get()->transform = translate(mat4(1), wheelPos[1]);
@@ -39,7 +37,7 @@ Aventador::Aventador() {
 
 
 	PxTransform t(PxVec3(0, 5, 0), PxQuat::createIdentity());
-	PxVec3 dimensions(1, height, 2.5);
+	PxVec3 dimensions(1, aventadorData.dimensionHeight, 2.5);
 
 	actor = PhysicsManager::createDynamic(t, dimensions);
 	actor->setMass(5.5);
@@ -120,7 +118,7 @@ void Aventador::raycastWheels() {
 		vec3 wheelP(transform*vec4(wheelPos[i] - vec3(0, .45, 0), 1));
 		if (PhysicsManager::mScene->raycast(
 			Util::g2p(wheelP),
-			Util::g2p(mat3(transform)*vec3(0, -1, 0)), maxWheelDist,
+			Util::g2p(mat3(transform)*vec3(0, -1, 0)), aventadorData.maxWheelDist,
 			hit, hitFlags, filterData)) {
 			wheelHit[i] = 1;
 			wheelHitInfo[i] = hit;
@@ -135,19 +133,19 @@ void Aventador::updateSuspension() {
 	for (int i = 0; i < 4; i++) {
 		if (wheelHit[i]) {
 			PxRigidBodyExt::addForceAtLocalPos(*actor,
-				PxVec3(0, springForce * max(0, (maxWheelDist - wheelHitInfo[i].block.distance)), 0),
-				Util::g2p(wheelPos[i] - vec3(0, height, 0)), PxForceMode::eFORCE);
+				PxVec3(0, aventadorData.springForce * max(0, (aventadorData.maxWheelDist - wheelHitInfo[i].block.distance)), 0),
+				Util::g2p(wheelPos[i] - vec3(0, aventadorData.dimensionHeight, 0)), PxForceMode::eFORCE);
 			wheel[i].get()->height = (-wheelHitInfo[i].block.distance + wheelPos[i].y);
 
 			PxVec3 wspeed = PxRigidBodyExt::getLocalVelocityAtLocalPos(*actor, Util::g2p(wheelPos[i]));
 			PxRigidBodyExt::addForceAtLocalPos(*actor,
-				PxVec3(0, damperForce * -wspeed.y, 0),
-				Util::g2p(wheelPos[i] - vec3(0, height, 0)), PxForceMode::eFORCE);
+				PxVec3(0, aventadorData.damperForce * -wspeed.y, 0),
+				Util::g2p(wheelPos[i] - vec3(0, aventadorData.dimensionHeight, 0)), PxForceMode::eFORCE);
 
 			wheel[i].get()->rotateSpeed = (inverseRotation*Util::p2g(wspeed)).z *0.035;
 		}
 		else {
-			wheel[i].get()->height = (-maxWheelDist + wheelPos[i].y);
+			wheel[i].get()->height = (-aventadorData.maxWheelDist + wheelPos[i].y);
 			wheel[i].get()->rotateSpeed *= 0.95;
 		}
 	}
@@ -160,18 +158,18 @@ void Aventador::updateFriction() {
 		if (wheelHit[i]) {
 			if (Keyboard::keyDown(GLFW_KEY_UP)) {
 				PxRigidBodyExt::addLocalForceAtLocalPos(*actor,
-					PxVec3(sin(wheelAngle) * 30, 0, cos(wheelAngle) * 30), Util::g2p(wheelPos[i] - vec3(0, height / 2, 0)), PxForceMode::eFORCE);
+					PxVec3(sin(wheelAngle) * 30, 0, cos(wheelAngle) * 30), Util::g2p(wheelPos[i] - vec3(0, aventadorData.dimensionHeight / 2, 0)), PxForceMode::eFORCE);
 			}
 			else if (Keyboard::keyDown(GLFW_KEY_DOWN)) {
 				PxRigidBodyExt::addLocalForceAtLocalPos(*actor,
-					PxVec3(sin(wheelAngle) * -30, 0, cos(wheelAngle) * -30), Util::g2p(wheelPos[i] - vec3(0, height / 2, 0)), PxForceMode::eFORCE);
+					PxVec3(sin(wheelAngle) * -30, 0, cos(wheelAngle) * -30), Util::g2p(wheelPos[i] - vec3(0, aventadorData.dimensionHeight / 2, 0)), PxForceMode::eFORCE);
 			}
 
 			PxVec3 wspeed = PxRigidBodyExt::getVelocityAtPos(*actor, Util::g2p(transform*vec4(wheelPos[i], 1)));
-			vec3 frictiond = -normalize(Util::p2g(wspeed)-proj(Util::p2g(wspeed),wheeld));
+			vec3 frictiond = -normalize(Util::p2g(wspeed) - proj(Util::p2g(wspeed), wheeld));
 			frictiond.y = 0;
-			PxRigidBodyExt::addForceAtPos(*actor, Util::g2p(frictiond)*min(wspeed.magnitude()*5, 35),
-				Util::g2p(transform*vec4(wheelPos[i] - vec3(0, height, 0), 1)), PxForceMode::eFORCE);
+			PxRigidBodyExt::addForceAtPos(*actor, Util::g2p(frictiond)*min(wspeed.magnitude() * 5, 35),
+				Util::g2p(transform*vec4(wheelPos[i] - vec3(0, aventadorData.dimensionHeight, 0), 1)), PxForceMode::eFORCE);
 		}
 	}
 	wheeld = mat3(transform)* vec3(0, 0, 1);
@@ -180,18 +178,18 @@ void Aventador::updateFriction() {
 
 			if (Keyboard::keyDown(GLFW_KEY_UP)) {
 				PxRigidBodyExt::addLocalForceAtLocalPos(*actor,
-					PxVec3(0, 0, 30), Util::g2p(wheelPos[i] - vec3(0, height, 0)), PxForceMode::eFORCE);
+					PxVec3(0, 0, 30), Util::g2p(wheelPos[i] - vec3(0, aventadorData.dimensionHeight, 0)), PxForceMode::eFORCE);
 			}
 			else if (Keyboard::keyDown(GLFW_KEY_DOWN)) {
 				PxRigidBodyExt::addLocalForceAtLocalPos(*actor,
-					PxVec3(0, 0, -30), Util::g2p(wheelPos[i] - vec3(0, height, 0)), PxForceMode::eFORCE);
+					PxVec3(0, 0, -30), Util::g2p(wheelPos[i] - vec3(0, aventadorData.dimensionHeight, 0)), PxForceMode::eFORCE);
 			}
 
 			PxVec3 wspeed = PxRigidBodyExt::getVelocityAtPos(*actor, Util::g2p(transform*vec4(wheelPos[i], 1)));
 			vec3 frictiond = -normalize(Util::p2g(wspeed) - proj(Util::p2g(wspeed), wheeld));
 			frictiond.y = 0;
-			PxRigidBodyExt::addForceAtPos(*actor, Util::g2p(frictiond)*min(wspeed.magnitude()*5, 35),
-				Util::g2p(transform*vec4(wheelPos[i] - vec3(0, height, 0), 1)), PxForceMode::eFORCE);
+			PxRigidBodyExt::addForceAtPos(*actor, Util::g2p(frictiond)*min(wspeed.magnitude() * 5, 35),
+				Util::g2p(transform*vec4(wheelPos[i] - vec3(0, aventadorData.dimensionHeight, 0), 1)), PxForceMode::eFORCE);
 		}
 	}
 }
@@ -206,7 +204,7 @@ void Aventador::updateSteering() {
 	if (!(Keyboard::keyDown(GLFW_KEY_LEFT) || Keyboard::keyDown(GLFW_KEY_RIGHT))) {
 		wheelAngle *= 0.9;
 	}
-	wheelAngle = min(max(wheelAngle, -maxWheelAngle), maxWheelAngle);
+	wheelAngle = min(max(wheelAngle, -aventadorData.maxWheelAngle), aventadorData.maxWheelAngle);
 	wheel[0].get()->facingAngle = wheelAngle;
 	wheel[1].get()->facingAngle = wheelAngle;
 }
