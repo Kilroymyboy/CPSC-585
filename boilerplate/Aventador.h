@@ -7,7 +7,10 @@
 #include <vector>
 
 class VehicleData {
-
+	float springForce = 200;
+	float damperForce = 12;
+	float maxWheelAngle = PI / 5;
+	float dimensionHeight;
 };
 
 class AventadorWheel :public Entity {
@@ -38,9 +41,11 @@ class Aventador : public Entity {
 	void updateFriction();
 	void updateSteering();
 
-	float springForce = 325;
-	float damperForce = 20;
+	float springForce = 200;
+	float damperForce = 12;
 	float maxWheelAngle = PI / 4;
+
+	float height;
 
 	float wheelAngle;
 public:
