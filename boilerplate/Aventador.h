@@ -13,6 +13,13 @@ public:
 	float maxWheelAngle = PI / 5;
 	float dimensionHeight = 0.45;
 	float maxWheelDist = 0.46;
+	float wheelTurnRate = 0.015;
+	float wheelReurnRate = 0.925;
+
+	float force = 25;
+	float wheelSideFriction = 4.25;
+	float wheelSideMaxFriction = 25;
+
 };
 
 class AventadorWheel :public Entity {
@@ -40,7 +47,7 @@ class Aventador : public Entity {
 	void updateSuspension();
 	void updateFriction();
 	void updateSteering();
-	
+
 	VehicleData aventadorData;
 	float wheelAngle;
 public:
