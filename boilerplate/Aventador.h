@@ -1,10 +1,12 @@
 #pragma once
 
-#include "Game.h"
+#include "Entity.h"
 #include "Resources.h"
 #include "InputManager.h"
 #include "Graphics.h"
 #include <vector>
+#include <list>
+#include <memory>
 
 class VehicleData {
 public:

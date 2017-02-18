@@ -5,25 +5,13 @@ using namespace glm;
 using namespace physx;
 
 void initPathGeometry(Graphics::MyGeometry* geometry, int size) {
-	vector<vec3> positions, normals;
+	vector<vec3> normals;
 	for (int i = 0; i < 6 * size; i++)
 		normals.push_back(vec3(0, 1, 0));
-	for (int i = 0; i < 6 * (size - 1); i++)
-		positions.push_back(vec3(i % 2 ? 5 : -5, 0, 0));
-
-	positions.push_back(vec3(-5, 0, 0));
-	positions.push_back(vec3(5, 0, 0));
-	positions.push_back(vec3(-5, 0, 5));
-	positions.push_back(vec3(-5, 0, 5));
-	positions.push_back(vec3(5, 0, 5));
-	positions.push_back(vec3(5, 0, 0));
-
 
 	geometry->elementCount = 6 * size;
 
 	glGenBuffers(1, &geometry->vertexBuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, geometry->vertexBuffer);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vec3)*positions.size(), &positions[0], GL_STATIC_DRAW);
 
 	// create another one for storing our colours
 	glGenBuffers(1, &geometry->normalBuffer);
@@ -54,9 +42,27 @@ Path::Path(int geometrySize) {
 	initPathGeometry(&geometry, size);
 	cooldown = 0.5;
 	nextGenTime = Time::time + cooldown;
-	for (int i = 0; i < size; i++) {
+	for (int i = 0; i < size * 2; i++) {
 		positions.push_back(vec3(i % 2 ? 5 : -5, 0, i * 5));
 	}
+	genBuffer();
+}
+
+void Path::genBuffer() {
+
+	vector<vec3> b;
+	for (int i = 0; i < positions.size() - 3; i += 2) {
+		b.push_back(positions[i]);
+		b.push_back(positions[i + 1]);
+		b.push_back(positions[i + 2]);
+
+		b.push_back(positions[i + 1]);
+		b.push_back(positions[i + 2]);
+		b.push_back(positions[i + 3]);
+	}
+	glBindBuffer(GL_ARRAY_BUFFER, geometry.vertexBuffer);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vec3)*b.size(), &b[0], GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 void Path::update0(mat4 parentTransform) {
@@ -64,10 +70,18 @@ void Path::update0(mat4 parentTransform) {
 		nextGenTime += cooldown;
 
 		vector<vec3> v;
-		for (int i = 2; i < size; i++) {
-			v.push_back(v[i]);
+		for (int i = 2; i < positions.size(); i++) {
+			v.push_back(positions[i]);
 		}
 		mat4 m = Game::aventador.get()->transform;
+		vec3 pl = vec3(m*vec4(Game::aventador.get()->wheelPos[1], 1));
+		vec3 pr = vec3(m*vec4(Game::aventador.get()->wheelPos[0], 1));
+		pl.y = pr.y = 0;
+		v.push_back(pl);
+		v.push_back(pr);
+		positions = v;
+
+		genBuffer();
 	}
 
 	Light::renderShadowMap(&geometry, parentTransform*transform);

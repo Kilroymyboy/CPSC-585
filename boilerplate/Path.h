@@ -10,6 +10,7 @@ class Path :public Entity {
 	int size;
 	double cooldown;
 	double nextGenTime;
+	void genBuffer();
 public:
 	void update0(glm::mat4 parentTransform)override;
 	void update(glm::mat4 parentTransform)override;
