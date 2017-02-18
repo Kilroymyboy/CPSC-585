@@ -63,12 +63,12 @@ void Aventador::update0(glm::mat4 parentTransform) {
 		actor->addTorque(PxVec3(0, -2650, 0));
 	}
 
-	inverseRotation = inverse(mat3(transform));
-
 	vec3 pos(actor->getGlobalPose().p.x, actor->getGlobalPose().p.y, actor->getGlobalPose().p.z);
 	glm::mat4 m = glm::translate(glm::mat4(1), pos);
 	PxReal a; PxVec3 b;  actor->getGlobalPose().q.toRadiansAndUnitAxis(a, b); m = glm::rotate(m, (float)a, glm::vec3(b.x, b.y, b.z));
 	transform = m;
+
+	inverseRotation = inverse(mat3(transform));
 
 	tempTransform = translate(transform, modelDisplacement);
 

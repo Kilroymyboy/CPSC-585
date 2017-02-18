@@ -6,6 +6,8 @@
 #include "Graphics.h"
 #include "PhysicsManager.h"
 #include "Util.h"
+#include "Resources.h"
+#include "Aventador.h"
 
 #define PRINT_FPS 1
 
@@ -19,6 +21,7 @@ public:
 
 namespace Game {
 	extern std::list<std::unique_ptr<Entity> > entities;
+	extern unique_ptr<Aventador> aventador;
 	void init();
 	void update();
 }

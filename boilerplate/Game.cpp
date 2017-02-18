@@ -2,20 +2,24 @@
 #include "Resources.h"
 #include "InputManager.h"
 #include "Aventador.h"
+#include "Path.h"
 
 using namespace std;
 using namespace glm;
 using namespace physx;
 
 namespace Game {
-	list<unique_ptr<Entity>> entities;
+	list<unique_ptr<Entity> > entities;
+	unique_ptr<Aventador> aventador;
 
 	// we can customize this function as much as we want for now for debugging
 	void init() {
-		entities.push_back(unique_ptr<Aventador>(new Aventador));
+		aventador = unique_ptr<Aventador>(new Aventador);
+		entities.push_back(move(aventador));
+		entities.push_back(unique_ptr<Path>(new Path(2)));
 		//	entities.push_back(unique_ptr<Cube>(new Cube));
 	//	entities.push_back(unique_ptr<CenteredCube>(new CenteredCube(vec3(0, 3, 0))));
-		entities.push_back(unique_ptr<Plane>(new Plane));
+	//	entities.push_back(unique_ptr<Plane>(new Plane));
 	}
 
 	void update() {

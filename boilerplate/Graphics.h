@@ -36,7 +36,7 @@
 #define WINDOW_HEIGHT 720
 
 #define MSAA 2
-#define VSYNC 1
+#define VSYNC 0
 #define SHADOWMAP_SIZE 1600
 
 #define EFFECTS 1
