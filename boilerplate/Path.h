@@ -8,6 +8,7 @@ class Path :public Entity {
 	std::vector<glm::vec3> positions;
 	std::vector<glm::vec3> normals;
 	int size;
+	float thickness;
 	double cooldown;
 	double nextGenTime;
 	void genBuffer();

@@ -16,7 +16,7 @@ namespace Game {
 	void init() {
 		aventador = shared_ptr<Aventador>(new Aventador);
 		entities.push_back(aventador);
-		entities.push_back(shared_ptr<Path>(new Path(5)));
+		entities.push_back(shared_ptr<Path>(new Path(100)));
 		//	entities.push_back(unique_ptr<Cube>(new Cube));
 	//	entities.push_back(unique_ptr<CenteredCube>(new CenteredCube(vec3(0, 3, 0))));
 	//	entities.push_back(unique_ptr<Plane>(new Plane));
