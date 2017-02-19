@@ -574,7 +574,7 @@ namespace Graphics {
 
 		glBindVertexArray(hBlurFbo.vao);
 		glDisable(GL_DEPTH_TEST);
-		glUseProgram(hBlurFbo.shader.program);
+		glUseProgram(blurShader.program);
 
 		glUniform2f(0, 1.0f / (WINDOW_WIDTH), 0.00f);
 		glUniform1f(1, 1.0f);
@@ -597,7 +597,7 @@ namespace Graphics {
 
 		glBindVertexArray(vBlurFbo.vao);
 		glDisable(GL_DEPTH_TEST);
-		glUseProgram(vBlurFbo.shader.program);
+		glUseProgram(blurShader.program);
 
 		glUniform2f(0, 0.0f, 1.0f / (WINDOW_WIDTH));
 		glUniform1f(1, 0.0f);
@@ -621,7 +621,9 @@ namespace Graphics {
 
 		glBindVertexArray(additiveFbo.vao);
 		glDisable(GL_DEPTH_TEST);
-		glUseProgram(additiveFbo.shader.program);
+		glUseProgram(additiveShader.program);
+		glUniform1i(glGetUniformLocation(additiveFbo.shader.program, "tex0"), 0);
+		glUniform1i(glGetUniformLocation(additiveFbo.shader.program, "tex1"), 1);
 
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, hBlurFbo.texture);
@@ -642,7 +644,7 @@ namespace Graphics {
 
 		glBindVertexArray(tonemappingFbo.vao);
 		glDisable(GL_DEPTH_TEST);
-		glUseProgram(tonemappingFbo.shader.program);
+		glUseProgram(tonemappingShader.program);
 
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, tonemappingFbo.texture);
@@ -666,7 +668,7 @@ namespace Graphics {
 
 		glBindVertexArray(msaaFbo.vao);
 		glDisable(GL_DEPTH_TEST);
-		glUseProgram(msaaFbo.shader.program);
+		glUseProgram(msaaShader.program);
 
 		glUniform2f(1, WINDOW_WIDTH*MSAA, WINDOW_HEIGHT*MSAA);
 		glUniform1i(2, MSAA);
@@ -685,7 +687,7 @@ namespace Graphics {
 
 		glBindVertexArray(aberrationFbo.vao);
 		glDisable(GL_DEPTH_TEST);
-		glUseProgram(aberrationFbo.shader.program);
+		glUseProgram(aberrationShader.program);
 
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, aberrationFbo.texture);
