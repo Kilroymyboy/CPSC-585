@@ -31,6 +31,8 @@ namespace Graphics {
 	MyShader additiveShader;
 	MyShader shadowmapShader;
 
+	GLuint frameBufferVao;
+
 	void QueryGLVersion();
 	bool CheckGLErrors();
 
@@ -433,6 +435,23 @@ namespace Graphics {
 		if (!InitializeShaders(&blurShader, "framebuffervertex.glsl", "blur.glsl")) return -1;
 		if (!InitializeShaders(&additiveShader, "framebuffervertex.glsl", "additive.glsl")) return -1;
 		if (!InitializeShaders(&shadowmapShader, "shadowmapvertex.glsl", "shadowmapfragment.glsl")) return -1;
+
+		{
+			GLuint frameBufferVbo;
+			glGenVertexArrays(1, &frameBufferVao);
+			glGenBuffers(1, &frameBufferVbo);
+			glBindBuffer(GL_ARRAY_BUFFER, frameBufferVbo);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), quadVertices, GL_STATIC_DRAW);
+			glBindVertexArray(frameBufferVao);
+
+			glEnableVertexAttribArray(0);
+			glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), 0);
+
+			glEnableVertexAttribArray(1);
+			glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (void*)(2 * sizeof(GLfloat)));
+
+		}
+
 		return 0;
 	}
 
@@ -569,7 +588,7 @@ namespace Graphics {
 		glScissor(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 		glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 
-		glBindVertexArray(hBlurFbo.vao);
+		glBindVertexArray(frameBufferVao);
 		glDisable(GL_DEPTH_TEST);
 		glUseProgram(blurShader.program);
 		glUniform1i(glGetUniformLocation(blurShader.program, "texFramebuffer"), 0);
@@ -593,7 +612,7 @@ namespace Graphics {
 		glScissor(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 		glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 
-		glBindVertexArray(vBlurFbo.vao);
+		glBindVertexArray(frameBufferVao);
 		glDisable(GL_DEPTH_TEST);
 		glUseProgram(blurShader.program);
 		glUniform1i(glGetUniformLocation(blurShader.program, "texFramebuffer"), 0);
@@ -618,7 +637,7 @@ namespace Graphics {
 		glScissor(0, 0, WINDOW_WIDTH*MSAA, WINDOW_HEIGHT*MSAA);
 		glViewport(0, 0, WINDOW_WIDTH*MSAA, WINDOW_HEIGHT*MSAA);
 
-		glBindVertexArray(additiveFbo.vao);
+		glBindVertexArray(frameBufferVao);
 		glDisable(GL_DEPTH_TEST);
 		glUseProgram(additiveShader.program);
 		glUniform1i(glGetUniformLocation(additiveFbo.shader.program, "tex0"), 0);
@@ -641,7 +660,7 @@ namespace Graphics {
 		glScissor(0, 0, WINDOW_WIDTH*MSAA, WINDOW_HEIGHT*MSAA);
 		glViewport(0, 0, WINDOW_WIDTH*MSAA, WINDOW_HEIGHT*MSAA);
 
-		glBindVertexArray(tonemappingFbo.vao);
+		glBindVertexArray(frameBufferVao);
 		glDisable(GL_DEPTH_TEST);
 		glUseProgram(tonemappingShader.program);
 		glUniform1i(glGetUniformLocation(tonemappingShader.program, "texFramebuffer"), 0);
@@ -666,7 +685,7 @@ namespace Graphics {
 		glScissor(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 		glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 
-		glBindVertexArray(msaaFbo.vao);
+		glBindVertexArray(frameBufferVao);
 		glDisable(GL_DEPTH_TEST);
 		glUseProgram(msaaShader.program);
 		glUniform1i(glGetUniformLocation(msaaShader.program, "texFramebuffer"), 0);
@@ -686,7 +705,7 @@ namespace Graphics {
 		glScissor(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 		glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 
-		glBindVertexArray(aberrationFbo.vao);
+		glBindVertexArray(frameBufferVao);
 		glDisable(GL_DEPTH_TEST);
 		glUseProgram(aberrationShader.program);
 		glUniform1i(glGetUniformLocation(aberrationShader.program, "texFramebuffer"), 0);
