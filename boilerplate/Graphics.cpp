@@ -29,6 +29,7 @@ namespace Graphics {
 	MyShader aberrationShader;
 	MyShader blurShader;
 	MyShader additiveShader;
+	MyShader shadowmapShader;
 
 	void QueryGLVersion();
 	bool CheckGLErrors();
@@ -431,7 +432,8 @@ namespace Graphics {
 		if (!InitializeShaders(&aberrationShader, "framebuffervertex.glsl", "aberration.glsl")) return -1;
 		if (!InitializeShaders(&blurShader, "framebuffervertex.glsl", "blur.glsl")) return -1;
 		if (!InitializeShaders(&additiveShader, "framebuffervertex.glsl", "additive.glsl")) return -1;
-
+		if (!InitializeShaders(&shadowmapShader, "shadowmapvertex.glsl", "shadowmapfragment.glsl")) return -1;
+		
 		return 0;
 	}
 
@@ -855,7 +857,7 @@ namespace Light {
 
 		// bind our shader program and the vertex array object containing our
 		// scene geometry, then tell OpenGL to draw our geometry
-		glUseProgram(Graphics::shadowFbo.shader.program);
+		glUseProgram(Graphics::shadowmapShader.program);
 		glBindVertexArray(geometry->vertexArray);
 
 		transform = lookAt(position, target, vec3(0, 1, 0));
