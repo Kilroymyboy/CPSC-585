@@ -398,36 +398,14 @@ namespace Graphics {
 		QueryGLVersion();
 
 		// frame buffer objects
-		if (!InitializeFrameBuffer(&defaultFbo, "tonemapping.glsl", vec2(WINDOW_WIDTH*MSAA, WINDOW_HEIGHT*MSAA), 1)) {
-			return -1;
-		}
-
-		if (!InitializeFrameBuffer(&tonemappingFbo, "tonemapping.glsl", vec2(WINDOW_WIDTH*MSAA, WINDOW_HEIGHT*MSAA), 1)) {
-			return -1;
-		}
-
-		if (!InitializeFrameBuffer(&msaaFbo, "downsample.glsl", vec2(WINDOW_WIDTH*MSAA, WINDOW_HEIGHT*MSAA), 0)) {
-			return -1;
-		}
-
-		if (!InitializeFrameBuffer(&aberrationFbo, "aberration.glsl", vec2(WINDOW_WIDTH, WINDOW_HEIGHT), 0)) {
-			return -1;
-		}
-
-		if (!InitializeShadowMap(&shadowFbo, vec2(SHADOWMAP_SIZE, SHADOWMAP_SIZE))) {
-			return -1;
-		}
-
-		if (!InitializeFrameBuffer(&hBlurFbo, "blur.glsl", vec2(WINDOW_WIDTH, WINDOW_HEIGHT), 1)) {
-			return -1;
-		}
-		if (!InitializeFrameBuffer(&vBlurFbo, "blur.glsl", vec2(WINDOW_WIDTH, WINDOW_HEIGHT), 1)) {
-			return -1;
-		}
-
-		if (!InitializeFrameBuffer(&additiveFbo, "additive.glsl", vec2(WINDOW_WIDTH *MSAA, WINDOW_HEIGHT *MSAA), 1)) {
-			return -1;
-		}
+		if (!InitializeFrameBuffer(&defaultFbo, vec2(WINDOW_WIDTH*MSAA, WINDOW_HEIGHT*MSAA), 1)) return -1;
+		if (!InitializeFrameBuffer(&tonemappingFbo, vec2(WINDOW_WIDTH*MSAA, WINDOW_HEIGHT*MSAA), 1)) return -1;
+		if (!InitializeFrameBuffer(&msaaFbo, vec2(WINDOW_WIDTH*MSAA, WINDOW_HEIGHT*MSAA), 0)) return -1;
+		if (!InitializeFrameBuffer(&aberrationFbo, vec2(WINDOW_WIDTH, WINDOW_HEIGHT), 0)) return -1;
+		if (!InitializeShadowMap(&shadowFbo, vec2(SHADOWMAP_SIZE, SHADOWMAP_SIZE))) return -1;
+		if (!InitializeFrameBuffer(&hBlurFbo, vec2(WINDOW_WIDTH, WINDOW_HEIGHT), 1)) return -1;
+		if (!InitializeFrameBuffer(&vBlurFbo, vec2(WINDOW_WIDTH, WINDOW_HEIGHT), 1)) return -1;
+		if (!InitializeFrameBuffer(&additiveFbo, vec2(WINDOW_WIDTH *MSAA, WINDOW_HEIGHT *MSAA), 1))	return -1;
 
 		if (!InitializeShaders(&tonemappingShader, "framebuffervertex.glsl", "tonemapping.glsl")) return -1;
 		if (!InitializeShaders(&msaaShader, "framebuffervertex.glsl", "downsample.glsl")) return -1;
@@ -456,7 +434,7 @@ namespace Graphics {
 	}
 
 
-	bool InitializeFrameBuffer(MyFrameBuffer* frameBuffer, const string &fragment, vec2 dimension, bool HDR) {
+	bool InitializeFrameBuffer(MyFrameBuffer* frameBuffer, vec2 dimension, bool HDR) {
 		glGenFramebuffers(1, &frameBuffer->fbo);
 		glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer->fbo);
 
