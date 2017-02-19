@@ -470,7 +470,6 @@ namespace Graphics {
 		glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), quadVertices, GL_STATIC_DRAW);
 		glBindVertexArray(frameBuffer->vao);
 		glBindBuffer(GL_ARRAY_BUFFER, frameBuffer->vbo);
-		glUniform1i(glGetUniformLocation(frameBuffer->shader.program, "texFramebuffer"), 0);
 
 		GLint posAttrib = glGetAttribLocation(frameBuffer->shader.program, "position");
 		glEnableVertexAttribArray(posAttrib);
@@ -575,6 +574,7 @@ namespace Graphics {
 		glBindVertexArray(hBlurFbo.vao);
 		glDisable(GL_DEPTH_TEST);
 		glUseProgram(blurShader.program);
+		glUniform1i(glGetUniformLocation(blurShader.program, "texFramebuffer"), 0);
 
 		glUniform2f(0, 1.0f / (WINDOW_WIDTH), 0.00f);
 		glUniform1f(1, 1.0f);
@@ -598,6 +598,7 @@ namespace Graphics {
 		glBindVertexArray(vBlurFbo.vao);
 		glDisable(GL_DEPTH_TEST);
 		glUseProgram(blurShader.program);
+		glUniform1i(glGetUniformLocation(blurShader.program, "texFramebuffer"), 0);
 
 		glUniform2f(0, 0.0f, 1.0f / (WINDOW_WIDTH));
 		glUniform1f(1, 0.0f);
@@ -645,6 +646,7 @@ namespace Graphics {
 		glBindVertexArray(tonemappingFbo.vao);
 		glDisable(GL_DEPTH_TEST);
 		glUseProgram(tonemappingShader.program);
+		glUniform1i(glGetUniformLocation(tonemappingShader.program, "texFramebuffer"), 0);
 
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, tonemappingFbo.texture);
@@ -669,6 +671,7 @@ namespace Graphics {
 		glBindVertexArray(msaaFbo.vao);
 		glDisable(GL_DEPTH_TEST);
 		glUseProgram(msaaShader.program);
+		glUniform1i(glGetUniformLocation(msaaShader.program, "texFramebuffer"), 0);
 
 		glUniform2f(1, WINDOW_WIDTH*MSAA, WINDOW_HEIGHT*MSAA);
 		glUniform1i(2, MSAA);
@@ -688,6 +691,7 @@ namespace Graphics {
 		glBindVertexArray(aberrationFbo.vao);
 		glDisable(GL_DEPTH_TEST);
 		glUseProgram(aberrationShader.program);
+		glUniform1i(glGetUniformLocation(aberrationShader.program, "texFramebuffer"), 0);
 
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, aberrationFbo.texture);
