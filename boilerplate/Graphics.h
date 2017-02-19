@@ -88,13 +88,9 @@ namespace Graphics {
 	struct MyFrameBuffer {
 		GLuint fbo;
 		GLuint texture;
-		GLuint vbo;
-		GLuint vao;
 		GLuint rbo;
 
-		MyShader shader;
-
-		MyFrameBuffer() :fbo(0), texture(0), vbo(0), vao(0), rbo(0) {}
+		MyFrameBuffer() :fbo(0), texture(0), rbo(0) {}
 	};
 
 	void clearFrameBuffer();

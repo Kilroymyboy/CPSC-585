@@ -425,7 +425,7 @@ namespace Graphics {
 			return -1;
 		}
 
-		if (!InitializeAdditiveFrameBuffer(&additiveFbo, "additive.glsl", vec2(WINDOW_WIDTH *MSAA, WINDOW_HEIGHT *MSAA), 1)) {
+		if (!InitializeFrameBuffer(&additiveFbo, "additive.glsl", vec2(WINDOW_WIDTH *MSAA, WINDOW_HEIGHT *MSAA), 1)) {
 			return -1;
 		}
 
@@ -479,74 +479,6 @@ namespace Graphics {
 			return false;
 		}
 
-		if (!InitializeShaders(&frameBuffer->shader, "framebuffervertex.glsl", fragment)) {
-			cout << "Program could not initialize framebuffer shaders, TERMINATING" << endl;
-			return false;
-		}
-
-		glGenVertexArrays(1, &frameBuffer->vao);
-		glGenBuffers(1, &frameBuffer->vbo);
-		glBindBuffer(GL_ARRAY_BUFFER, frameBuffer->vbo);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), quadVertices, GL_STATIC_DRAW);
-		glBindVertexArray(frameBuffer->vao);
-
-		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), 0);
-
-		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (void*)(2 * sizeof(GLfloat)));
-
-		return true;
-	}
-
-	bool InitializeAdditiveFrameBuffer(MyFrameBuffer* frameBuffer, const string &fragment, vec2 dimension, bool HDR) {
-		glGenFramebuffers(1, &frameBuffer->fbo);
-		glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer->fbo);
-
-		glGenTextures(1, &frameBuffer->texture);
-		glBindTexture(GL_TEXTURE_2D, frameBuffer->texture);
-
-		glTexImage2D(GL_TEXTURE_2D, 0, HDR ? GL_RGBA16F : GL_RGBA, dimension.x, dimension.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-		glGenRenderbuffers(1, &frameBuffer->rbo);
-		glBindRenderbuffer(GL_RENDERBUFFER, frameBuffer->rbo);
-		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, dimension.x, dimension.y);
-		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, frameBuffer->rbo);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, frameBuffer->texture, 0);
-
-		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-			cout << "Frame buffer is dead" << endl;
-			return false;
-		}
-
-		if (!InitializeShaders(&frameBuffer->shader, "framebuffervertex.glsl", fragment)) {
-			cout << "Program could not initialize framebuffer shaders, TERMINATING" << endl;
-			return false;
-		}
-
-		glUseProgram(frameBuffer->shader.program);
-		glGenVertexArrays(1, &frameBuffer->vao);
-		glGenBuffers(1, &frameBuffer->vbo);
-		glBindBuffer(GL_ARRAY_BUFFER, frameBuffer->vbo);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), quadVertices, GL_STATIC_DRAW);
-		glBindVertexArray(frameBuffer->vao);
-		glBindBuffer(GL_ARRAY_BUFFER, frameBuffer->vbo);
-		glUniform1i(glGetUniformLocation(additiveFbo.shader.program, "tex0"), 0);
-		glUniform1i(glGetUniformLocation(additiveFbo.shader.program, "tex1"), 1);
-		glUniform1i(glGetUniformLocation(additiveFbo.shader.program, "tex2"), 2);
-
-		GLint posAttrib = glGetAttribLocation(frameBuffer->shader.program, "position");
-		glEnableVertexAttribArray(posAttrib);
-		glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), 0);
-
-		GLint texAttrib = glGetAttribLocation(frameBuffer->shader.program, "texcoord");
-		glEnableVertexAttribArray(texAttrib);
-		glVertexAttribPointer(texAttrib, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (void*)(2 * sizeof(GLfloat)));
-
-
 		return true;
 	}
 
@@ -563,11 +495,6 @@ namespace Graphics {
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
 		glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, frameBuffer->texture, 0);
-
-		if (!InitializeShaders(&frameBuffer->shader, "shadowmapvertex.glsl", "shadowmapfragment.glsl")) {
-			cout << "Program could not initialize shadow map shaders, TERMINATING" << endl;
-			return false;
-		}
 
 		glDrawBuffer(GL_NONE);
 
@@ -640,8 +567,8 @@ namespace Graphics {
 		glBindVertexArray(frameBufferVao);
 		glDisable(GL_DEPTH_TEST);
 		glUseProgram(additiveShader.program);
-		glUniform1i(glGetUniformLocation(additiveFbo.shader.program, "tex0"), 0);
-		glUniform1i(glGetUniformLocation(additiveFbo.shader.program, "tex1"), 1);
+		glUniform1i(glGetUniformLocation(additiveShader.program, "tex0"), 0);
+		glUniform1i(glGetUniformLocation(additiveShader.program, "tex1"), 1);
 
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, hBlurFbo.texture);
