@@ -24,6 +24,12 @@ namespace Graphics {
 	MyFrameBuffer vBlurFbo;
 	MyFrameBuffer additiveFbo;
 
+	MyShader tonemappingShader;
+	MyShader msaaShader;
+	MyShader aberrationShader;
+	MyShader blurShader;
+	MyShader additiveShader;
+
 	void QueryGLVersion();
 	bool CheckGLErrors();
 
@@ -328,6 +334,26 @@ namespace Graphics {
 		-1.0f,  1.0f,  0.0f, 1
 	};
 
+	GLfloat quadVerticesLeft[] = {
+		-1.0f,  1.0f,  0.0f, 1,
+		0.0f,  1.0f,  1, 1,
+		0.0f, -1.0f,  1, 0.0f,
+
+		0.0f, -1.0f, 1, 0.0f,
+		-1.0f, -1.0f,  0.0f, 0.0f,
+		-1.0f,  1.0f,  0.0f, 1
+	};
+
+	GLfloat quadVerticesRight[] = {
+		-0.0f,  1.0f,  0.0f, 1,
+		1.0f,  1.0f,  1, 1,
+		1.0f, -1.0f,  1, 0.0f,
+
+		1.0f, -1.0f, 1, 0.0f,
+		-0.0f, -1.0f,  0.0f, 0.0f,
+		-0.0f,  1.0f,  0.0f, 1
+	};
+
 
 	int init() {
 		// initialize the GLFW windowing system
@@ -399,6 +425,12 @@ namespace Graphics {
 		if (!InitializeAdditiveFrameBuffer(&additiveFbo, "additive.glsl", vec2(WINDOW_WIDTH *MSAA, WINDOW_HEIGHT *MSAA), 1)) {
 			return -1;
 		}
+
+		if (!InitializeShaders(&tonemappingShader, "framebuffervertex.glsl", "tonemapping.glsl")) return -1;
+		if (!InitializeShaders(&msaaShader, "framebuffervertex.glsl", "downsample.glsl")) return -1;
+		if (!InitializeShaders(&aberrationShader, "framebuffervertex.glsl", "aberration.glsl")) return -1;
+		if (!InitializeShaders(&blurShader, "framebuffervertex.glsl", "blur.glsl")) return -1;
+		if (!InitializeShaders(&additiveShader, "framebuffervertex.glsl", "additive.glsl")) return -1;
 
 		return 0;
 	}
@@ -782,7 +814,7 @@ namespace Light {
 		0.0, 0.5, 0.0, 0.0,
 		0.0, 0.0, 0.5, 0.0,
 		0.5, 0.5, 0.5, 1.0
-		);
+	);
 
 	glm::vec3 color;
 	glm::vec3 direction;
