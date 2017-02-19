@@ -433,9 +433,9 @@ namespace Graphics {
 		if (!InitializeShaders(&blurShader, "framebuffervertex.glsl", "blur.glsl")) return -1;
 		if (!InitializeShaders(&additiveShader, "framebuffervertex.glsl", "additive.glsl")) return -1;
 		if (!InitializeShaders(&shadowmapShader, "shadowmapvertex.glsl", "shadowmapfragment.glsl")) return -1;
-		
 		return 0;
 	}
+
 
 	bool InitializeFrameBuffer(MyFrameBuffer* frameBuffer, const string &fragment, vec2 dimension, bool HDR) {
 		glGenFramebuffers(1, &frameBuffer->fbo);
@@ -465,21 +465,17 @@ namespace Graphics {
 			return false;
 		}
 
-		glUseProgram(frameBuffer->shader.program);
 		glGenVertexArrays(1, &frameBuffer->vao);
 		glGenBuffers(1, &frameBuffer->vbo);
 		glBindBuffer(GL_ARRAY_BUFFER, frameBuffer->vbo);
 		glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), quadVertices, GL_STATIC_DRAW);
 		glBindVertexArray(frameBuffer->vao);
-		glBindBuffer(GL_ARRAY_BUFFER, frameBuffer->vbo);
 
-		GLint posAttrib = glGetAttribLocation(frameBuffer->shader.program, "position");
-		glEnableVertexAttribArray(posAttrib);
-		glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), 0);
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), 0);
 
-		GLint texAttrib = glGetAttribLocation(frameBuffer->shader.program, "texcoord");
-		glEnableVertexAttribArray(texAttrib);
-		glVertexAttribPointer(texAttrib, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (void*)(2 * sizeof(GLfloat)));
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (void*)(2 * sizeof(GLfloat)));
 
 		return true;
 	}
