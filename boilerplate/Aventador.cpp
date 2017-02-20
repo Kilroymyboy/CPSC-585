@@ -69,7 +69,7 @@ void Aventador::update0(glm::mat4 parentTransform) {
 
 	tempTransform = translate(transform, modelDisplacement);
 
-	float positionTightness = .2, targetTightness = .5;
+	float positionTightness = .4, targetTightness = .8;
 	Viewport::position = mix(Viewport::position, vec3(transform* vec4(0, 1.25f, -5.5f, 1)), positionTightness);
 	Viewport::target = mix(Viewport::target, vec3(transform* vec4(0, 1.25f, 0, 1)), targetTightness);
 	if (Keyboard::keyDown(GLFW_KEY_Q)) {
@@ -174,7 +174,6 @@ void Aventador::updateFriction() {
 			PxRigidBodyExt::addForceAtPos(*actor, Util::g2p(frictiond / (1 + tireHeat[i]))*min(wspeed.magnitude() * aventadorData.wheelSideFriction, aventadorData.wheelSideMaxFriction),
 				Util::g2p(transform*vec4(wheelPos[i] - vec3(0, aventadorData.dimensionHeight, 0), 1)), PxForceMode::eFORCE);
 			tireHeat[i] += length(frictionv) *aventadorData.tireHeatIncrease;
-			cout << i << "\t" << tireHeat[i] << endl;
 		}
 	}
 }
