@@ -173,7 +173,7 @@ void Aventador::updateFriction() {
 			frictiond.y = 0;
 			PxRigidBodyExt::addForceAtPos(*actor, Util::g2p(frictiond / (1 + tireHeat[i]))*min(wspeed.magnitude() * aventadorData.wheelSideFriction, aventadorData.wheelSideMaxFriction),
 				Util::g2p(transform*vec4(wheelPos[i] - vec3(0, aventadorData.dimensionHeight, 0), 1)), PxForceMode::eFORCE);
-			tireHeat[i] += length(frictionv) *aventadorData.tireHeatIncrease;
+			tireHeat[i] += length(frictionv) *aventadorData.tireHeatIncrease[i];
 		}
 	}
 }

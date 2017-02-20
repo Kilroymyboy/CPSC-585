@@ -23,9 +23,9 @@ public:
 	float wheelSideMaxFriction = 25;
 	float topSpeedFriction = 0.8;
 
-	float tireHeatIncrease = 0.02;
-	float tireHeatDecrease = 0.65;
-	float manualTireHeatIncrease = 0.03;
+	std::vector<float> tireHeatIncrease{ 0.006f,0.006f,0.02f,0.02f };
+	float tireHeatDecrease = 0.35;
+	float manualTireHeatIncrease = 0.15;
 };
 
 class AventadorWheel :public Entity {

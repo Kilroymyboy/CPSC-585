@@ -36,10 +36,10 @@
 #define WINDOW_HEIGHT 720
 
 #define MSAA 2
-#define VSYNC 0
+#define VSYNC 1
 #define SHADOWMAP_SIZE 1600
 
-#define EFFECTS 1
+#define EFFECTS 0
 
 namespace Graphics {
 	extern bool SPLIT_SCREEN;
