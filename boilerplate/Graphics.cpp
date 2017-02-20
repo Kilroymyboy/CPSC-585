@@ -14,6 +14,10 @@ namespace Graphics {
 	GLFWwindow *window;
 
 	MyFrameBuffer defaultFbo;
+	MyFrameBuffer defaultFbo1;
+
+	MyFrameBuffer splitScreenFbo;
+
 	MyFrameBuffer tonemappingFbo;
 	MyFrameBuffer msaaFbo;
 	MyFrameBuffer aberrationFbo;
@@ -31,7 +35,13 @@ namespace Graphics {
 	MyShader additiveShader;
 	MyShader shadowmapShader;
 
+	MyShader splitscreenShader;
+
 	GLuint frameBufferVao;
+
+	bool SPLIT_SCREEN = 1;
+	// 0 horizontal/side by side, 1 vertical/stacked
+	int SPLIT_SCREEN_ORIENTATION = 0;
 
 	void QueryGLVersion();
 	bool CheckGLErrors();
@@ -39,6 +49,8 @@ namespace Graphics {
 	string LoadSource(const string &filename);
 	GLuint CompileShader(GLenum shaderType, const string &source);
 	GLuint LinkProgram(GLuint vertexShader, GLuint fragmentShader);
+
+	void InitializeFrameBufferVAO();
 
 	bool InitializeShaders(MyShader *shader, const string vertex, const string fragment)
 	{
@@ -164,8 +176,17 @@ namespace Graphics {
 		}
 		// enable gl depth test
 		glEnable(GL_DEPTH_TEST);
-		glScissor(0, 0, WINDOW_WIDTH*MSAA, WINDOW_HEIGHT*MSAA);
-		glViewport(0, 0, WINDOW_WIDTH*MSAA, WINDOW_HEIGHT*MSAA);
+		if (SPLIT_SCREEN) {
+			vec2 defaultFboDimension(WINDOW_WIDTH*MSAA / ((SPLIT_SCREEN && (!SPLIT_SCREEN_ORIENTATION)) ? 2 : 1),
+				WINDOW_HEIGHT*MSAA / ((SPLIT_SCREEN && SPLIT_SCREEN_ORIENTATION) ? 2 : 1));
+
+			glScissor(0, 0, defaultFboDimension.x, defaultFboDimension.y);
+			glViewport(0, 0, defaultFboDimension.x, defaultFboDimension.y);
+		}
+		else {
+			glScissor(0, 0, WINDOW_WIDTH*MSAA, WINDOW_HEIGHT*MSAA);
+			glViewport(0, 0, WINDOW_WIDTH*MSAA, WINDOW_HEIGHT*MSAA);
+		}
 
 		// bind our shader program and the vertex array object containing our
 		// scene geometry, then tell OpenGL to draw our geometry
@@ -398,7 +419,11 @@ namespace Graphics {
 		QueryGLVersion();
 
 		// frame buffer objects
-		if (!InitializeFrameBuffer(&defaultFbo, vec2(WINDOW_WIDTH*MSAA, WINDOW_HEIGHT*MSAA), 1)) return -1;
+		vec2 defaultFboDimension(WINDOW_WIDTH*MSAA / ((SPLIT_SCREEN && (!SPLIT_SCREEN_ORIENTATION)) ? 2 : 1),
+			WINDOW_HEIGHT*MSAA / ((SPLIT_SCREEN && SPLIT_SCREEN_ORIENTATION) ? 2 : 1));
+		if (!InitializeFrameBuffer(&defaultFbo, defaultFboDimension, 1)) return -1;
+		if (!InitializeFrameBuffer(&defaultFbo1, defaultFboDimension, 1)) return -1;
+		if (!InitializeFrameBuffer(&splitScreenFbo, vec2(WINDOW_WIDTH *MSAA, WINDOW_HEIGHT *MSAA), 1))	return -1;
 		if (!InitializeFrameBuffer(&tonemappingFbo, vec2(WINDOW_WIDTH*MSAA, WINDOW_HEIGHT*MSAA), 1)) return -1;
 		if (!InitializeFrameBuffer(&msaaFbo, vec2(WINDOW_WIDTH*MSAA, WINDOW_HEIGHT*MSAA), 0)) return -1;
 		if (!InitializeFrameBuffer(&aberrationFbo, vec2(WINDOW_WIDTH, WINDOW_HEIGHT), 0)) return -1;
@@ -413,26 +438,27 @@ namespace Graphics {
 		if (!InitializeShaders(&blurShader, "framebuffervertex.glsl", "blur.glsl")) return -1;
 		if (!InitializeShaders(&additiveShader, "framebuffervertex.glsl", "additive.glsl")) return -1;
 		if (!InitializeShaders(&shadowmapShader, "shadowmapvertex.glsl", "shadowmapfragment.glsl")) return -1;
+		if (!InitializeShaders(&splitscreenShader, "framebuffervertex.glsl", "split.glsl")) return -1;
 
-		{
-			GLuint frameBufferVbo;
-			glGenVertexArrays(1, &frameBufferVao);
-			glGenBuffers(1, &frameBufferVbo);
-			glBindBuffer(GL_ARRAY_BUFFER, frameBufferVbo);
-			glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), quadVertices, GL_STATIC_DRAW);
-			glBindVertexArray(frameBufferVao);
-
-			glEnableVertexAttribArray(0);
-			glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), 0);
-
-			glEnableVertexAttribArray(1);
-			glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (void*)(2 * sizeof(GLfloat)));
-
-		}
+		InitializeFrameBufferVAO();
 
 		return 0;
 	}
 
+	void InitializeFrameBufferVAO() {
+		GLuint frameBufferVbo;
+		glGenVertexArrays(1, &frameBufferVao);
+		glGenBuffers(1, &frameBufferVbo);
+		glBindBuffer(GL_ARRAY_BUFFER, frameBufferVbo);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), quadVertices, GL_STATIC_DRAW);
+		glBindVertexArray(frameBufferVao);
+
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), 0);
+
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (void*)(2 * sizeof(GLfloat)));
+	}
 
 	bool InitializeFrameBuffer(MyFrameBuffer* frameBuffer, vec2 dimension, bool HDR) {
 		glGenFramebuffers(1, &frameBuffer->fbo);
@@ -487,8 +513,33 @@ namespace Graphics {
 		return glfwWindowShouldClose(window);
 	}
 
-	void renderHBlur() {
+	void renderSplitScreen() {
+		if (!SPLIT_SCREEN)return;
 
+		glBindFramebuffer(GL_FRAMEBUFFER, splitScreenFbo.fbo);
+		glBindTexture(GL_TEXTURE_2D, splitScreenFbo.texture);
+
+		glScissor(0, 0, WINDOW_WIDTH*MSAA, WINDOW_HEIGHT*MSAA);
+		glViewport(0, 0, WINDOW_WIDTH*MSAA, WINDOW_HEIGHT*MSAA);
+
+		glBindVertexArray(frameBufferVao);
+		glDisable(GL_DEPTH_TEST);
+		glUseProgram(splitscreenShader.program);
+		glUniform1i(glGetUniformLocation(additiveShader.program, "tex0"), 0);
+		glUniform1i(glGetUniformLocation(additiveShader.program, "tex1"), 1);
+		glUniform1i(0, SPLIT_SCREEN_ORIENTATION);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, defaultFbo.texture);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, defaultFbo.texture);
+
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	}
+
+	void renderHBlur() {
 		glBindFramebuffer(GL_FRAMEBUFFER, vBlurFbo.fbo);
 		glBindTexture(GL_TEXTURE_2D, vBlurFbo.texture);
 
@@ -505,7 +556,10 @@ namespace Graphics {
 		glUniform1f(2, Effects::sigma);
 
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, defaultFbo.texture);
+		if (SPLIT_SCREEN)
+			glBindTexture(GL_TEXTURE_2D, splitScreenFbo.texture);
+		else
+			glBindTexture(GL_TEXTURE_2D, defaultFbo.texture);
 
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 
@@ -553,7 +607,10 @@ namespace Graphics {
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, hBlurFbo.texture);
 		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, defaultFbo.texture);
+		if (SPLIT_SCREEN)
+			glBindTexture(GL_TEXTURE_2D, splitScreenFbo.texture);
+		else
+			glBindTexture(GL_TEXTURE_2D, defaultFbo.texture);
 
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 
@@ -624,6 +681,7 @@ namespace Graphics {
 	}
 
 	void update() {
+		renderSplitScreen();
 		if (EFFECTS) {
 			renderHBlur();
 			renderVBlur();
@@ -726,10 +784,11 @@ namespace Viewport {
 
 	void init() {
 		transform = lookAt(vec3(5, 2, 5), vec3(0, 0, 0), vec3(0, 1, 0));
-		projection = perspective(PI / 3, (double)WINDOW_WIDTH / WINDOW_HEIGHT, 0.1, 1000.0);
 	}
 
 	void update(mat4 obj) {
+		double splitscreenRatio = Graphics::SPLIT_SCREEN ? (Graphics::SPLIT_SCREEN_ORIENTATION ? 2 : 0.5) : 1;
+		projection = perspective(PI / 3, (double)WINDOW_WIDTH / WINDOW_HEIGHT * splitscreenRatio, 0.1, 1000.0);
 		transform = lookAt(position, target, vec3(0, 1, 0));
 		glUniformMatrix4fv(MODEL_LOCATION, 1, false, &obj[0][0]);
 		glUniformMatrix4fv(VIEW_LOCATION, 1, false, &transform[0][0]);

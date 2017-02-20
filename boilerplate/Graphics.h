@@ -42,6 +42,10 @@
 #define EFFECTS 1
 
 namespace Graphics {
+	extern bool SPLIT_SCREEN;
+	// 0 horizontal/side by side, 1 vertical/stacked
+	extern int SPLIT_SCREEN_ORIENTATION;
+
 	int init();
 	int shouldClose();
 	void update();
