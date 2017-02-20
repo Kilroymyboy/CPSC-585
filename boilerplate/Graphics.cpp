@@ -39,7 +39,7 @@ namespace Graphics {
 
 	GLuint frameBufferVao;
 
-	bool SPLIT_SCREEN = 0;
+	bool SPLIT_SCREEN = 1;
 	// 0 horizontal/side by side, 1 vertical/stacked
 	int SPLIT_SCREEN_ORIENTATION = 0;
 
@@ -166,14 +166,9 @@ namespace Graphics {
 
 	void RenderScene(MyGeometry *geometry, MyShader *shader, void(*material)(), mat4 transform)
 	{
-		if (EFFECTS) {
-			glBindFramebuffer(GL_FRAMEBUFFER, defaultFbo.fbo);
-			glBindTexture(GL_TEXTURE_2D, defaultFbo.texture);
-		}
-		else {
-			glBindFramebuffer(GL_FRAMEBUFFER, msaaFbo.fbo);
-			glBindTexture(GL_TEXTURE_2D, msaaFbo.texture);
-		}
+		glBindFramebuffer(GL_FRAMEBUFFER, defaultFbo.fbo);
+		glBindTexture(GL_TEXTURE_2D, defaultFbo.texture);
+		
 		// enable gl depth test
 		glEnable(GL_DEPTH_TEST);
 		if (SPLIT_SCREEN) {
@@ -525,11 +520,12 @@ namespace Graphics {
 		glBindVertexArray(frameBufferVao);
 		glDisable(GL_DEPTH_TEST);
 		glUseProgram(splitscreenShader.program);
-		glUniform1i(glGetUniformLocation(additiveShader.program, "tex0"), 0);
-		glUniform1i(glGetUniformLocation(additiveShader.program, "tex1"), 1);
+		glUniform1i(glGetUniformLocation(splitscreenShader.program, "tex0"), 0);
+		glUniform1i(glGetUniformLocation(splitscreenShader.program, "tex1"), 1);
 		glUniform1i(0, SPLIT_SCREEN_ORIENTATION);
 
 		glActiveTexture(GL_TEXTURE0);
+
 		glBindTexture(GL_TEXTURE_2D, defaultFbo.texture);
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, defaultFbo.texture);
@@ -658,8 +654,13 @@ namespace Graphics {
 		glUniform1i(2, MSAA);
 
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, msaaFbo.texture);
-
+		if(EFFECTS)
+			glBindTexture(GL_TEXTURE_2D, msaaFbo.texture);
+		else
+			if(SPLIT_SCREEN)
+				glBindTexture(GL_TEXTURE_2D, splitScreenFbo.texture);
+			else
+				glBindTexture(GL_TEXTURE_2D, defaultFbo.texture);
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
