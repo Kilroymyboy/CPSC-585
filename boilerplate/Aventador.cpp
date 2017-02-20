@@ -12,6 +12,7 @@ Aventador::Aventador() {
 	wheelHitInfo.resize(4);
 
 	wheelAngle = 0;
+	tireHeat.assign(4, 0);
 
 	wheelPos[0] = vec3(-.851f, .331f, 1.282f);
 	wheelPos[1] = vec3(.851f, .331f, 1.282f);
@@ -46,10 +47,6 @@ Aventador::Aventador() {
 }
 
 void Aventador::update0(glm::mat4 parentTransform) {
-	if (Keyboard::keyPressed(GLFW_KEY_SPACE)) {
-		actor->addForce(PxVec3(0, 35, 0), PxForceMode::eIMPULSE);
-	}
-
 	if (Keyboard::keyPressed(GLFW_KEY_A)) {
 		PxRigidBodyExt::addLocalForceAtLocalPos(*actor, PxVec3(80, 0, 0), PxVec3(0, 0, 0), PxForceMode::eIMPULSE);
 	}
@@ -86,6 +83,8 @@ void Aventador::update0(glm::mat4 parentTransform) {
 	updateSuspension();
 	updateFriction();
 	updateSteering();
+	updateTopSpeed();
+	updateDrift();
 
 	Light::position = pos + vec3(3, 5, 4);
 	Light::target = pos;
@@ -169,10 +168,13 @@ void Aventador::updateFriction() {
 			}
 
 			PxVec3 wspeed = PxRigidBodyExt::getVelocityAtPos(*actor, Util::g2p(transform*vec4(wheelPos[i], 1)));
-			vec3 frictiond = -normalize(Util::p2g(wspeed) - proj(Util::p2g(wspeed), wheeld));
+			vec3 frictionv = Util::p2g(wspeed) - proj(Util::p2g(wspeed), wheeld);
+			vec3 frictiond = -normalize(frictionv);
 			frictiond.y = 0;
-			PxRigidBodyExt::addForceAtPos(*actor, Util::g2p(frictiond)*min(wspeed.magnitude() * aventadorData.wheelSideFriction, aventadorData.wheelSideMaxFriction),
+			PxRigidBodyExt::addForceAtPos(*actor, Util::g2p(frictiond / (1 + tireHeat[i]))*min(wspeed.magnitude() * aventadorData.wheelSideFriction, aventadorData.wheelSideMaxFriction),
 				Util::g2p(transform*vec4(wheelPos[i] - vec3(0, aventadorData.dimensionHeight, 0), 1)), PxForceMode::eFORCE);
+			tireHeat[i] += length(frictionv) *aventadorData.tireHeatIncrease;
+			cout << i << "\t" << tireHeat[i] << endl;
 		}
 	}
 }
@@ -190,6 +192,23 @@ void Aventador::updateSteering() {
 	wheelAngle = min(max(wheelAngle, -aventadorData.maxWheelAngle), aventadorData.maxWheelAngle);
 	wheel[0].get()->facingAngle = wheelAngle;
 	wheel[1].get()->facingAngle = wheelAngle;
+}
+
+void Aventador::updateTopSpeed() {
+	PxVec3 v = -actor->getLinearVelocity();
+	v.y = 0;
+	actor->addForce(v*aventadorData.topSpeedFriction);
+}
+
+void Aventador::updateDrift() {
+	if (Keyboard::keyDown(GLFW_KEY_SPACE)) {
+		// manually add heat to rear tires
+		PxVec3 v = actor->getLinearVelocity();
+		tireHeat[2] += aventadorData.manualTireHeatIncrease*v.magnitude();
+		tireHeat[3] += aventadorData.manualTireHeatIncrease*v.magnitude();
+	}
+
+	for (int i = 0; i < tireHeat.size(); i++)tireHeat[i] *= aventadorData.tireHeatDecrease;
 }
 
 void AventadorWheel::update0(glm::mat4 parentTransform) {

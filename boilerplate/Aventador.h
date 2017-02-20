@@ -18,10 +18,14 @@ public:
 	float wheelTurnRate = 0.015;
 	float wheelReurnRate = 0.925;
 
-	float force = 25;
-	float wheelSideFriction = 4.25;
+	float force = 45;
+	float wheelSideFriction = 6.25;
 	float wheelSideMaxFriction = 25;
+	float topSpeedFriction = 0.8;
 
+	float tireHeatIncrease = 0.02;
+	float tireHeatDecrease = 0.65;
+	float manualTireHeatIncrease = 0.03;
 };
 
 class AventadorWheel :public Entity {
@@ -49,9 +53,13 @@ class Aventador : public Entity {
 	void updateSuspension();
 	void updateFriction();
 	void updateSteering();
+	void updateTopSpeed();
+	void updateDrift();
 
 	VehicleData aventadorData;
+
 	float wheelAngle;
+	std::vector<float> tireHeat;
 public:
 	// 0: front right, 1: front left, 2: rear left, 3: rear right
 	std::vector<std::unique_ptr<AventadorWheel> > wheel;
