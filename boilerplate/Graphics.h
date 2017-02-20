@@ -133,4 +133,5 @@ namespace Light {
 
 namespace Effects {
 	extern float sigma;
+	extern float splitscreenLineThickness;
 }

@@ -168,7 +168,7 @@ namespace Graphics {
 	{
 		glBindFramebuffer(GL_FRAMEBUFFER, defaultFbo.fbo);
 		glBindTexture(GL_TEXTURE_2D, defaultFbo.texture);
-		
+
 		// enable gl depth test
 		glEnable(GL_DEPTH_TEST);
 		if (SPLIT_SCREEN) {
@@ -523,9 +523,9 @@ namespace Graphics {
 		glUniform1i(glGetUniformLocation(splitscreenShader.program, "tex0"), 0);
 		glUniform1i(glGetUniformLocation(splitscreenShader.program, "tex1"), 1);
 		glUniform1i(0, SPLIT_SCREEN_ORIENTATION);
+		glUniform1f(1, Effects::splitscreenLineThickness);
 
 		glActiveTexture(GL_TEXTURE0);
-
 		glBindTexture(GL_TEXTURE_2D, defaultFbo.texture);
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, defaultFbo.texture);
@@ -654,10 +654,10 @@ namespace Graphics {
 		glUniform1i(2, MSAA);
 
 		glActiveTexture(GL_TEXTURE0);
-		if(EFFECTS)
+		if (EFFECTS)
 			glBindTexture(GL_TEXTURE_2D, msaaFbo.texture);
 		else
-			if(SPLIT_SCREEN)
+			if (SPLIT_SCREEN)
 				glBindTexture(GL_TEXTURE_2D, splitScreenFbo.texture);
 			else
 				glBindTexture(GL_TEXTURE_2D, defaultFbo.texture);
@@ -854,4 +854,5 @@ namespace Light {
 
 namespace Effects {
 	float sigma = 15;
+	float splitscreenLineThickness = 2.0f / WINDOW_WIDTH;
 }

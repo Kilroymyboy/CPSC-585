@@ -13,6 +13,7 @@ in vec2 Texcoord;
 out vec4 outColor;
 
 layout(location=0) uniform int orientation;
+layout(location=1) uniform float thickness;
 
 uniform sampler2D tex0;
 uniform sampler2D tex1;
@@ -26,11 +27,13 @@ void main()
 		}else{
 			outColor=texture(tex0, vec2((Texcoord.x-0.5)*2, Texcoord.y));
 		}
+		if(abs(Texcoord.x-0.5)<thickness) outColor=vec4(0,0,0,1);
 	}else{
 		if(Texcoord.y<0.5){
 			outColor=texture(tex0, vec2(Texcoord.x, Texcoord.y*2));
 		}else{
 			outColor=texture(tex0, vec2(Texcoord.x, (Texcoord.y-0.5)*2));
 		}
+		if(abs(Texcoord.y-0.5)<thickness) outColor=vec4(0,0,0,1);
 	}
 }
