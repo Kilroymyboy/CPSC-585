@@ -32,8 +32,8 @@
 #define EMISSION_COLOR_LOCATION 8
 #define SHADOW_MVP_LOCATION 9
 
-#define WINDOW_WIDTH 2080
-#define WINDOW_HEIGHT 1280
+#define WINDOW_WIDTH /*2080*/1040
+#define WINDOW_HEIGHT /*1280*/640
 
 #define MSAA 1
 #define VSYNC 1
@@ -42,6 +42,7 @@
 #define BLOOM_DOWNSAMPLE 2
 #define BLOOM_DOWNSAMPLE1 8
 
+//change to 1 to see bloom
 #define EFFECTS 0
 
 namespace Graphics {

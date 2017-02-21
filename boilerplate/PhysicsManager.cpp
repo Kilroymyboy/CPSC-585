@@ -40,7 +40,7 @@ namespace PhysicsManager {
 		PxSceneDesc sceneDesc(mPhysics->getTolerancesScale());
 		sceneDesc.gravity = PxVec3(0.0f, -9.8f, 0.0f);
 		sceneDesc.cpuDispatcher = PxDefaultCpuDispatcherCreate(2);
-		sceneDesc.filterShader = PxDefaultSimulationFilterShader;
+		sceneDesc.filterShader = contactFilterShader/*PxDefaultSimulationFilterShader*/;
 		sceneDesc.flags |= PxSceneFlag::eENABLE_ACTIVETRANSFORMS;
 		mScene = mPhysics->createScene(sceneDesc);
 
@@ -111,10 +111,77 @@ namespace PhysicsManager {
 		PxRigidDynamic* dynamic = PxCreateDynamic(*mPhysics, t, geometry, *mMaterial, 1.0f);
 		//actor = PxCreateDynamic(*PhysicsManager::mPhysics, t, geometry, *PhysicsManager::mPhysics->createMaterial(0.1f, 0.1f, 0.5f), PxReal(1.0f));
 
-		dynamic->setAngularDamping(0.2f);
+		dynamic->setAngularDamping(1.0f);
 		dynamic->setLinearVelocity(velocity);
 		mScene->addActor(*dynamic);
 		return dynamic;
+	}
+
+	/*
+	* attaching a simulation shape to the actor. This is used to detect collision.
+	* release(): Decrements the reference count of a shape and releases it if the new reference count is zero
+	*/
+	void attachSimulationShape(PxRigidDynamic *actor, const PxVec3& dimensions) {
+		PxShape *shape = PxGetPhysics().createShape(PxBoxGeometry(dimensions), *mMaterial, false);
+		shape->setContactOffset(50.0f); //conact triggers at a distance
+		/*If the collision shapes are sized to be the exact same size 
+		as the graphics shapes, a restOffset of zero is needed. 
+		If the collision shapes are an epsilon bigger than the graphics shapes, 
+		a restOffset of negative epsilon is correct.
+		--question: confirm the size of the graphic shape*/
+		shape->setFlag(PxShapeFlag::eSIMULATION_SHAPE, true);
+		actor->attachShape(*shape);
+		shape->release();
+	}
+
+	//set up the filter flags
+	void setupFiltering(PxRigidActor *actor, PxU32 filterGroup, PxU32 filterMask) {
+		PxFilterData filterData;
+		filterData.word0 = filterGroup; //filter ID of the actor
+		filterData.word1 = filterMask; //filter ID that triggers a contact callback with the actor
+		
+		//actor should only have one shape, but need to do this to get the shape
+		const PxU32 numShapes = actor->getNbShapes();
+		PxShape** shapes = (PxShape**)malloc(sizeof(PxShape*)*numShapes);
+		actor->getShapes(shapes, numShapes);
+		for (PxU32 i = 0; i < numShapes; i++)
+		{
+			PxShape* shape = shapes[i];
+			shape->setSimulationFilterData(filterData); //set up the filter data
+		}
+		free(shapes);
+	}
+
+	PxFilterFlags contactFilterShader(PxFilterObjectAttributes attributes0,
+		PxFilterData filterData0, PxFilterObjectAttributes attributes1,
+		PxFilterData filterData1, PxPairFlags& pairFlags,
+		const void * constantBlock, PxU32 constantBlockSize)
+	{
+		// Check to see if either actor is a trigger
+		if (PxFilterObjectIsTrigger(attributes0) ||
+			PxFilterObjectIsTrigger(attributes1))
+		{
+			// Signal that a trigger has been activated and exit
+			pairFlags = PxPairFlag::eTRIGGER_DEFAULT;
+			return PxFilterFlag::eDEFAULT;
+		}
+
+		// Generate a default contact report
+		pairFlags |= PxPairFlag::eCONTACT_DEFAULT;
+
+		// trigger the contact callback for pairs (A,B) where
+		// the filtermask of A contains the ID of B and vice versa.
+		if ((filterData0.word0 & filterData1.word1) && (filterData1.word0 & filterData0.word1))
+		{
+			// Report the collision
+			pairFlags |= PxPairFlag::eNOTIFY_TOUCH_FOUND;
+		}
+
+		// Add the Continuous Collision Detection (CCD) flag, so that
+		// CCD is enabled, and return the default filter flags
+		//pairFlags |= PxPairFlag::eCCD_LINEAR;
+		return PxFilterFlag::eDEFAULT;
+
 	}
 
 	void updateSelf(const PxRigidDynamic *actor)

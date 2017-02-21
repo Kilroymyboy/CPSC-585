@@ -29,7 +29,8 @@ Aventador::Aventador() {
 	PxVec3 dimensions(1, 0.5, 2.5);
 
 	actor = PhysicsManager::createDynamic(t, dimensions);
-
+	PhysicsManager::attachSimulationShape(actor, dimensions);	//attaching shape to detect collision
+	PhysicsManager::setupFiltering(actor, FilterGroup::eAventador, FilterGroup::eCenteredCube);
 
 	//PxBoxGeometry geometry(dimensions);
 	//actor = PxCreateDynamic(*PhysicsManager::mPhysics, t, geometry, *PhysicsManager::mPhysics->createMaterial(0.1f, 0.1f, 0.5f), PxReal(1.0f));
@@ -53,12 +54,19 @@ void Aventador::update0(glm::mat4 parentTransform) {
 		PxRigidBodyExt::addLocalForceAtLocalPos(*actor, PxVec3(20, 0, 0), PxVec3(0, 0, -10));
 	}
 
+
 	glm::mat4 m = glm::translate(glm::mat4(1), glm::vec3(actor->getGlobalPose().p.x, actor->getGlobalPose().p.y, actor->getGlobalPose().p.z));
 	PxReal a; PxVec3 b;  actor->getGlobalPose().q.toRadiansAndUnitAxis(a, b); m = glm::rotate(m, (float)a, glm::vec3(b.x, b.y, b.z));
 	transform = m;
 
 	mat4 t = translate(transform, modelDisplacement);
 
+	PxSweepHit hitInfo;
+	PxHitFlags hitFlags = PxHitFlag::eDISTANCE;
+	//issues with getting information of the centered cube
+	//bool isSweepHit = PxShapeExt::sweep(*shape, *actor, const PxVec3(0,0,-5.0), 10, (CenteredCube->shape), CenteredCube::getCenteredCubePos, hitInfo, hitFlags);
+
+	//camera
 	float positionTightness = 4, targetTightness = 20;
 	Viewport::position = mix(Viewport::position, vec3(transform* vec4(0, 1.25f, -5.5f, 1)), min(1, Time::deltaTime*positionTightness));
 	Viewport::target = mix(Viewport::target, vec3(transform* vec4(0, 1.25f, 0, 1)), min(1, Time::deltaTime*targetTightness));
@@ -102,9 +110,13 @@ namespace Game {
 
 	// we can customize this function as much as we want for now for debugging
 	void init() {
-		entities.push_back(unique_ptr<Aventador>(new Aventador));
+
+		unique_ptr<Aventador> car(new Aventador);
+		unique_ptr<CenteredCube> cube(new CenteredCube(vec3(0, 1, 10)));
+
+		entities.push_back(std::move(car));
 		//	entities.push_back(unique_ptr<Cube>(new Cube));
-		entities.push_back(unique_ptr<CenteredCube>(new CenteredCube(vec3(0, 3, 0))));
+		entities.push_back(std::move(cube));
 		entities.push_back(unique_ptr<Plane>(new Plane));
 	}
 
@@ -180,12 +192,23 @@ CenteredCube::CenteredCube(vec3 position) {
 
 	PxVec3 dimensions(0.5f, 0.5f, 0.5f);
 	actor = PhysicsManager::createDynamic(t, dimensions);
+
+	//turn off gravity
+	actor->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, true);
+	actor->setLinearDamping(3.0f);
+
+	PhysicsManager::attachSimulationShape(actor, dimensions); //hit box
+	PhysicsManager::setupFiltering(actor, FilterGroup::eCenteredCube, FilterGroup::eAventador); //set up filters
+
 }
 
 void CenteredCube::update0(glm::mat4 parentTransform) {
 
 	glm::mat4 m = glm::translate(glm::mat4(1), glm::vec3(actor->getGlobalPose().p.x, actor->getGlobalPose().p.y, actor->getGlobalPose().p.z));
-	PxReal a; PxVec3 b;  actor->getGlobalPose().q.toRadiansAndUnitAxis(a, b); m = glm::rotate(m, (float)a, glm::vec3(b.x, b.y, b.z));
+	PxReal a; PxVec3 b;  
+	actor->getGlobalPose().q.toRadiansAndUnitAxis(a, b);
+
+	m = glm::rotate(m, (float)a, glm::vec3(b.x, b.y, b.z));
 	transform = m;
 
 	Light::renderShadowMap(&Resources::centeredCube, transform);
@@ -194,3 +217,14 @@ void CenteredCube::update0(glm::mat4 parentTransform) {
 void CenteredCube::update(glm::mat4 parentTransform) {
 	Graphics::RenderScene(&Resources::centeredCube, &Resources::standardShader, &Resources::defaultMaterial, transform);
 }
+
+/* not sure if I need this
+PxTransform CenteredCube::getCenteredCubePos() {
+	return shape->getLocalPose();
+}
+
+
+void CenteredCube::setCenteredCubePos(physx::PxTransform newPos) {
+	actor->setGlobalPose(newPos);
+}
+*/
