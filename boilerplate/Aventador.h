@@ -40,7 +40,7 @@ public:
 	float height;
 	glm::mat4 tempTransform;
 	void update0(glm::mat4 parentTransform)override;
-	void update(glm::mat4 parentTransform)override;
+	void render(glm::mat4 parentTransform)override;
 };
 
 class Aventador : public Entity {
@@ -70,6 +70,6 @@ public:
 	std::vector<std::unique_ptr<AventadorWheel> > wheel;
 	std::vector<glm::vec3> wheelPos;
 	void update0(glm::mat4 parentTransform)override;
-	void update(glm::mat4 parentTransform)override;
+	void render(glm::mat4 parentTransform)override;
 	Aventador();
 };

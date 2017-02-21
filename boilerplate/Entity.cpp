@@ -18,7 +18,7 @@ void Plane::update0(glm::mat4 parentTransform) {
 	}
 }
 
-void Plane::update(glm::mat4 parentTransform) {
+void Plane::render(glm::mat4 parentTransform) {
 	for (int i = -3; i < 2; i++) {
 		for (int j = -3; j < 2; j++) {
 			mat4 t = translate(transform, vec3(i * 16, 0, j * 16));
@@ -31,7 +31,7 @@ void Cube::update0(glm::mat4 parentTransform) {
 	Light::renderShadowMap(&Resources::cube, parentTransform*transform);
 }
 
-void Cube::update(glm::mat4 parentTransform) {
+void Cube::render(glm::mat4 parentTransform) {
 	Graphics::RenderScene(&Resources::cube, &Resources::standardShader, &Resources::defaultMaterial, parentTransform*transform);
 }
 
@@ -51,6 +51,6 @@ void CenteredCube::update0(glm::mat4 parentTransform) {
 	Light::renderShadowMap(&Resources::centeredCube, transform);
 }
 
-void CenteredCube::update(glm::mat4 parentTransform) {
+void CenteredCube::render(glm::mat4 parentTransform) {
 	Graphics::RenderScene(&Resources::centeredCube, &Resources::standardShader, &Resources::defaultMaterial, transform);
 }

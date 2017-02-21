@@ -14,6 +14,6 @@ class Path :public Entity {
 	void genBuffer();
 public:
 	void update0(glm::mat4 parentTransform)override;
-	void update(glm::mat4 parentTransform)override;
+	void render(glm::mat4 parentTransform)override;
 	Path(int geometrySize);
 };

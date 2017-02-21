@@ -99,13 +99,13 @@ void Aventador::update0(glm::mat4 parentTransform) {
 	}
 }
 
-void Aventador::update(glm::mat4 parentTransform) {
+void Aventador::render(glm::mat4 parentTransform) {
 	Graphics::RenderScene(&Resources::aventadorBody, &Resources::standardShader, &(Resources::darkGreyMaterial), tempTransform);
 	Graphics::RenderScene(&Resources::aventadorBodyGlow, &Resources::standardShader, &Resources::emmisiveBlueMaterial, tempTransform);
 	Graphics::RenderScene(&Resources::aventadorUnder, &Resources::standardShader, &Resources::pureBlackMaterial, tempTransform);
 
 	for (int i = 0; i < wheel.size(); i++) {
-		wheel[i].get()->update(tempTransform);
+		wheel[i].get()->render(tempTransform);
 	}
 }
 
@@ -221,7 +221,6 @@ void Aventador::updateBraking() {
 	else {
 		brakeForce = 0;
 	}
-	cout << brakeForce << endl;
 }
 
 void AventadorWheel::update0(glm::mat4 parentTransform) {
@@ -235,7 +234,7 @@ void AventadorWheel::update0(glm::mat4 parentTransform) {
 	Light::renderShadowMap(&Resources::aventadorWheelGlow, parentTransform*tempTransform);
 }
 
-void AventadorWheel::update(glm::mat4 parentTransform) {
+void AventadorWheel::render(glm::mat4 parentTransform) {
 	Graphics::RenderScene(&Resources::aventadorWheel, &Resources::standardShader, &Resources::darkGreyMaterial, parentTransform*tempTransform);
 	Graphics::RenderScene(&Resources::aventadorWheelGlow, &Resources::standardShader, &Resources::emmisiveBlueMaterial, parentTransform*tempTransform);
 }

@@ -35,7 +35,7 @@ namespace Game {
 		}
 
 		for (auto it = entities.begin(); it != entities.end(); it++) {
-			it->get()->update(mat4(1));
+			it->get()->render(mat4(1));
 		}
 	}
 }
