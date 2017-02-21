@@ -66,7 +66,7 @@ void Path::genBuffer() {
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-void Path::update0(mat4 parentTransform) {
+void Path::update(mat4 parentTransform) {
 	if (Time::time > nextGenTime) {
 		nextGenTime += cooldown;
 

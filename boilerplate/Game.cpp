@@ -27,15 +27,11 @@ namespace Game {
 
 		for (auto it = entities.begin(); it != entities.end(); it++) {
 			if (it->get()->alive) {
-				it->get()->update0(mat4(1));
+				it->get()->update(mat4(1));
 			}
 			else {
 				it = entities.erase(it);
 			}
-		}
-
-		for (auto it = entities.begin(); it != entities.end(); it++) {
-			it->get()->render(mat4(1));
 		}
 	}
 }
