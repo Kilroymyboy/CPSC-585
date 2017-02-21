@@ -23,6 +23,9 @@ public:
 	float wheelSideMaxFriction = 25;
 	float topSpeedFriction = 0.8;
 
+	float brakeSpeed = 0.8;
+	float maxBrakeForce = 60;
+
 	std::vector<float> tireHeatIncrease{ 0.006f,0.006f,0.02f,0.02f };
 	float tireHeatDecrease = 0.35;
 	float manualTireHeatIncrease = 0.15;
@@ -55,10 +58,12 @@ class Aventador : public Entity {
 	void updateSteering();
 	void updateTopSpeed();
 	void updateDrift();
+	void updateBraking();
 
 	VehicleData aventadorData;
 
 	float wheelAngle;
+	float brakeForce;
 	std::vector<float> tireHeat;
 public:
 	// 0: front right, 1: front left, 2: rear left, 3: rear right

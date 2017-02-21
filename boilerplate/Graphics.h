@@ -103,7 +103,6 @@ namespace Graphics {
 	bool InitializeShaders(MyShader *shader, const std::string vertex, const std::string fragment);
 	bool InitializeFrameBuffer(MyFrameBuffer* frameBuffer, glm::vec2 dimension, bool HDR);
 	bool InitializeShadowMap(MyFrameBuffer* frameBuffer, glm::vec2 dimension);
-	bool InitializeAdditiveFrameBuffer(MyFrameBuffer* frameBuffer, const std::string &fragment, glm::vec2 dimension, bool HDR);
 }
 
 namespace Viewport {
