@@ -165,7 +165,7 @@ namespace Graphics {
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 
-	void RenderScene(MyGeometry *geometry, MyShader *shader, void(*material)(), mat4 transform)
+	void Render(MyGeometry *geometry, void(*material)(), mat4 transform)
 	{
 		glBindFramebuffer(GL_FRAMEBUFFER, defaultFbo.fbo);
 		glBindTexture(GL_TEXTURE_2D, defaultFbo.texture);
@@ -184,9 +184,6 @@ namespace Graphics {
 			glViewport(0, 0, WINDOW_WIDTH*MSAA, WINDOW_HEIGHT*MSAA);
 		}
 
-		// bind our shader program and the vertex array object containing our
-		// scene geometry, then tell OpenGL to draw our geometry
-		glUseProgram(shader->program);
 		glBindVertexArray(geometry->vertexArray);
 
 		material();
@@ -203,7 +200,6 @@ namespace Graphics {
 
 		// reset state to default (no shader or geometry bound)
 		glBindVertexArray(0);
-		glUseProgram(0);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glBindTexture(GL_TEXTURE_2D, 0);
 
@@ -354,27 +350,6 @@ namespace Graphics {
 		-1.0f,  1.0f,  0.0f, 1
 	};
 
-	GLfloat quadVerticesLeft[] = {
-		-1.0f,  1.0f,  0.0f, 1,
-		0.0f,  1.0f,  1, 1,
-		0.0f, -1.0f,  1, 0.0f,
-
-		0.0f, -1.0f, 1, 0.0f,
-		-1.0f, -1.0f,  0.0f, 0.0f,
-		-1.0f,  1.0f,  0.0f, 1
-	};
-
-	GLfloat quadVerticesRight[] = {
-		-0.0f,  1.0f,  0.0f, 1,
-		1.0f,  1.0f,  1, 1,
-		1.0f, -1.0f,  1, 0.0f,
-
-		1.0f, -1.0f, 1, 0.0f,
-		-0.0f, -1.0f,  0.0f, 0.0f,
-		-0.0f,  1.0f,  0.0f, 1
-	};
-
-
 	int init() {
 		// initialize the GLFW windowing system
 		if (!glfwInit()) {
@@ -463,7 +438,7 @@ namespace Graphics {
 		glGenTextures(1, &frameBuffer->texture);
 		glBindTexture(GL_TEXTURE_2D, frameBuffer->texture);
 
-		glTexImage2D(GL_TEXTURE_2D, 0, HDR ? GL_RGBA16F : GL_RGBA, dimension.x, dimension.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+		glTexImage2D(GL_TEXTURE_2D, 0, (HDR&&HDR_ENABLED) ? GL_RGBA16F : GL_RGBA, dimension.x, dimension.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -689,9 +664,11 @@ namespace Graphics {
 		}
 
 		// render geometry
+		glUseProgram(Resources::standardShader.program);
 		for (auto it = Game::entities.begin(); it != Game::entities.end(); it++) {
 			it->get()->render(mat4(1));
 		}
+		glUseProgram(0);
 
 		// render split screen
 		renderSplitScreen();

@@ -101,5 +101,5 @@ void Path::update(mat4 parentTransform) {
 }
 
 void Path::render(mat4 parentTransform) {
-	Graphics::RenderScene(&geometry, &Resources::standardShader, &Resources::defaultMaterial, parentTransform*transform);
+	Graphics::Render(&geometry, &Resources::defaultMaterial, parentTransform*transform);
 }

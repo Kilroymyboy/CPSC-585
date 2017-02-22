@@ -35,11 +35,12 @@
 #define WINDOW_WIDTH 1280
 #define WINDOW_HEIGHT 720
 
-#define MSAA 1
+#define MSAA 2
 #define VSYNC 1
 #define SHADOWMAP_SIZE 1600
 
 #define EFFECTS 0
+#define HDR_ENABLED 0
 
 namespace Graphics {
 	extern bool SPLIT_SCREEN;
@@ -99,7 +100,7 @@ namespace Graphics {
 
 	void clearFrameBuffer();
 	void loadGeometry(MyGeometry* geometry, char* path);
-	void RenderScene(MyGeometry *geometry, MyShader *shader, void(*material)(), glm::mat4 transform);
+	void Render(MyGeometry *geometry, void(*material)(), glm::mat4 transform);
 	bool InitializeShaders(MyShader *shader, const std::string vertex, const std::string fragment);
 	bool InitializeFrameBuffer(MyFrameBuffer* frameBuffer, glm::vec2 dimension, bool HDR);
 	bool InitializeShadowMap(MyFrameBuffer* frameBuffer, glm::vec2 dimension);

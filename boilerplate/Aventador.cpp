@@ -106,9 +106,9 @@ void Aventador::renderShadowMap(glm::mat4 parentTransform) {
 }
 
 void Aventador::render(glm::mat4 parentTransform) {
-	Graphics::RenderScene(&Resources::aventadorBody, &Resources::standardShader, &(Resources::darkGreyMaterial), tempTransform);
-	Graphics::RenderScene(&Resources::aventadorBodyGlow, &Resources::standardShader, &Resources::emmisiveBlueMaterial, tempTransform);
-	Graphics::RenderScene(&Resources::aventadorUnder, &Resources::standardShader, &Resources::pureBlackMaterial, tempTransform);
+	Graphics::Render(&Resources::aventadorBody, &(Resources::darkGreyMaterial), tempTransform);
+	Graphics::Render(&Resources::aventadorBodyGlow, &Resources::emmisiveBlueMaterial, tempTransform);
+	Graphics::Render(&Resources::aventadorUnder, &Resources::pureBlackMaterial, tempTransform);
 
 	for (int i = 0; i < wheel.size(); i++) {
 		wheel[i].get()->render(tempTransform);
@@ -217,7 +217,10 @@ void Aventador::updateDrift() {
 		tireHeat[3] += aventadorData.manualTireHeatIncrease*v.magnitude();
 	}
 
-	for (int i = 0; i < tireHeat.size(); i++)tireHeat[i] *= aventadorData.tireHeatDecrease;
+	if (Keyboard::keyDown(GLFW_KEY_UP))
+		for (int i = 0; i < tireHeat.size(); i++)tireHeat[i] *= aventadorData.tireHeatDecrease;
+	else
+		for (int i = 0; i < tireHeat.size(); i++)tireHeat[i] *= aventadorData.tireHeatFastDecrease;
 }
 
 void Aventador::updateBraking() {
@@ -232,7 +235,6 @@ void Aventador::updateBraking() {
 void AventadorWheel::update(glm::mat4 parentTransform) {
 	rotation += rotateSpeed*rotateInverse;
 	rotation = rotation - 2 * PI*((int)(rotation / (2 * PI)));
-	cout << rotation << endl;
 	tempTransform = translate(transform, vec3(0.0f, height, 0.0f));
 	tempTransform = rotate(tempTransform, facingAngle, vec3(0.0f, 1.0f, 0.0f));
 	tempTransform = rotate(tempTransform, rotation, vec3(1.0f, 0.0f, 0.0f));
@@ -244,6 +246,6 @@ void AventadorWheel::renderShadowMap(glm::mat4 parentTransform) {
 }
 
 void AventadorWheel::render(glm::mat4 parentTransform) {
-	Graphics::RenderScene(&Resources::aventadorWheel, &Resources::standardShader, &Resources::darkGreyMaterial, parentTransform*tempTransform);
-	Graphics::RenderScene(&Resources::aventadorWheelGlow, &Resources::standardShader, &Resources::emmisiveBlueMaterial, parentTransform*tempTransform);
+	Graphics::Render(&Resources::aventadorWheel, &Resources::darkGreyMaterial, parentTransform*tempTransform);
+	Graphics::Render(&Resources::aventadorWheelGlow, &Resources::emmisiveBlueMaterial, parentTransform*tempTransform);
 }

@@ -22,7 +22,7 @@ void Plane::render(glm::mat4 parentTransform) {
 	for (int i = -3; i < 2; i++) {
 		for (int j = -3; j < 2; j++) {
 			mat4 t = translate(transform, vec3(i * 16, 0, j * 16));
-			Graphics::RenderScene(&Resources::plane, &Resources::standardShader, &Resources::defaultMaterial, parentTransform*t);
+			Graphics::Render(&Resources::plane, &Resources::defaultMaterial, parentTransform*t);
 		}
 	}
 }
@@ -32,7 +32,7 @@ void Cube::update(glm::mat4 parentTransform) {
 }
 
 void Cube::render(glm::mat4 parentTransform) {
-	Graphics::RenderScene(&Resources::cube, &Resources::standardShader, &Resources::defaultMaterial, parentTransform*transform);
+	Graphics::Render(&Resources::cube, &Resources::defaultMaterial, parentTransform*transform);
 }
 
 CenteredCube::CenteredCube(vec3 position) {
@@ -52,5 +52,5 @@ void CenteredCube::update(glm::mat4 parentTransform) {
 }
 
 void CenteredCube::render(glm::mat4 parentTransform) {
-	Graphics::RenderScene(&Resources::centeredCube, &Resources::standardShader, &Resources::defaultMaterial, transform);
+	Graphics::Render(&Resources::centeredCube, &Resources::defaultMaterial, transform);
 }
