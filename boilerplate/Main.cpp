@@ -63,13 +63,12 @@ int main(int argc, char *argv[])
 	PhysicsManager::init();
 
 	Light::init();
-	Viewport::init();
+	Viewport::init(2);
 	Resources::init();
 	Time::init();
 	Keyboard::init();
 	Game::init();
 	while (!Graphics::shouldClose()) {
-		Graphics::clearFrameBuffer();
 		Time::update();
 		Game::update();
 		Graphics::update();

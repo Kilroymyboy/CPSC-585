@@ -70,13 +70,13 @@ void Aventador::update(glm::mat4 parentTransform) {
 	tempTransform = translate(transform, modelDisplacement);
 
 	float positionTightness = .4, targetTightness = .8;
-	Viewport::position = mix(Viewport::position, vec3(transform* vec4(0, 1.25f, -5.5f, 1)), positionTightness);
-	Viewport::target = mix(Viewport::target, vec3(transform* vec4(0, 1.25f, 0, 1)), targetTightness);
+	Viewport::position[0] = mix(Viewport::position[0], vec3(transform* vec4(0, 1.25f, -5.5f, 1)), positionTightness);
+	Viewport::target[0] = mix(Viewport::target[0], vec3(transform* vec4(0, 1.25f, 0, 1)), targetTightness);
 	if (Keyboard::keyDown(GLFW_KEY_Q)) {
-		Viewport::position = transform* vec4(5.5f, 1.25f, 0.0f, 1);
+		Viewport::position[0] = transform* vec4(5.5f, 1.25f, 0.0f, 1);
 	}
 	else	if (Keyboard::keyDown(GLFW_KEY_E)) {
-		Viewport::position = transform* vec4(-5.5f, 1.25f, 0.0f, 1);
+		Viewport::position[0] = transform* vec4(-5.5f, 1.25f, 0.0f, 1);
 	}
 
 	raycastWheels();

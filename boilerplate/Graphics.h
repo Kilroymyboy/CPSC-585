@@ -6,6 +6,7 @@
 #include <string>
 #include <iterator>
 #include <string>
+#include <vector>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -98,7 +99,6 @@ namespace Graphics {
 		MyFrameBuffer() :fbo(0), texture(0), rbo(0) {}
 	};
 
-	void clearFrameBuffer();
 	void loadGeometry(MyGeometry* geometry, char* path);
 	void Render(MyGeometry *geometry, void(*material)(), glm::mat4 transform);
 	bool InitializeShaders(MyShader *shader, const std::string vertex, const std::string fragment);
@@ -107,11 +107,11 @@ namespace Graphics {
 }
 
 namespace Viewport {
-	extern glm::mat4 projection;
+	extern std::vector<glm::mat4> projection;
 
-	extern glm::vec3 position, target;
+	extern std::vector<glm::vec3> position, target;
 
-	void init();
+	void init(int);
 	void update(glm::mat4);
 }
 

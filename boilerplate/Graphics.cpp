@@ -5,7 +5,6 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
-#include <vector>
 
 using namespace std;
 using namespace glm;
@@ -658,6 +657,9 @@ namespace Graphics {
 	}
 
 	void update() {
+		// clear frame buffer
+		clearFrameBuffer();
+
 		// render shadowmap
 		for (auto it = Game::entities.begin(); it != Game::entities.end(); it++) {
 			it->get()->renderShadowMap(mat4(1));
@@ -769,23 +771,32 @@ namespace Graphics {
 }
 
 namespace Viewport {
-	glm::mat4 transform;
-	glm::mat4 projection;
+	std::vector<glm::mat4> transform;
+	std::vector<glm::mat4> projection;
 
-	glm::vec3 position, target;
+	std::vector<glm::vec3> position, target;
 
-	void init() {
-		transform = lookAt(vec3(5, 2, 5), vec3(0, 0, 0), vec3(0, 1, 0));
+	int SIZE;
+
+	void init(int n) {
+		SIZE = n;
+
+		transform.resize(SIZE);
+		projection.resize(SIZE);
+		position.resize(SIZE);
+		target.resize(SIZE);
+
+		for (int i = 0; i < SIZE; i++)
+			transform[i] = lookAt(vec3(5, 2, 5), vec3(0, 0, 0), vec3(0, 1, 0));
 	}
 
 	void update(mat4 obj) {
 		double splitscreenRatio = Graphics::SPLIT_SCREEN ? (Graphics::SPLIT_SCREEN_ORIENTATION ? 2 : 0.5) : 1;
-		projection = perspective(PI / 3, (double)WINDOW_WIDTH / WINDOW_HEIGHT * splitscreenRatio, 0.1, 1000.0);
-		transform = lookAt(position, target, vec3(0, 1, 0));
+		projection[0] = perspective(PI / 3, (double)WINDOW_WIDTH / WINDOW_HEIGHT * splitscreenRatio, 0.1, 1000.0);
+		transform[0] = lookAt(position[0], target[0], vec3(0, 1, 0));
 		glUniformMatrix4fv(MODEL_LOCATION, 1, false, &obj[0][0]);
-		glUniformMatrix4fv(VIEW_LOCATION, 1, false, &transform[0][0]);
-		glUniformMatrix4fv(PROJECTION_LOCATION, 1, false, &projection[0][0]);
-
+		glUniformMatrix4fv(VIEW_LOCATION, 1, false, &transform[0][0][0]);
+		glUniformMatrix4fv(PROJECTION_LOCATION, 1, false, &projection[0][0][0]);
 	}
 }
 
