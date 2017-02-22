@@ -39,8 +39,9 @@ public:
 	float facingAngle = 0;
 	float height;
 	glm::mat4 tempTransform;
-	void update0(glm::mat4 parentTransform)override;
 	void update(glm::mat4 parentTransform)override;
+	void renderShadowMap(glm::mat4 parentTransform)override;
+	void render(glm::mat4 parentTransform)override;
 };
 
 class Aventador : public Entity {
@@ -69,7 +70,8 @@ public:
 	// 0: front right, 1: front left, 2: rear left, 3: rear right
 	std::vector<std::unique_ptr<AventadorWheel> > wheel;
 	std::vector<glm::vec3> wheelPos;
-	void update0(glm::mat4 parentTransform)override;
 	void update(glm::mat4 parentTransform)override;
+	void renderShadowMap(glm::mat4 parentTransform)override;
+	void render(glm::mat4 parentTransform)override;
 	Aventador();
 };

@@ -1,5 +1,6 @@
 #include "Graphics.h"
 #include "InputManager.h"
+#include "Game.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
@@ -39,7 +40,7 @@ namespace Graphics {
 
 	GLuint frameBufferVao;
 
-	bool SPLIT_SCREEN = 1;
+	bool SPLIT_SCREEN = 0;
 	// 0 horizontal/side by side, 1 vertical/stacked
 	int SPLIT_SCREEN_ORIENTATION = 0;
 
@@ -682,7 +683,20 @@ namespace Graphics {
 	}
 
 	void update() {
+		// render shadowmap
+		for (auto it = Game::entities.begin(); it != Game::entities.end(); it++) {
+			it->get()->renderShadowMap(mat4(1));
+		}
+
+		// render geometry
+		for (auto it = Game::entities.begin(); it != Game::entities.end(); it++) {
+			it->get()->render(mat4(1));
+		}
+
+		// render split screen
 		renderSplitScreen();
+
+		// render post processing
 		if (EFFECTS) {
 			renderHBlur();
 			renderVBlur();

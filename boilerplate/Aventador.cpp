@@ -46,7 +46,7 @@ Aventador::Aventador() {
 	actor->setLinearDamping(0.5);
 }
 
-void Aventador::update0(glm::mat4 parentTransform) {
+void Aventador::update(glm::mat4 parentTransform) {
 	if (Keyboard::keyPressed(GLFW_KEY_A)) {
 		PxRigidBodyExt::addLocalForceAtLocalPos(*actor, PxVec3(80, 0, 0), PxVec3(0, 0, 0), PxForceMode::eIMPULSE);
 	}
@@ -90,22 +90,28 @@ void Aventador::update0(glm::mat4 parentTransform) {
 	Light::position = pos + vec3(3, 5, 4);
 	Light::target = pos;
 
+	for (int i = 0; i < wheel.size(); i++) {
+		wheel[i].get()->update(tempTransform);
+	}
+}
+
+void Aventador::renderShadowMap(glm::mat4 parentTransform) {
 	Light::renderShadowMap(&Resources::aventadorBody, tempTransform);
 	Light::renderShadowMap(&Resources::aventadorBodyGlow, tempTransform);
 	Light::renderShadowMap(&Resources::aventadorUnder, tempTransform);
 
 	for (int i = 0; i < wheel.size(); i++) {
-		wheel[i].get()->update0(tempTransform);
+		wheel[i].get()->renderShadowMap(tempTransform);
 	}
 }
 
-void Aventador::update(glm::mat4 parentTransform) {
+void Aventador::render(glm::mat4 parentTransform) {
 	Graphics::RenderScene(&Resources::aventadorBody, &Resources::standardShader, &(Resources::darkGreyMaterial), tempTransform);
 	Graphics::RenderScene(&Resources::aventadorBodyGlow, &Resources::standardShader, &Resources::emmisiveBlueMaterial, tempTransform);
 	Graphics::RenderScene(&Resources::aventadorUnder, &Resources::standardShader, &Resources::pureBlackMaterial, tempTransform);
 
 	for (int i = 0; i < wheel.size(); i++) {
-		wheel[i].get()->update(tempTransform);
+		wheel[i].get()->render(tempTransform);
 	}
 }
 
@@ -223,18 +229,21 @@ void Aventador::updateBraking() {
 	}
 }
 
-void AventadorWheel::update0(glm::mat4 parentTransform) {
+void AventadorWheel::update(glm::mat4 parentTransform) {
 	rotation += rotateSpeed*rotateInverse;
-	if (rotation > 2 * PI)rotation = 0;
-	if (rotation < -2 * PI)rotation = 0;
+	rotation = rotation - 2 * PI*((int)(rotation / (2 * PI)));
+	cout << rotation << endl;
 	tempTransform = translate(transform, vec3(0.0f, height, 0.0f));
 	tempTransform = rotate(tempTransform, facingAngle, vec3(0.0f, 1.0f, 0.0f));
 	tempTransform = rotate(tempTransform, rotation, vec3(1.0f, 0.0f, 0.0f));
+}
+
+void AventadorWheel::renderShadowMap(glm::mat4 parentTransform) {
 	Light::renderShadowMap(&Resources::aventadorWheel, parentTransform*tempTransform);
 	Light::renderShadowMap(&Resources::aventadorWheelGlow, parentTransform*tempTransform);
 }
 
-void AventadorWheel::update(glm::mat4 parentTransform) {
+void AventadorWheel::render(glm::mat4 parentTransform) {
 	Graphics::RenderScene(&Resources::aventadorWheel, &Resources::standardShader, &Resources::darkGreyMaterial, parentTransform*tempTransform);
 	Graphics::RenderScene(&Resources::aventadorWheelGlow, &Resources::standardShader, &Resources::emmisiveBlueMaterial, parentTransform*tempTransform);
 }

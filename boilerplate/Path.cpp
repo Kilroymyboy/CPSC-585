@@ -66,7 +66,7 @@ void Path::genBuffer() {
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-void Path::update0(mat4 parentTransform) {
+void Path::update(mat4 parentTransform) {
 	if (Time::time > nextGenTime) {
 		nextGenTime += cooldown;
 
@@ -100,6 +100,6 @@ void Path::update0(mat4 parentTransform) {
 	Light::renderShadowMap(&geometry, parentTransform*transform);
 }
 
-void Path::update(mat4 parentTransform) {
+void Path::render(mat4 parentTransform) {
 	Graphics::RenderScene(&geometry, &Resources::standardShader, &Resources::defaultMaterial, parentTransform*transform);
 }
