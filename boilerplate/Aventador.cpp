@@ -49,19 +49,6 @@ Aventador::Aventador(int id) {
 }
 
 void Aventador::update(glm::mat4 parentTransform) {
-	if (Keyboard::keyPressed(GLFW_KEY_A)) {
-		PxRigidBodyExt::addLocalForceAtLocalPos(*actor, PxVec3(80, 0, 0), PxVec3(0, 0, 0), PxForceMode::eIMPULSE);
-	}
-	if (Keyboard::keyPressed(GLFW_KEY_D)) {
-		PxRigidBodyExt::addLocalForceAtLocalPos(*actor, PxVec3(-80, 0, 0), PxVec3(0, 0, 0), PxForceMode::eIMPULSE);
-	}
-	if (Keyboard::keyPressed(GLFW_KEY_Z)) {
-		actor->addTorque(PxVec3(0, 2650, 0));
-	}
-	if (Keyboard::keyPressed(GLFW_KEY_C)) {
-		actor->addTorque(PxVec3(0, -2650, 0));
-	}
-
 	vec3 pos = Util::p2g(actor->getGlobalPose().p);
 	glm::mat4 m = glm::translate(glm::mat4(1), pos);
 	PxReal a; PxVec3 b;  actor->getGlobalPose().q.toRadiansAndUnitAxis(a, b); m = glm::rotate(m, (float)a, glm::vec3(b.x, b.y, b.z));
@@ -174,12 +161,12 @@ void Aventador::updateFriction() {
 		vec3 wheeld(sin(wheelA), 0, cos(wheelA));
 		wheeld = mat3(transform)*wheeld;
 		if (wheelHit[i]) {
-			if (Keyboard::keyDown(GLFW_KEY_UP)) {
+			if (Keyboard::keyDown(aventadorId ? GLFW_KEY_UP : GLFW_KEY_W)) {
 				PxRigidBodyExt::addLocalForceAtLocalPos(*actor,
 					PxVec3(sin(wheelA) * aventadorData.force, 0, cos(wheelA) *  aventadorData.force),
 					Util::g2p(wheelPos[i] - vec3(0, aventadorData.dimensionHeight, 0)), PxForceMode::eFORCE);
 			}
-			else if (Keyboard::keyDown(GLFW_KEY_DOWN)) {
+			else if (Keyboard::keyDown(aventadorId ? GLFW_KEY_DOWN : GLFW_KEY_S)) {
 				PxRigidBodyExt::addLocalForceAtLocalPos(*actor,
 					PxVec3(sin(wheelA) * -aventadorData.force, 0, cos(wheelA) * -aventadorData.force),
 					Util::g2p(wheelPos[i] - vec3(0, aventadorData.dimensionHeight, 0)), PxForceMode::eFORCE);
@@ -200,13 +187,14 @@ void Aventador::updateFriction() {
 }
 
 void Aventador::updateSteering() {
-	if (Keyboard::keyDown(GLFW_KEY_LEFT)) {
+	if (Keyboard::keyDown(aventadorId ? GLFW_KEY_LEFT : GLFW_KEY_A)) {
 		wheelAngle += aventadorData.wheelTurnRate;
 	}
-	if (Keyboard::keyDown(GLFW_KEY_RIGHT)) {
+	if (Keyboard::keyDown(aventadorId ? GLFW_KEY_RIGHT : GLFW_KEY_D)) {
 		wheelAngle -= aventadorData.wheelTurnRate;
 	}
-	if (!(Keyboard::keyDown(GLFW_KEY_LEFT) || Keyboard::keyDown(GLFW_KEY_RIGHT))) {
+	if (!(Keyboard::keyDown(aventadorId ? GLFW_KEY_LEFT : GLFW_KEY_A)
+		|| Keyboard::keyDown(aventadorId ? GLFW_KEY_RIGHT : GLFW_KEY_D))) {
 		wheelAngle *= aventadorData.wheelReurnRate;
 	}
 	wheelAngle = min(max(wheelAngle, -aventadorData.maxWheelAngle), aventadorData.maxWheelAngle);
@@ -221,21 +209,21 @@ void Aventador::updateTopSpeed() {
 }
 
 void Aventador::updateDrift() {
-	if (Keyboard::keyDown(GLFW_KEY_SPACE)) {
+	if (Keyboard::keyDown(aventadorId ? GLFW_KEY_RIGHT_CONTROL : GLFW_KEY_LEFT_CONTROL)) {
 		// manually add heat to rear tires
 		PxVec3 v = actor->getLinearVelocity();
 		tireHeat[2] += aventadorData.manualTireHeatIncrease*v.magnitude();
 		tireHeat[3] += aventadorData.manualTireHeatIncrease*v.magnitude();
 	}
 
-	if (Keyboard::keyDown(GLFW_KEY_UP))
+	if (Keyboard::keyDown(aventadorId ? GLFW_KEY_UP : GLFW_KEY_W))
 		for (int i = 0; i < tireHeat.size(); i++)tireHeat[i] *= aventadorData.tireHeatDecrease;
 	else
 		for (int i = 0; i < tireHeat.size(); i++)tireHeat[i] *= aventadorData.tireHeatFastDecrease;
 }
 
 void Aventador::updateBraking() {
-	if (Keyboard::keyDown(GLFW_KEY_SPACE)) {
+	if (Keyboard::keyDown(aventadorId ? GLFW_KEY_RIGHT_CONTROL : GLFW_KEY_LEFT_CONTROL)) {
 		brakeForce = min(brakeForce + aventadorData.brakeSpeed, aventadorData.maxBrakeForce);
 	}
 	else {
