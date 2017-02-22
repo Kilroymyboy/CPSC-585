@@ -29,8 +29,8 @@ Aventador::Aventador() {
 	PxVec3 dimensions(1, 0.5, 2.5);
 
 	actor = PhysicsManager::createDynamic(t, dimensions);
-	PhysicsManager::attachSimulationShape(actor, dimensions);	//attaching shape to detect collision
-	PhysicsManager::setupFiltering(actor, FilterGroup::eAventador, FilterGroup::eCenteredCube);
+	PhysicsManager::attachSimulationShape(actor, dimensions, 200.0f);	//attaching shape to detect collision
+	PhysicsManager::setContactFilter(actor, FilterGroup::eAventador, FilterGroup::eCenteredCube | FilterGroup::ePowerUp);
 
 	//PxBoxGeometry geometry(dimensions);
 	//actor = PxCreateDynamic(*PhysicsManager::mPhysics, t, geometry, *PhysicsManager::mPhysics->createMaterial(0.1f, 0.1f, 0.5f), PxReal(1.0f));
@@ -107,12 +107,16 @@ void AventadorWheel::update(glm::mat4 parentTransform) {
 
 namespace Game {
 	list<unique_ptr<Entity>> entities;
+	//Aventador *carPoint = nullptr;
+	//CenteredCube *cubePoint = nullptr;
 
 	// we can customize this function as much as we want for now for debugging
 	void init() {
 
 		unique_ptr<Aventador> car(new Aventador);
-		unique_ptr<CenteredCube> cube(new CenteredCube(vec3(0, 1, 10)));
+		unique_ptr<CenteredCube> cube(new CenteredCube(vec3(0, 0, 15)));
+		//carPoint = car.get;
+		//cubePoint = cube.get;
 
 		entities.push_back(std::move(car));
 		//	entities.push_back(unique_ptr<Cube>(new Cube));
@@ -197,8 +201,8 @@ CenteredCube::CenteredCube(vec3 position) {
 	actor->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, true);
 	actor->setLinearDamping(3.0f);
 
-	PhysicsManager::attachSimulationShape(actor, dimensions); //hit box
-	PhysicsManager::setupFiltering(actor, FilterGroup::eCenteredCube, FilterGroup::eAventador); //set up filters
+	PhysicsManager::attachSimulationShape(actor, dimensions, 0.0f); //hit box
+	PhysicsManager::setContactFilter(actor, FilterGroup::eCenteredCube, FilterGroup::eAventador); //set up filters
 
 }
 

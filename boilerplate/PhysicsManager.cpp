@@ -2,6 +2,40 @@
 #include "Game.h"
 #include "extensions\PxRigidBodyExt.h"
 
+void contactModifcation::onContact(const PxContactPairHeader& pairHeader, const PxContactPair* pairs, PxU32 nbPairs) {
+	for (PxU32 i = 0; i < nbPairs; i++)
+	{
+		const PxContactPair& cp = pairs[i];
+
+		if (cp.events & PxPairFlag::eNOTIFY_TOUCH_FOUND)
+		{
+			//check if the collision is between two PxRigidDynamic actors. In our case, the Aventador and the CenteredCube
+			//It appears that actor[0] is usually the Aventador
+			if (pairHeader.actors[0]->getType() == PxActorType::Enum::eRIGID_DYNAMIC || pairHeader.actors[1]->getType() == PxActorType::Enum::eRIGID_DYNAMIC)
+			{
+				std::cout << "Rigid Dynamic touched Rigid Dynamic.\n";
+
+				//force one of the actors to change positions. This eventually crashes the game lol
+				PxRigidActor *actor1 = pairHeader.actors[0];
+				PxRigidActor *actor2 = pairHeader.actors[1];
+				PxTransform pose(PxVec3(0, 1, 0)); //this somehow affects the inital position of the centered cube
+				actor1->setGlobalPose(pose);
+
+				/*From SampleSubmarine
+				PxActor* otherActor = (mSubmarineActor == pairHeader.actors[0]) ? pairHeader.actors[1] : pairHeader.actors[0];
+				Seamine* mine = reinterpret_cast<Seamine*>(otherActor->userData);
+				 insert only once
+				if (std::find(mMinesToExplode.begin(), mMinesToExplode.end(), mine) == mMinesToExplode.end())
+					mMinesToExplode.push_back(mine);
+				*/
+
+				break;
+			}
+			//TODO: check collision between powerups and Aventador
+		}
+	}
+};
+
 namespace PhysicsManager {
 
 
@@ -10,6 +44,8 @@ namespace PhysicsManager {
 	PxScene *mScene;
 	PxMaterial *mMaterial;
 	PxVisualDebuggerConnection* gConnection;
+	contactModifcation mySimulationEventCallback;
+
 
 	//remove later
 	PxRigidDynamic *player1;
@@ -40,7 +76,8 @@ namespace PhysicsManager {
 		PxSceneDesc sceneDesc(mPhysics->getTolerancesScale());
 		sceneDesc.gravity = PxVec3(0.0f, -9.8f, 0.0f);
 		sceneDesc.cpuDispatcher = PxDefaultCpuDispatcherCreate(2);
-		sceneDesc.filterShader = contactFilterShader/*PxDefaultSimulationFilterShader*/;
+		sceneDesc.filterShader = contactFilterShader;
+		sceneDesc.simulationEventCallback = &mySimulationEventCallback;
 		sceneDesc.flags |= PxSceneFlag::eENABLE_ACTIVETRANSFORMS;
 		mScene = mPhysics->createScene(sceneDesc);
 
@@ -121,9 +158,10 @@ namespace PhysicsManager {
 	* attaching a simulation shape to the actor. This is used to detect collision.
 	* release(): Decrements the reference count of a shape and releases it if the new reference count is zero
 	*/
-	void attachSimulationShape(PxRigidDynamic *actor, const PxVec3& dimensions) {
-		PxShape *shape = PxGetPhysics().createShape(PxBoxGeometry(dimensions), *mMaterial, false);
-		shape->setContactOffset(50.0f); //conact triggers at a distance
+	void attachSimulationShape(PxRigidDynamic *actor, const PxVec3& dimensions, PxReal distance ) {
+		//exclusion means that the shape is not shared among objects
+		PxShape *shape = PxGetPhysics().createShape(PxBoxGeometry(dimensions), *mMaterial, true);
+		shape->setContactOffset(distance); //conact triggers at a distance. 
 		/*If the collision shapes are sized to be the exact same size 
 		as the graphics shapes, a restOffset of zero is needed. 
 		If the collision shapes are an epsilon bigger than the graphics shapes, 
@@ -135,7 +173,7 @@ namespace PhysicsManager {
 	}
 
 	//set up the filter flags
-	void setupFiltering(PxRigidActor *actor, PxU32 filterGroup, PxU32 filterMask) {
+	void setContactFilter(PxRigidActor *actor, PxU32 filterGroup, PxU32 filterMask) {
 		PxFilterData filterData;
 		filterData.word0 = filterGroup; //filter ID of the actor
 		filterData.word1 = filterMask; //filter ID that triggers a contact callback with the actor
@@ -152,6 +190,7 @@ namespace PhysicsManager {
 		free(shapes);
 	}
 
+	//the filter shader
 	PxFilterFlags contactFilterShader(PxFilterObjectAttributes attributes0,
 		PxFilterData filterData0, PxFilterObjectAttributes attributes1,
 		PxFilterData filterData1, PxPairFlags& pairFlags,
@@ -179,7 +218,7 @@ namespace PhysicsManager {
 
 		// Add the Continuous Collision Detection (CCD) flag, so that
 		// CCD is enabled, and return the default filter flags
-		//pairFlags |= PxPairFlag::eCCD_LINEAR;
+		pairFlags |= PxPairFlag::eCCD_LINEAR;
 		return PxFilterFlag::eDEFAULT;
 
 	}
@@ -189,3 +228,5 @@ namespace PhysicsManager {
 
 	}
 }
+
+
