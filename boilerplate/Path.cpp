@@ -74,9 +74,9 @@ void Path::update(mat4 parentTransform) {
 		for (int i = 2; i < positions.size(); i++) {
 			v.push_back(positions[i]);
 		}
-		mat4 m = Game::aventador.get()->transform;
-		vec3 pl = vec3(m*vec4(Game::aventador.get()->wheelPos[1] + vec3(thickness, 0, 0), 1));
-		vec3 pr = vec3(m*vec4(Game::aventador.get()->wheelPos[0] - vec3(thickness, 0, 0), 1));
+		mat4 m = Game::aventador0.get()->transform;
+		vec3 pl = vec3(m*vec4(Game::aventador0.get()->wheelPos[1] + vec3(thickness, 0, 0), 1));
+		vec3 pr = vec3(m*vec4(Game::aventador0.get()->wheelPos[0] - vec3(thickness, 0, 0), 1));
 		pl.y = pr.y = 0;
 		v.push_back(pl);
 		v.push_back(pr);
@@ -87,9 +87,9 @@ void Path::update(mat4 parentTransform) {
 	{
 		positions.pop_back();
 		positions.pop_back();
-		mat4 m = Game::aventador.get()->transform;
-		vec3 pl = vec3(m*vec4(Game::aventador.get()->wheelPos[1] + vec3(thickness, 0, thickness), 1));
-		vec3 pr = vec3(m*vec4(Game::aventador.get()->wheelPos[0] - vec3(thickness, 0, -thickness), 1));
+		mat4 m = Game::aventador0.get()->transform;
+		vec3 pl = vec3(m*vec4(Game::aventador0.get()->wheelPos[1] + vec3(thickness, 0, thickness), 1));
+		vec3 pr = vec3(m*vec4(Game::aventador0.get()->wheelPos[0] - vec3(thickness, 0, -thickness), 1));
 		pl.y = pr.y = 0;
 		positions.push_back(pl);
 		positions.push_back(pr);

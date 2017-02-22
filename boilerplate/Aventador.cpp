@@ -5,7 +5,9 @@ using namespace std;
 using namespace glm;
 using namespace physx;
 
-Aventador::Aventador() {
+Aventador::Aventador(int id) {
+	aventadorId = id;
+
 	wheel.resize(4);
 	wheelPos.resize(4);
 	wheelHit.resize(4);
@@ -60,7 +62,7 @@ void Aventador::update(glm::mat4 parentTransform) {
 		actor->addTorque(PxVec3(0, -2650, 0));
 	}
 
-	vec3 pos(actor->getGlobalPose().p.x, actor->getGlobalPose().p.y, actor->getGlobalPose().p.z);
+	vec3 pos = Util::p2g(actor->getGlobalPose().p);
 	glm::mat4 m = glm::translate(glm::mat4(1), pos);
 	PxReal a; PxVec3 b;  actor->getGlobalPose().q.toRadiansAndUnitAxis(a, b); m = glm::rotate(m, (float)a, glm::vec3(b.x, b.y, b.z));
 	transform = m;
@@ -68,16 +70,6 @@ void Aventador::update(glm::mat4 parentTransform) {
 	inverseRotation = inverse(mat3(transform));
 
 	tempTransform = translate(transform, modelDisplacement);
-
-	float positionTightness = .4, targetTightness = .8;
-	Viewport::position[0] = mix(Viewport::position[0], vec3(transform* vec4(0, 1.25f, -5.5f, 1)), positionTightness);
-	Viewport::target[0] = mix(Viewport::target[0], vec3(transform* vec4(0, 1.25f, 0, 1)), targetTightness);
-	if (Keyboard::keyDown(GLFW_KEY_Q)) {
-		Viewport::position[0] = transform* vec4(5.5f, 1.25f, 0.0f, 1);
-	}
-	else	if (Keyboard::keyDown(GLFW_KEY_E)) {
-		Viewport::position[0] = transform* vec4(-5.5f, 1.25f, 0.0f, 1);
-	}
 
 	raycastWheels();
 	updateSuspension();
@@ -87,12 +79,31 @@ void Aventador::update(glm::mat4 parentTransform) {
 	updateDrift();
 	updateBraking();
 
-	Light::position = pos + vec3(3, 5, 4);
-	Light::target = pos;
+	updateLightCamera();
+
 
 	for (int i = 0; i < wheel.size(); i++) {
 		wheel[i].get()->update(tempTransform);
 	}
+}
+
+void Aventador::updateLightCamera() {
+	vec3 pos = Util::p2g(actor->getGlobalPose().p);
+
+	float positionTightness = .3, targetTightness = .9;
+
+	Viewport::position[aventadorId] = mix(Viewport::position[aventadorId], vec3(transform* vec4(0, 1.25f, -5.5f, 1)), positionTightness);
+	Viewport::target[aventadorId] = mix(Viewport::target[aventadorId], vec3(transform* vec4(0, 1.25f, 0, 1)), targetTightness);
+	if (Keyboard::keyDown(GLFW_KEY_Q)) {
+		Viewport::position[aventadorId] = transform* vec4(5.5f, 1.25f, 0.0f, 1);
+	}
+	else	if (Keyboard::keyDown(GLFW_KEY_E)) {
+		Viewport::position[aventadorId] = transform* vec4(-5.5f, 1.25f, 0.0f, 1);
+	}
+
+	Light::position = pos + vec3(3, 5, 4);
+	Light::target = pos;
+
 }
 
 void Aventador::renderShadowMap(glm::mat4 parentTransform) {

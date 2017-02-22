@@ -112,7 +112,7 @@ namespace Viewport {
 	extern std::vector<glm::vec3> position, target;
 
 	void init(int);
-	void update(glm::mat4);
+	void update(glm::mat4, int);
 }
 
 namespace Light {

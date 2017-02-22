@@ -46,6 +46,8 @@ public:
 };
 
 class Aventador : public Entity {
+	int aventadorId;
+
 	glm::mat4 tempTransform;
 	glm::mat3 inverseRotation;
 	glm::vec3 modelDisplacement;
@@ -62,6 +64,8 @@ class Aventador : public Entity {
 	void updateDrift();
 	void updateBraking();
 
+	void updateLightCamera();
+
 	VehicleData aventadorData;
 
 	float wheelAngle;
@@ -74,5 +78,5 @@ public:
 	void update(glm::mat4 parentTransform)override;
 	void renderShadowMap(glm::mat4 parentTransform)override;
 	void render(glm::mat4 parentTransform)override;
-	Aventador();
+	Aventador(int);
 };

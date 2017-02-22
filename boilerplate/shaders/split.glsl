@@ -25,14 +25,14 @@ void main()
 		if(Texcoord.x<0.5){
 			outColor=texture(tex0, vec2(Texcoord.x*2, Texcoord.y));
 		}else{
-			outColor=texture(tex0, vec2((Texcoord.x-0.5)*2, Texcoord.y));
+			outColor=texture(tex1, vec2((Texcoord.x-0.5)*2, Texcoord.y));
 		}
 		if(abs(Texcoord.x-0.5)<thickness) outColor=vec4(0,0,0,1);
 	}else{
 		if(Texcoord.y<0.5){
 			outColor=texture(tex0, vec2(Texcoord.x, Texcoord.y*2));
 		}else{
-			outColor=texture(tex0, vec2(Texcoord.x, (Texcoord.y-0.5)*2));
+			outColor=texture(tex1, vec2(Texcoord.x, (Texcoord.y-0.5)*2));
 		}
 		if(abs(Texcoord.y-0.5)<thickness) outColor=vec4(0,0,0,1);
 	}

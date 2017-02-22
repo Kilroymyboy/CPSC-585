@@ -39,7 +39,7 @@ namespace Graphics {
 
 	GLuint frameBufferVao;
 
-	bool SPLIT_SCREEN = 0;
+	bool SPLIT_SCREEN = 1;
 	// 0 horizontal/side by side, 1 vertical/stacked
 	int SPLIT_SCREEN_ORIENTATION = 0;
 
@@ -149,6 +149,13 @@ namespace Graphics {
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glBindTexture(GL_TEXTURE_2D, 0);
 
+		glBindFramebuffer(GL_FRAMEBUFFER, defaultFbo1.fbo);
+		glBindTexture(GL_TEXTURE_2D, defaultFbo1.texture);
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glBindTexture(GL_TEXTURE_2D, 0);
+
 		glBindFramebuffer(GL_FRAMEBUFFER, shadowFbo.fbo);
 		glBindTexture(GL_TEXTURE_2D, shadowFbo.texture);
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -164,10 +171,16 @@ namespace Graphics {
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 
-	void Render(MyGeometry *geometry, void(*material)(), mat4 transform)
-	{
-		glBindFramebuffer(GL_FRAMEBUFFER, defaultFbo.fbo);
-		glBindTexture(GL_TEXTURE_2D, defaultFbo.texture);
+	// render to a framebuffer with an id
+	void RenderId(MyGeometry *geometry, void(*material)(), mat4 transform, int id) {
+		if (id == 0) {
+			glBindFramebuffer(GL_FRAMEBUFFER, defaultFbo.fbo);
+			glBindTexture(GL_TEXTURE_2D, defaultFbo.texture);
+		}
+		else {
+			glBindFramebuffer(GL_FRAMEBUFFER, defaultFbo1.fbo);
+			glBindTexture(GL_TEXTURE_2D, defaultFbo1.texture);
+		}
 
 		// enable gl depth test
 		glEnable(GL_DEPTH_TEST);
@@ -186,7 +199,7 @@ namespace Graphics {
 		glBindVertexArray(geometry->vertexArray);
 
 		material();
-		Viewport::update(transform);
+		Viewport::update(transform, id);
 		Light::update();
 
 		mat4 shadowMvp = Light::biasMatrix*Light::projection*Light::transform;
@@ -204,6 +217,12 @@ namespace Graphics {
 
 		// check for an report any OpenGL errors
 		CheckGLErrors();
+	}
+
+	void Render(MyGeometry *geometry, void(*material)(), mat4 transform)
+	{
+		RenderId(geometry, material, transform, 0);
+		RenderId(geometry, material, transform, 1);
 	}
 
 	void QueryGLVersion()
@@ -503,7 +522,7 @@ namespace Graphics {
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, defaultFbo.texture);
 		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, defaultFbo.texture);
+		glBindTexture(GL_TEXTURE_2D, defaultFbo1.texture);
 
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 
@@ -790,13 +809,13 @@ namespace Viewport {
 			transform[i] = lookAt(vec3(5, 2, 5), vec3(0, 0, 0), vec3(0, 1, 0));
 	}
 
-	void update(mat4 obj) {
+	void update(mat4 obj, int id) {
 		double splitscreenRatio = Graphics::SPLIT_SCREEN ? (Graphics::SPLIT_SCREEN_ORIENTATION ? 2 : 0.5) : 1;
-		projection[0] = perspective(PI / 3, (double)WINDOW_WIDTH / WINDOW_HEIGHT * splitscreenRatio, 0.1, 1000.0);
-		transform[0] = lookAt(position[0], target[0], vec3(0, 1, 0));
+		projection[id] = perspective(PI / 3, (double)WINDOW_WIDTH / WINDOW_HEIGHT * splitscreenRatio, 0.1, 1000.0);
+		transform[id] = lookAt(position[id], target[id], vec3(0, 1, 0));
 		glUniformMatrix4fv(MODEL_LOCATION, 1, false, &obj[0][0]);
-		glUniformMatrix4fv(VIEW_LOCATION, 1, false, &transform[0][0][0]);
-		glUniformMatrix4fv(PROJECTION_LOCATION, 1, false, &projection[0][0][0]);
+		glUniformMatrix4fv(VIEW_LOCATION, 1, false, &transform[id][0][0]);
+		glUniformMatrix4fv(PROJECTION_LOCATION, 1, false, &projection[id][0][0]);
 	}
 }
 
