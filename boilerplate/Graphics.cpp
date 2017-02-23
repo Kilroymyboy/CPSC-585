@@ -544,6 +544,7 @@ namespace Graphics {
 		glUniform2f(0, 1.0f / (WINDOW_WIDTH), 0.00f);
 		glUniform1f(1, 1.0f);
 		glUniform1f(2, Effects::sigma);
+		glUniform1i(3, Effects::blurSize);
 
 		glActiveTexture(GL_TEXTURE0);
 		if (SPLIT_SCREEN)
@@ -571,6 +572,7 @@ namespace Graphics {
 		glUniform2f(0, 0.0f, 1.0f / (WINDOW_WIDTH));
 		glUniform1f(1, 0.0f);
 		glUniform1f(2, Effects::sigma);
+		glUniform1i(3, Effects::blurSize);
 
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, vBlurFbo.texture);
@@ -874,6 +876,7 @@ namespace Light {
 }
 
 namespace Effects {
-	float sigma = 15;
+	float sigma = 12;
+	int blurSize = 32;
 	float splitscreenLineThickness = 2.0f / WINDOW_WIDTH;
 }
