@@ -23,6 +23,8 @@ layout(location = 8) uniform vec3 EmissionColor;
 
 layout(location = 9) uniform mat4 shadowMVP;
 
+layout(location = 10) uniform int softShadow;
+
 uniform sampler2D shadowMap;
 
 // first output is mapped to the framebuffer's colour index by default
@@ -38,12 +40,14 @@ void main(void)
 	int hits=0;
 	float bias = 0.002*tan(acos(cosTheta));
 	bias = max(0, min(0.004, bias));
-
+	
+	int maxHits=softShadow*2+1;
+	maxHits*=maxHits;
 	if(ShadowCoord.x<0||ShadowCoord.x>1||ShadowCoord.y<0||ShadowCoord.y>1)
-		hits=9;
-	else for(int i=-1;i<=1;i++)for(int j=-1;j<=1;j++)
+		hits=maxHits;
+	else for(int i=-softShadow;i<=softShadow;i++)for(int j=-softShadow;j<=softShadow;j++)
 		if(texture(shadowMap, ShadowCoord.xy+vec2(j/2400.1,i/1600.9)).x >= ShadowCoord.z - bias)
 			hits++;
-	FragmentColour.xyz*=Color/9.0*hits;
+	FragmentColour.xyz*=Color*hits/maxHits;
 	FragmentColour.xyz+=EmissionColor;
 }

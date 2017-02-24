@@ -32,6 +32,7 @@
 #define COLOR_LOCATION 7
 #define EMISSION_COLOR_LOCATION 8
 #define SHADOW_MVP_LOCATION 9
+#define SOFT_SHADOW_LOCATION 10
 
 #define WINDOW_WIDTH 1280
 #define WINDOW_HEIGHT 720
@@ -40,13 +41,16 @@
 #define VSYNC 1
 #define SHADOWMAP_SIZE 1600
 
-#define EFFECTS 1
-#define HDR_ENABLED 1
+#define EFFECTS 0
+#define HDR_ENABLED 0
 
 namespace Graphics {
 	extern bool SPLIT_SCREEN;
 	// 0 horizontal/side by side, 1 vertical/stacked
 	extern int SPLIT_SCREEN_ORIENTATION;
+
+	extern bool SHADOW;
+	extern int SOFT_SHADOW;
 
 	int init();
 	int shouldClose();
@@ -118,15 +122,12 @@ namespace Viewport {
 namespace Light {
 	extern glm::mat4 biasMatrix;
 
-	extern glm::vec3 color;
-	extern glm::vec3 direction;
 	extern glm::vec3 ambient;
 
-	extern glm::mat4 transform;
-	extern glm::mat4 projection;
-	extern glm::vec3 position, target;
+	extern std::vector<glm::mat4> transform, projection;
+	extern std::vector<glm::vec3> position, target, direction;
 
-	void init();
+	void init(int);
 	void update();
 	void renderShadowMap(Graphics::MyGeometry* geometry, glm::mat4 obj);
 }

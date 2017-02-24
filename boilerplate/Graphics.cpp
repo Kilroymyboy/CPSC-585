@@ -23,6 +23,7 @@ namespace Graphics {
 	MyFrameBuffer aberrationFbo;
 
 	MyFrameBuffer shadowFbo;
+	MyFrameBuffer shadowFbo1;
 
 	MyFrameBuffer hBlurFbo;
 	MyFrameBuffer vBlurFbo;
@@ -42,6 +43,9 @@ namespace Graphics {
 	bool SPLIT_SCREEN = 1;
 	// 0 horizontal/side by side, 1 vertical/stacked
 	int SPLIT_SCREEN_ORIENTATION = 0;
+
+	bool SHADOW = 1;
+	int SOFT_SHADOW = 1;
 
 	void QueryGLVersion();
 	bool CheckGLErrors();
@@ -146,22 +150,25 @@ namespace Graphics {
 		glBindTexture(GL_TEXTURE_2D, defaultFbo.texture);
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		glBindTexture(GL_TEXTURE_2D, 0);
 
-		glBindFramebuffer(GL_FRAMEBUFFER, defaultFbo1.fbo);
-		glBindTexture(GL_TEXTURE_2D, defaultFbo1.texture);
-		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		glBindTexture(GL_TEXTURE_2D, 0);
+		if (SPLIT_SCREEN) {
+			glBindFramebuffer(GL_FRAMEBUFFER, defaultFbo1.fbo);
+			glBindTexture(GL_TEXTURE_2D, defaultFbo1.texture);
+			glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		}
 
-		glBindFramebuffer(GL_FRAMEBUFFER, shadowFbo.fbo);
-		glBindTexture(GL_TEXTURE_2D, shadowFbo.texture);
-		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		glBindTexture(GL_TEXTURE_2D, 0);
+		if (SHADOW) {
+			glBindFramebuffer(GL_FRAMEBUFFER, shadowFbo.fbo);
+			glBindTexture(GL_TEXTURE_2D, shadowFbo.texture);
+			glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+			glBindFramebuffer(GL_FRAMEBUFFER, shadowFbo1.fbo);
+			glBindTexture(GL_TEXTURE_2D, shadowFbo1.texture);
+			glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		}
 
 		glBindFramebuffer(GL_FRAMEBUFFER, msaaFbo.fbo);
 		glBindTexture(GL_TEXTURE_2D, msaaFbo.texture);
@@ -202,11 +209,14 @@ namespace Graphics {
 		Viewport::update(transform, id);
 		Light::update();
 
-		mat4 shadowMvp = Light::biasMatrix*Light::projection*Light::transform;
+	//	glUniform1i(SOFT_SHADOW_LOCATION, SOFT_SHADOW);
+
+		mat4 shadowMvp = Light::biasMatrix*Light::projection[id] * Light::transform[id];
 		glUniformMatrix4fv(SHADOW_MVP_LOCATION, 1, GL_FALSE, &shadowMvp[0][0]);
 
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, shadowFbo.texture);
+		if (id == 0)glBindTexture(GL_TEXTURE_2D, shadowFbo.texture);
+		else glBindTexture(GL_TEXTURE_2D, shadowFbo1.texture);
 
 		glDrawArrays(GL_TRIANGLES, 0, geometry->elementCount);
 
@@ -417,6 +427,7 @@ namespace Graphics {
 		if (!InitializeFrameBuffer(&msaaFbo, vec2(WINDOW_WIDTH*MSAA, WINDOW_HEIGHT*MSAA), 0)) return -1;
 		if (!InitializeFrameBuffer(&aberrationFbo, vec2(WINDOW_WIDTH, WINDOW_HEIGHT), 0)) return -1;
 		if (!InitializeShadowMap(&shadowFbo, vec2(SHADOWMAP_SIZE, SHADOWMAP_SIZE))) return -1;
+		if (!InitializeShadowMap(&shadowFbo1, vec2(SHADOWMAP_SIZE, SHADOWMAP_SIZE))) return -1;
 		if (!InitializeFrameBuffer(&hBlurFbo, vec2(WINDOW_WIDTH, WINDOW_HEIGHT), 1)) return -1;
 		if (!InitializeFrameBuffer(&vBlurFbo, vec2(WINDOW_WIDTH, WINDOW_HEIGHT), 1)) return -1;
 		if (!InitializeFrameBuffer(&additiveFbo, vec2(WINDOW_WIDTH *MSAA, WINDOW_HEIGHT *MSAA), 1))	return -1;
@@ -829,31 +840,40 @@ namespace Light {
 		0.5, 0.5, 0.5, 1.0
 	);
 
-	glm::vec3 color;
-	glm::vec3 direction;
+	int SIZE;
+
 	glm::vec3 ambient;
-	glm::mat4 transform;
-	glm::mat4 projection;
+	std::vector<glm::mat4> transform, projection;
+	std::vector<glm::vec3> position, target, direction;
 
-	glm::vec3 position, target;
-
-	void init() {
-		color = vec3(.1f, .1f, .1f);
-		direction = vec3(0, -1, 0);
+	void init(int n) {
 		ambient = vec3(0.05, 0.05, 0.05);
-		projection = ortho<float>(-5, 5, -5, 5, -5, 30);
+		SIZE = n;
+		transform.resize(SIZE);
+		projection.assign(SIZE, ortho<float>(-5, 5, -5, 5, -5, 30));
+		position.resize(SIZE);
+		target.resize(SIZE);
+		direction.resize(SIZE);
 	}
 
 	void update() {
-		transform = lookAt(position, target, vec3(0, 1, 0));
-		direction = normalize(target - position);
-		glUniform3f(LIGHT_LOCATION, direction.x, direction.y, direction.z);
+		for (int i = 0; i < SIZE; i++) {
+			transform[i] = lookAt(position[i], target[i], vec3(0, 1, 0));
+			direction[i] = normalize(target[i] - position[i]);
+			glUniform3f(LIGHT_LOCATION, direction[i].x, direction[i].y, direction[i].z);
+		}
 		glUniform3f(AMBIENT_LOCATION, ambient.x, ambient.y, ambient.z);
 	}
 
-	void renderShadowMap(Graphics::MyGeometry* geometry, mat4 obj) {
-		glBindFramebuffer(GL_FRAMEBUFFER, Graphics::shadowFbo.fbo);
-		glBindTexture(GL_TEXTURE_2D, Graphics::shadowFbo.texture);
+	void renderShadowMapId(Graphics::MyGeometry* geometry, mat4 obj, int id) {
+		if (id == 0) {
+			glBindFramebuffer(GL_FRAMEBUFFER, Graphics::shadowFbo.fbo);
+			glBindTexture(GL_TEXTURE_2D, Graphics::shadowFbo.texture);
+		}
+		else {
+			glBindFramebuffer(GL_FRAMEBUFFER, Graphics::shadowFbo1.fbo);
+			glBindTexture(GL_TEXTURE_2D, Graphics::shadowFbo1.texture);
+		}
 
 		// enable gl depth test
 		glEnable(GL_DEPTH_TEST);
@@ -865,13 +885,20 @@ namespace Light {
 		glUseProgram(Graphics::shadowmapShader.program);
 		glBindVertexArray(geometry->vertexArray);
 
-		transform = lookAt(position, target, vec3(0, 1, 0));
-		direction = normalize(target - position);
-		mat4 mvp = projection*transform*obj;
+		transform[id] = lookAt(position[id], target[id], vec3(0, 1, 0));
+		direction[id] = normalize(target[id] - position[id]);
+		mat4 mvp = projection[id] * transform[id] * obj;
 		glUniformMatrix4fv(1, 1, GL_FALSE, &mvp[0][0]);
 
 		glDrawArrays(GL_TRIANGLES, 0, geometry->elementCount);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	}
+
+	void renderShadowMap(Graphics::MyGeometry* geometry, mat4 obj) {
+		if (Graphics::SHADOW) {
+			renderShadowMapId(geometry, obj, 0);
+			renderShadowMapId(geometry, obj, 1);
+		}
 	}
 }
 
