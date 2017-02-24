@@ -40,7 +40,7 @@ namespace Graphics {
 
 	GLuint frameBufferVao;
 
-	bool SPLIT_SCREEN = 1;
+	bool SPLIT_SCREEN = 0;
 	// 0 horizontal/side by side, 1 vertical/stacked
 	int SPLIT_SCREEN_ORIENTATION = 0;
 
@@ -209,7 +209,7 @@ namespace Graphics {
 		Viewport::update(transform, id);
 		Light::update();
 
-	//	glUniform1i(SOFT_SHADOW_LOCATION, SOFT_SHADOW);
+		//	glUniform1i(SOFT_SHADOW_LOCATION, SOFT_SHADOW);
 
 		mat4 shadowMvp = Light::biasMatrix*Light::projection[id] * Light::transform[id];
 		glUniformMatrix4fv(SHADOW_MVP_LOCATION, 1, GL_FALSE, &shadowMvp[0][0]);
@@ -232,7 +232,7 @@ namespace Graphics {
 	void Render(MyGeometry *geometry, void(*material)(), mat4 transform)
 	{
 		RenderId(geometry, material, transform, 0);
-		RenderId(geometry, material, transform, 1);
+		if (SPLIT_SCREEN) RenderId(geometry, material, transform, 1);
 	}
 
 	void QueryGLVersion()
@@ -897,7 +897,7 @@ namespace Light {
 	void renderShadowMap(Graphics::MyGeometry* geometry, mat4 obj) {
 		if (Graphics::SHADOW) {
 			renderShadowMapId(geometry, obj, 0);
-			renderShadowMapId(geometry, obj, 1);
+			if (Graphics::SPLIT_SCREEN)renderShadowMapId(geometry, obj, 1);
 		}
 	}
 }
