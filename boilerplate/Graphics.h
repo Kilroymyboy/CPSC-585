@@ -42,7 +42,7 @@
 #define BLOOM_DOWNSAMPLE 2
 #define BLOOM_DOWNSAMPLE1 8
 
-#define EFFECTS 0
+#define EFFECTS 1
 
 namespace Graphics {
 	int init();
@@ -127,6 +127,7 @@ namespace Light {
 
 	extern glm::mat4 transform;
 	extern glm::mat4 projection;
+	extern glm::vec3 position, target;
 
 	void init();
 	void update();
