@@ -40,7 +40,7 @@ namespace Graphics {
 
 	GLuint frameBufferVao;
 
-	bool SPLIT_SCREEN = 0;
+	bool SPLIT_SCREEN = 1;
 	// 0 horizontal/side by side, 1 vertical/stacked
 	int SPLIT_SCREEN_ORIENTATION = 0;
 
@@ -580,7 +580,7 @@ namespace Graphics {
 		glUseProgram(blurShader.program);
 		glUniform1i(glGetUniformLocation(blurShader.program, "texFramebuffer"), 0);
 
-		glUniform2f(0, 0.0f, 1.0f / (WINDOW_WIDTH));
+		glUniform2f(0, 0.0f, 1.0f / (WINDOW_HEIGHT));
 		glUniform1f(1, 0.0f);
 		glUniform1f(2, Effects::sigma);
 		glUniform1i(3, Effects::blurSize);
@@ -903,7 +903,7 @@ namespace Light {
 }
 
 namespace Effects {
-	float sigma = 12;
-	int blurSize = 32;
+	float sigma = 8;
+	int blurSize = 24;
 	float splitscreenLineThickness = 2.0f / WINDOW_WIDTH;
 }

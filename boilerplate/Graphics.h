@@ -41,8 +41,8 @@
 #define VSYNC 1
 #define SHADOWMAP_SIZE 1600
 
-#define EFFECTS 0
-#define HDR_ENABLED 0
+#define EFFECTS 1
+#define HDR_ENABLED 1
 
 namespace Graphics {
 	extern bool SPLIT_SCREEN;

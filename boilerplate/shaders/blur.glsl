@@ -30,7 +30,6 @@ void main()
 	outColor=vec4(0);
 
 	for(int i=-size;i<size+1;i++)
-		outColor.xyz+=g(i)*(texture(texFramebuffer, Texcoord+(i)*direction).xyz);
-	outColor.xyz=max(outColor.xyz-vec3(darken), vec3(0));
+		outColor.xyz+=g(i)*max((texture(texFramebuffer, Texcoord+(i)*direction).xyz)-vec3(darken), vec3(0));
 	outColor.w=1;
 }
