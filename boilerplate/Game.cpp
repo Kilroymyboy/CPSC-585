@@ -6,6 +6,10 @@ using namespace std;
 using namespace glm;
 using namespace physx;
 
+//old gamepad initialization
+Gamepad myGamepad = Gamepad(1);
+Gamepad myGamepad2 = Gamepad(2);
+
 Aventador::Aventador() {
 	wheel1 = std::unique_ptr<AventadorWheel>(new AventadorWheel);
 	wheel1.get()->transform = translate(mat4(1), vec3(.851f, .331f, 1.282f));
@@ -37,10 +41,6 @@ Aventador::Aventador() {
 	//PhysicsManager::mScene->addActor(*actor);
 }
 
-//unfortunately this is needed to use the gamepad
-Gamepad myGamepad = Gamepad(1);
-Gamepad myGamepad2 = Gamepad(2);
-
 void Aventador::update0(glm::mat4 parentTransform) {
 
 	if (Keyboard::keyDown(GLFW_KEY_W)) {
@@ -61,40 +61,41 @@ void Aventador::update0(glm::mat4 parentTransform) {
 	float yT = 0;
 
 	//these two are required above the actual gamepad code no matter where we have the gamepad
-	myGamepad.Update(); // Update the gamepad
-	myGamepad.GetState();
-
+	controller1.Update(); // Update the gamepad
+	controller2.Update();
+	controller1.GetState();
+	controller2.GetState();
 	//gamepad controls 
 	//right trigger moves car forward
-	if (myGamepad.RightTrigger() > 0) {
-		z = myGamepad.RightTrigger() * 200;
+	if (controller1.RightTrigger() > 0) {
+		z = controller2.RightTrigger() * 100;
 		PxRigidBodyExt::addLocalForceAtLocalPos(*actor, PxVec3(0, 0, z), PxVec3(0));
 	}
 	//left trigger makes the car break using lineardamping
-	if (myGamepad.LeftTrigger() > 0.1) {
+	if (controller1.LeftTrigger() > 0.1) {
 		actor->setLinearDamping(1.f);
 		actor->setAngularDamping(0.5f);
 	}
 
 	//if left trigger isn't press remove all dampening
-	if (myGamepad.LeftTrigger() <= 0.1) {
+	if (controller1.LeftTrigger() <= 0.1) {
 		actor->setLinearDamping(0.0f);
 		actor->setAngularDamping(0.0f);
 	}
 
 	//Turns the car right based off local pos not world pos
-	if (myGamepad.LeftStick_X() > 0.01) {
+	if (controller1.LeftStick_X() > 0.01) {
 		if (yT <= 50) {
-			yT = myGamepad.LeftStick_X() * 18;
+			yT = controller1.LeftStick_X() * 18;
 		}
 		PxRigidBodyExt::addLocalForceAtLocalPos(*actor, PxVec3(yT, 0, 0), PxVec3(0, 0, -10));
 		cout << yT << endl;
 	}
 	
 	//Turns the car left based off it's local position not the worlds
-	if (myGamepad.LeftStick_X() < 0.01) {
+	if (controller1.LeftStick_X() < 0.01) {
 		if (yT >= -50) {
-			yT = myGamepad.LeftStick_X()*-18;
+			yT = controller1.LeftStick_X()*-18;
 		}
 		PxRigidBodyExt::addLocalForceAtLocalPos(*actor, PxVec3(yT, 0, 0), PxVec3(0, 0, 10));
 		cout << yT << endl;
@@ -234,7 +235,7 @@ void CenteredCube::update0(glm::mat4 parentTransform) {
 	glm::mat4 m = glm::translate(glm::mat4(1), glm::vec3(actor->getGlobalPose().p.x, actor->getGlobalPose().p.y, actor->getGlobalPose().p.z));
 	PxReal a; PxVec3 b;  actor->getGlobalPose().q.toRadiansAndUnitAxis(a, b); m = glm::rotate(m, (float)a, glm::vec3(b.x, b.y, b.z));
 	transform = m;
-	myGamepad.RefreshState();
+	controller1.RefreshState();
 	Light::renderShadowMap(&Resources::centeredCube, transform);
 }
 

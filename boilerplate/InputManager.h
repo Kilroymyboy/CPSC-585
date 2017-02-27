@@ -26,3 +26,17 @@ namespace Keyboard {
 	bool keyReleased(int key);
 	void Callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 }
+
+/*
+namespace controller1 {
+	Gamepad controller1 = Gamepad(1);
+}
+
+namespace controller2{
+	Gamepad controller2 = Gamepad(2);
+	}
+*/
+
+extern Gamepad controller1;
+extern Gamepad controller2;
+//extern Gamepad controller2 = Gamepad(2);
