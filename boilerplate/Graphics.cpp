@@ -1,10 +1,10 @@
 #include "Graphics.h"
 #include "InputManager.h"
+#include "Game.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
-#include <vector>
 
 using namespace std;
 using namespace glm;
@@ -14,16 +14,38 @@ namespace Graphics {
 	GLFWwindow *window;
 
 	MyFrameBuffer defaultFbo;
+	MyFrameBuffer defaultFbo1;
+
+	MyFrameBuffer splitScreenFbo;
+
 	MyFrameBuffer tonemappingFbo;
 	MyFrameBuffer msaaFbo;
 	MyFrameBuffer aberrationFbo;
 
 	MyFrameBuffer shadowFbo;
+	MyFrameBuffer shadowFbo1;
 
-	MyFrameBuffer downsampleFbo;
 	MyFrameBuffer hBlurFbo;
 	MyFrameBuffer vBlurFbo;
 	MyFrameBuffer additiveFbo;
+
+	MyShader tonemappingShader;
+	MyShader msaaShader;
+	MyShader aberrationShader;
+	MyShader blurShader;
+	MyShader additiveShader;
+	MyShader shadowmapShader;
+
+	MyShader splitscreenShader;
+
+	GLuint frameBufferVao;
+
+	bool SPLIT_SCREEN = 1;
+	// 0 horizontal/side by side, 1 vertical/stacked
+	int SPLIT_SCREEN_ORIENTATION = 0;
+
+	bool SHADOW = 1;
+	int SOFT_SHADOW = 1;
 
 	void QueryGLVersion();
 	bool CheckGLErrors();
@@ -31,6 +53,8 @@ namespace Graphics {
 	string LoadSource(const string &filename);
 	GLuint CompileShader(GLenum shaderType, const string &source);
 	GLuint LinkProgram(GLuint vertexShader, GLuint fragmentShader);
+
+	void InitializeFrameBufferVAO();
 
 	bool InitializeShaders(MyShader *shader, const string vertex, const string fragment)
 	{
@@ -126,15 +150,25 @@ namespace Graphics {
 		glBindTexture(GL_TEXTURE_2D, defaultFbo.texture);
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		glBindTexture(GL_TEXTURE_2D, 0);
 
-		glBindFramebuffer(GL_FRAMEBUFFER, shadowFbo.fbo);
-		glBindTexture(GL_TEXTURE_2D, shadowFbo.texture);
-		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		glBindTexture(GL_TEXTURE_2D, 0);
+		if (SPLIT_SCREEN) {
+			glBindFramebuffer(GL_FRAMEBUFFER, defaultFbo1.fbo);
+			glBindTexture(GL_TEXTURE_2D, defaultFbo1.texture);
+			glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		}
+
+		if (SHADOW) {
+			glBindFramebuffer(GL_FRAMEBUFFER, shadowFbo.fbo);
+			glBindTexture(GL_TEXTURE_2D, shadowFbo.texture);
+			glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+			glBindFramebuffer(GL_FRAMEBUFFER, shadowFbo1.fbo);
+			glBindTexture(GL_TEXTURE_2D, shadowFbo1.texture);
+			glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		}
 
 		glBindFramebuffer(GL_FRAMEBUFFER, msaaFbo.fbo);
 		glBindTexture(GL_TEXTURE_2D, msaaFbo.texture);
@@ -144,46 +178,61 @@ namespace Graphics {
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 
-	void RenderScene(MyGeometry *geometry, MyShader *shader, void(*material)(), mat4 transform)
-	{
-		if (EFFECTS) {
+	// render to a framebuffer with an id
+	void RenderId(MyGeometry *geometry, void(*material)(), mat4 transform, int id) {
+		if (id == 0) {
 			glBindFramebuffer(GL_FRAMEBUFFER, defaultFbo.fbo);
 			glBindTexture(GL_TEXTURE_2D, defaultFbo.texture);
 		}
 		else {
-			glBindFramebuffer(GL_FRAMEBUFFER, msaaFbo.fbo);
-			glBindTexture(GL_TEXTURE_2D, msaaFbo.texture);
+			glBindFramebuffer(GL_FRAMEBUFFER, defaultFbo1.fbo);
+			glBindTexture(GL_TEXTURE_2D, defaultFbo1.texture);
 		}
+
 		// enable gl depth test
 		glEnable(GL_DEPTH_TEST);
-		glScissor(0, 0, WINDOW_WIDTH*MSAA, WINDOW_HEIGHT*MSAA);
-		glViewport(0, 0, WINDOW_WIDTH*MSAA, WINDOW_HEIGHT*MSAA);
+		if (SPLIT_SCREEN) {
+			vec2 defaultFboDimension(WINDOW_WIDTH*MSAA / ((SPLIT_SCREEN && (!SPLIT_SCREEN_ORIENTATION)) ? 2 : 1),
+				WINDOW_HEIGHT*MSAA / ((SPLIT_SCREEN && SPLIT_SCREEN_ORIENTATION) ? 2 : 1));
 
-		// bind our shader program and the vertex array object containing our
-		// scene geometry, then tell OpenGL to draw our geometry
-		glUseProgram(shader->program);
+			glScissor(0, 0, defaultFboDimension.x, defaultFboDimension.y);
+			glViewport(0, 0, defaultFboDimension.x, defaultFboDimension.y);
+		}
+		else {
+			glScissor(0, 0, WINDOW_WIDTH*MSAA, WINDOW_HEIGHT*MSAA);
+			glViewport(0, 0, WINDOW_WIDTH*MSAA, WINDOW_HEIGHT*MSAA);
+		}
+
 		glBindVertexArray(geometry->vertexArray);
 
 		material();
-		Viewport::update(transform);
+		Viewport::update(transform, id);
 		Light::update();
 
-		mat4 shadowMvp = Light::biasMatrix*Light::projection*Light::transform;
+		//	glUniform1i(SOFT_SHADOW_LOCATION, SOFT_SHADOW);
+
+		mat4 shadowMvp = Light::biasMatrix*Light::projection[id] * Light::transform[id];
 		glUniformMatrix4fv(SHADOW_MVP_LOCATION, 1, GL_FALSE, &shadowMvp[0][0]);
 
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, shadowFbo.texture);
+		if (id == 0)glBindTexture(GL_TEXTURE_2D, shadowFbo.texture);
+		else glBindTexture(GL_TEXTURE_2D, shadowFbo1.texture);
 
 		glDrawArrays(GL_TRIANGLES, 0, geometry->elementCount);
 
 		// reset state to default (no shader or geometry bound)
 		glBindVertexArray(0);
-		glUseProgram(0);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glBindTexture(GL_TEXTURE_2D, 0);
 
 		// check for an report any OpenGL errors
 		CheckGLErrors();
+	}
+
+	void Render(MyGeometry *geometry, void(*material)(), mat4 transform)
+	{
+		RenderId(geometry, material, transform, 0);
+		if (SPLIT_SCREEN) RenderId(geometry, material, transform, 1);
 	}
 
 	void QueryGLVersion()
@@ -329,7 +378,6 @@ namespace Graphics {
 		-1.0f,  1.0f,  0.0f, 1
 	};
 
-
 	int init() {
 		// initialize the GLFW windowing system
 		if (!glfwInit()) {
@@ -370,103 +418,61 @@ namespace Graphics {
 		QueryGLVersion();
 
 		// frame buffer objects
-		if (!InitializeFrameBuffer(&defaultFbo, "tonemapping.glsl", vec2(WINDOW_WIDTH*MSAA, WINDOW_HEIGHT*MSAA), 1)) {
-			return -1;
-		}
+		vec2 defaultFboDimension(WINDOW_WIDTH*MSAA / ((SPLIT_SCREEN && (!SPLIT_SCREEN_ORIENTATION)) ? 2 : 1),
+			WINDOW_HEIGHT*MSAA / ((SPLIT_SCREEN && SPLIT_SCREEN_ORIENTATION) ? 2 : 1));
+		if (!InitializeFrameBuffer(&defaultFbo, defaultFboDimension, 1)) return -1;
+		if (!InitializeFrameBuffer(&defaultFbo1, defaultFboDimension, 1)) return -1;
+		if (!InitializeFrameBuffer(&splitScreenFbo, vec2(WINDOW_WIDTH *MSAA, WINDOW_HEIGHT *MSAA), 1))	return -1;
+		if (!InitializeFrameBuffer(&tonemappingFbo, vec2(WINDOW_WIDTH*MSAA, WINDOW_HEIGHT*MSAA), 1)) return -1;
+		if (!InitializeFrameBuffer(&msaaFbo, vec2(WINDOW_WIDTH*MSAA, WINDOW_HEIGHT*MSAA), 0)) return -1;
+		if (!InitializeFrameBuffer(&aberrationFbo, vec2(WINDOW_WIDTH, WINDOW_HEIGHT), 0)) return -1;
+		if (!InitializeShadowMap(&shadowFbo, vec2(SHADOWMAP_SIZE, SHADOWMAP_SIZE))) return -1;
+		if (!InitializeShadowMap(&shadowFbo1, vec2(SHADOWMAP_SIZE, SHADOWMAP_SIZE))) return -1;
+		if (!InitializeFrameBuffer(&hBlurFbo, vec2(WINDOW_WIDTH, WINDOW_HEIGHT), 1)) return -1;
+		if (!InitializeFrameBuffer(&vBlurFbo, vec2(WINDOW_WIDTH, WINDOW_HEIGHT), 1)) return -1;
+		if (!InitializeFrameBuffer(&additiveFbo, vec2(WINDOW_WIDTH *MSAA, WINDOW_HEIGHT *MSAA), 1))	return -1;
 
-		if (!InitializeFrameBuffer(&tonemappingFbo, "tonemapping.glsl", vec2(WINDOW_WIDTH*MSAA, WINDOW_HEIGHT*MSAA), 1)) {
-			return -1;
-		}
+		if (!InitializeShaders(&tonemappingShader, "framebuffervertex.glsl", "tonemapping.glsl")) return -1;
+		if (!InitializeShaders(&msaaShader, "framebuffervertex.glsl", "downsample.glsl")) return -1;
+		if (!InitializeShaders(&aberrationShader, "framebuffervertex.glsl", "aberration.glsl")) return -1;
+		if (!InitializeShaders(&blurShader, "framebuffervertex.glsl", "blur.glsl")) return -1;
+		if (!InitializeShaders(&additiveShader, "framebuffervertex.glsl", "additive.glsl")) return -1;
+		if (!InitializeShaders(&shadowmapShader, "shadowmapvertex.glsl", "shadowmapfragment.glsl")) return -1;
+		if (!InitializeShaders(&splitscreenShader, "framebuffervertex.glsl", "split.glsl")) return -1;
 
-		if (!InitializeFrameBuffer(&msaaFbo, "downsample.glsl", vec2(WINDOW_WIDTH*MSAA, WINDOW_HEIGHT*MSAA), 0)) {
-			return -1;
-		}
-
-		if (!InitializeFrameBuffer(&aberrationFbo, "aberration.glsl", vec2(WINDOW_WIDTH, WINDOW_HEIGHT), 0)) {
-			return -1;
-		}
-
-		if (!InitializeShadowMap(&shadowFbo, vec2(SHADOWMAP_SIZE, SHADOWMAP_SIZE))) {
-			return -1;
-		}
-
-		if (!InitializeFrameBuffer(&downsampleFbo, "downsample.glsl", vec2(WINDOW_WIDTH / BLOOM_DOWNSAMPLE, WINDOW_HEIGHT / BLOOM_DOWNSAMPLE), 1)) {
-			return -1;
-		}
-
-		if (!InitializeFrameBuffer(&hBlurFbo, "blur.glsl", vec2(WINDOW_WIDTH / BLOOM_DOWNSAMPLE, WINDOW_HEIGHT / BLOOM_DOWNSAMPLE), 1)) {
-			return -1;
-		}
-		if (!InitializeFrameBuffer(&vBlurFbo, "blur.glsl", vec2(WINDOW_WIDTH / BLOOM_DOWNSAMPLE, WINDOW_HEIGHT / BLOOM_DOWNSAMPLE), 1)) {
-			return -1;
-		}
-
-		if (!InitializeAdditiveFrameBuffer(&additiveFbo, "additive.glsl", vec2(WINDOW_WIDTH *MSAA, WINDOW_HEIGHT *MSAA), 1)) {
-			return -1;
-		}
+		InitializeFrameBufferVAO();
 
 		return 0;
 	}
 
-	bool InitializeFrameBuffer(MyFrameBuffer* frameBuffer, const string &fragment, vec2 dimension, bool HDR) {
-		glGenFramebuffers(1, &frameBuffer->fbo);
-		glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer->fbo);
-
-		glGenTextures(1, &frameBuffer->texture);
-		glBindTexture(GL_TEXTURE_2D, frameBuffer->texture);
-
-		glTexImage2D(GL_TEXTURE_2D, 0, HDR ? GL_RGBA16F : GL_RGBA, dimension.x, dimension.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-		glGenRenderbuffers(1, &frameBuffer->rbo);
-		glBindRenderbuffer(GL_RENDERBUFFER, frameBuffer->rbo);
-		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, dimension.x, dimension.y);
-		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, frameBuffer->rbo);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, frameBuffer->texture, 0);
-
-		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-			cout << "Frame buffer is dead" << endl;
-			return false;
-		}
-
-		if (!InitializeShaders(&frameBuffer->shader, "framebuffervertex.glsl", fragment)) {
-			cout << "Program could not initialize framebuffer shaders, TERMINATING" << endl;
-			return false;
-		}
-
-		glUseProgram(frameBuffer->shader.program);
-		glGenVertexArrays(1, &frameBuffer->vao);
-		glGenBuffers(1, &frameBuffer->vbo);
-		glBindBuffer(GL_ARRAY_BUFFER, frameBuffer->vbo);
+	void InitializeFrameBufferVAO() {
+		GLuint frameBufferVbo;
+		glGenVertexArrays(1, &frameBufferVao);
+		glGenBuffers(1, &frameBufferVbo);
+		glBindBuffer(GL_ARRAY_BUFFER, frameBufferVbo);
 		glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), quadVertices, GL_STATIC_DRAW);
-		glBindVertexArray(frameBuffer->vao);
-		glBindBuffer(GL_ARRAY_BUFFER, frameBuffer->vbo);
-		glUniform1i(glGetUniformLocation(frameBuffer->shader.program, "texFramebuffer"), 0);
+		glBindVertexArray(frameBufferVao);
 
-		GLint posAttrib = glGetAttribLocation(frameBuffer->shader.program, "position");
-		glEnableVertexAttribArray(posAttrib);
-		glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), 0);
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), 0);
 
-		GLint texAttrib = glGetAttribLocation(frameBuffer->shader.program, "texcoord");
-		glEnableVertexAttribArray(texAttrib);
-		glVertexAttribPointer(texAttrib, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (void*)(2 * sizeof(GLfloat)));
-
-		return true;
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (void*)(2 * sizeof(GLfloat)));
 	}
 
-	bool InitializeAdditiveFrameBuffer(MyFrameBuffer* frameBuffer, const string &fragment, vec2 dimension, bool HDR) {
+	bool InitializeFrameBuffer(MyFrameBuffer* frameBuffer, vec2 dimension, bool HDR) {
 		glGenFramebuffers(1, &frameBuffer->fbo);
 		glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer->fbo);
 
 		glGenTextures(1, &frameBuffer->texture);
 		glBindTexture(GL_TEXTURE_2D, frameBuffer->texture);
 
-		glTexImage2D(GL_TEXTURE_2D, 0, HDR ? GL_RGBA16F : GL_RGBA, dimension.x, dimension.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+		glTexImage2D(GL_TEXTURE_2D, 0, (HDR&&HDR_ENABLED) ? GL_RGBA16F : GL_RGBA, dimension.x, dimension.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
 		glGenRenderbuffers(1, &frameBuffer->rbo);
 		glBindRenderbuffer(GL_RENDERBUFFER, frameBuffer->rbo);
@@ -478,31 +484,6 @@ namespace Graphics {
 			cout << "Frame buffer is dead" << endl;
 			return false;
 		}
-
-		if (!InitializeShaders(&frameBuffer->shader, "framebuffervertex.glsl", fragment)) {
-			cout << "Program could not initialize framebuffer shaders, TERMINATING" << endl;
-			return false;
-		}
-
-		glUseProgram(frameBuffer->shader.program);
-		glGenVertexArrays(1, &frameBuffer->vao);
-		glGenBuffers(1, &frameBuffer->vbo);
-		glBindBuffer(GL_ARRAY_BUFFER, frameBuffer->vbo);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), quadVertices, GL_STATIC_DRAW);
-		glBindVertexArray(frameBuffer->vao);
-		glBindBuffer(GL_ARRAY_BUFFER, frameBuffer->vbo);
-		glUniform1i(glGetUniformLocation(additiveFbo.shader.program, "tex0"), 0);
-		glUniform1i(glGetUniformLocation(additiveFbo.shader.program, "tex1"), 1);
-		glUniform1i(glGetUniformLocation(additiveFbo.shader.program, "tex2"), 2);
-
-		GLint posAttrib = glGetAttribLocation(frameBuffer->shader.program, "position");
-		glEnableVertexAttribArray(posAttrib);
-		glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), 0);
-
-		GLint texAttrib = glGetAttribLocation(frameBuffer->shader.program, "texcoord");
-		glEnableVertexAttribArray(texAttrib);
-		glVertexAttribPointer(texAttrib, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (void*)(2 * sizeof(GLfloat)));
-
 
 		return true;
 	}
@@ -521,11 +502,6 @@ namespace Graphics {
 
 		glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, frameBuffer->texture, 0);
 
-		if (!InitializeShaders(&frameBuffer->shader, "shadowmapvertex.glsl", "shadowmapfragment.glsl")) {
-			cout << "Program could not initialize shadow map shaders, TERMINATING" << endl;
-			return false;
-		}
-
 		glDrawBuffer(GL_NONE);
 
 		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
@@ -537,22 +513,27 @@ namespace Graphics {
 		return glfwWindowShouldClose(window);
 	}
 
-	void renderDownsample() {
-		glBindFramebuffer(GL_FRAMEBUFFER, hBlurFbo.fbo);
-		glBindTexture(GL_TEXTURE_2D, hBlurFbo.texture);
+	void renderSplitScreen() {
+		if (!SPLIT_SCREEN)return;
 
-		glScissor(0, 0, WINDOW_WIDTH / BLOOM_DOWNSAMPLE, WINDOW_HEIGHT / BLOOM_DOWNSAMPLE);
-		glViewport(0, 0, WINDOW_WIDTH / BLOOM_DOWNSAMPLE, WINDOW_HEIGHT / BLOOM_DOWNSAMPLE);
+		glBindFramebuffer(GL_FRAMEBUFFER, splitScreenFbo.fbo);
+		glBindTexture(GL_TEXTURE_2D, splitScreenFbo.texture);
 
-		glBindVertexArray(downsampleFbo.vao);
+		glScissor(0, 0, WINDOW_WIDTH*MSAA, WINDOW_HEIGHT*MSAA);
+		glViewport(0, 0, WINDOW_WIDTH*MSAA, WINDOW_HEIGHT*MSAA);
+
+		glBindVertexArray(frameBufferVao);
 		glDisable(GL_DEPTH_TEST);
-		glUseProgram(downsampleFbo.shader.program);
-
-		glUniform2f(1, WINDOW_WIDTH*MSAA, WINDOW_HEIGHT*MSAA);
-		glUniform1i(2, BLOOM_DOWNSAMPLE*MSAA);
+		glUseProgram(splitscreenShader.program);
+		glUniform1i(glGetUniformLocation(splitscreenShader.program, "tex0"), 0);
+		glUniform1i(glGetUniformLocation(splitscreenShader.program, "tex1"), 1);
+		glUniform1i(0, SPLIT_SCREEN_ORIENTATION);
+		glUniform1f(1, Effects::splitscreenLineThickness);
 
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, defaultFbo.texture);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, defaultFbo1.texture);
 
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 
@@ -563,18 +544,24 @@ namespace Graphics {
 		glBindFramebuffer(GL_FRAMEBUFFER, vBlurFbo.fbo);
 		glBindTexture(GL_TEXTURE_2D, vBlurFbo.texture);
 
-		glScissor(0, 0, WINDOW_WIDTH / BLOOM_DOWNSAMPLE, WINDOW_HEIGHT / BLOOM_DOWNSAMPLE);
-		glViewport(0, 0, WINDOW_WIDTH / BLOOM_DOWNSAMPLE, WINDOW_HEIGHT / BLOOM_DOWNSAMPLE);
+		glScissor(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+		glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 
-		glBindVertexArray(hBlurFbo.vao);
+		glBindVertexArray(frameBufferVao);
 		glDisable(GL_DEPTH_TEST);
-		glUseProgram(hBlurFbo.shader.program);
+		glUseProgram(blurShader.program);
+		glUniform1i(glGetUniformLocation(blurShader.program, "texFramebuffer"), 0);
 
-		glUniform2f(0, 1.0f / (WINDOW_WIDTH / BLOOM_DOWNSAMPLE), 0.00f);
+		glUniform2f(0, 1.0f / (WINDOW_WIDTH), 0.00f);
 		glUniform1f(1, 1.0f);
+		glUniform1f(2, Effects::sigma);
+		glUniform1i(3, Effects::blurSize);
 
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, hBlurFbo.texture);
+		if (SPLIT_SCREEN)
+			glBindTexture(GL_TEXTURE_2D, splitScreenFbo.texture);
+		else
+			glBindTexture(GL_TEXTURE_2D, defaultFbo.texture);
 
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 
@@ -585,15 +572,18 @@ namespace Graphics {
 		glBindFramebuffer(GL_FRAMEBUFFER, hBlurFbo.fbo);
 		glBindTexture(GL_TEXTURE_2D, hBlurFbo.texture);
 
-		glScissor(0, 0, WINDOW_WIDTH / BLOOM_DOWNSAMPLE, WINDOW_HEIGHT / BLOOM_DOWNSAMPLE);
-		glViewport(0, 0, WINDOW_WIDTH / BLOOM_DOWNSAMPLE, WINDOW_HEIGHT / BLOOM_DOWNSAMPLE);
+		glScissor(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+		glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 
-		glBindVertexArray(vBlurFbo.vao);
+		glBindVertexArray(frameBufferVao);
 		glDisable(GL_DEPTH_TEST);
-		glUseProgram(vBlurFbo.shader.program);
+		glUseProgram(blurShader.program);
+		glUniform1i(glGetUniformLocation(blurShader.program, "texFramebuffer"), 0);
 
-		glUniform2f(0, 0.0f, 1.0f / (WINDOW_WIDTH / BLOOM_DOWNSAMPLE));
+		glUniform2f(0, 0.0f, 1.0f / (WINDOW_HEIGHT));
 		glUniform1f(1, 0.0f);
+		glUniform1f(2, Effects::sigma);
+		glUniform1i(3, Effects::blurSize);
 
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, vBlurFbo.texture);
@@ -611,14 +601,19 @@ namespace Graphics {
 		glScissor(0, 0, WINDOW_WIDTH*MSAA, WINDOW_HEIGHT*MSAA);
 		glViewport(0, 0, WINDOW_WIDTH*MSAA, WINDOW_HEIGHT*MSAA);
 
-		glBindVertexArray(additiveFbo.vao);
+		glBindVertexArray(frameBufferVao);
 		glDisable(GL_DEPTH_TEST);
-		glUseProgram(additiveFbo.shader.program);
+		glUseProgram(additiveShader.program);
+		glUniform1i(glGetUniformLocation(additiveShader.program, "tex0"), 0);
+		glUniform1i(glGetUniformLocation(additiveShader.program, "tex1"), 1);
 
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, hBlurFbo.texture);
 		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, defaultFbo.texture);
+		if (SPLIT_SCREEN)
+			glBindTexture(GL_TEXTURE_2D, splitScreenFbo.texture);
+		else
+			glBindTexture(GL_TEXTURE_2D, defaultFbo.texture);
 
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 
@@ -632,9 +627,10 @@ namespace Graphics {
 		glScissor(0, 0, WINDOW_WIDTH*MSAA, WINDOW_HEIGHT*MSAA);
 		glViewport(0, 0, WINDOW_WIDTH*MSAA, WINDOW_HEIGHT*MSAA);
 
-		glBindVertexArray(tonemappingFbo.vao);
+		glBindVertexArray(frameBufferVao);
 		glDisable(GL_DEPTH_TEST);
-		glUseProgram(tonemappingFbo.shader.program);
+		glUseProgram(tonemappingShader.program);
+		glUniform1i(glGetUniformLocation(tonemappingShader.program, "texFramebuffer"), 0);
 
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, tonemappingFbo.texture);
@@ -656,16 +652,22 @@ namespace Graphics {
 		glScissor(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 		glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 
-		glBindVertexArray(msaaFbo.vao);
+		glBindVertexArray(frameBufferVao);
 		glDisable(GL_DEPTH_TEST);
-		glUseProgram(msaaFbo.shader.program);
+		glUseProgram(msaaShader.program);
+		glUniform1i(glGetUniformLocation(msaaShader.program, "texFramebuffer"), 0);
 
 		glUniform2f(1, WINDOW_WIDTH*MSAA, WINDOW_HEIGHT*MSAA);
 		glUniform1i(2, MSAA);
 
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, msaaFbo.texture);
-
+		if (EFFECTS)
+			glBindTexture(GL_TEXTURE_2D, msaaFbo.texture);
+		else
+			if (SPLIT_SCREEN)
+				glBindTexture(GL_TEXTURE_2D, splitScreenFbo.texture);
+			else
+				glBindTexture(GL_TEXTURE_2D, defaultFbo.texture);
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -675,9 +677,10 @@ namespace Graphics {
 		glScissor(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 		glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 
-		glBindVertexArray(aberrationFbo.vao);
+		glBindVertexArray(frameBufferVao);
 		glDisable(GL_DEPTH_TEST);
-		glUseProgram(aberrationFbo.shader.program);
+		glUseProgram(aberrationShader.program);
+		glUniform1i(glGetUniformLocation(aberrationShader.program, "texFramebuffer"), 0);
 
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, aberrationFbo.texture);
@@ -686,8 +689,26 @@ namespace Graphics {
 	}
 
 	void update() {
+		// clear frame buffer
+		clearFrameBuffer();
+
+		// render shadowmap
+		for (auto it = Game::entities.begin(); it != Game::entities.end(); it++) {
+			it->get()->renderShadowMap(mat4(1));
+		}
+
+		// render geometry
+		glUseProgram(Resources::standardShader.program);
+		for (auto it = Game::entities.begin(); it != Game::entities.end(); it++) {
+			it->get()->render(mat4(1));
+		}
+		glUseProgram(0);
+
+		// render split screen
+		renderSplitScreen();
+
+		// render post processing
 		if (EFFECTS) {
-			renderDownsample();
 			renderHBlur();
 			renderVBlur();
 			renderAdditive();
@@ -782,22 +803,32 @@ namespace Graphics {
 }
 
 namespace Viewport {
-	glm::mat4 transform;
-	glm::mat4 projection;
+	std::vector<glm::mat4> transform;
+	std::vector<glm::mat4> projection;
 
-	glm::vec3 position, target;
+	std::vector<glm::vec3> position, target;
 
-	void init() {
-		transform = lookAt(vec3(5, 2, 5), vec3(0, 0, 0), vec3(0, 1, 0));
-		projection = perspective(PI / 3, (double)WINDOW_WIDTH / WINDOW_HEIGHT, 0.1, 1000.0);
+	int SIZE;
+
+	void init(int n) {
+		SIZE = n;
+
+		transform.resize(SIZE);
+		projection.resize(SIZE);
+		position.resize(SIZE);
+		target.resize(SIZE);
+
+		for (int i = 0; i < SIZE; i++)
+			transform[i] = lookAt(vec3(5, 2, 5), vec3(0, 0, 0), vec3(0, 1, 0));
 	}
 
-	void update(mat4 obj) {
-		transform = lookAt(position, target, vec3(0, 1, 0));
+	void update(mat4 obj, int id) {
+		double splitscreenRatio = Graphics::SPLIT_SCREEN ? (Graphics::SPLIT_SCREEN_ORIENTATION ? 2 : 0.5) : 1;
+		projection[id] = perspective(PI / 3, (double)WINDOW_WIDTH / WINDOW_HEIGHT * splitscreenRatio, 0.1, 1000.0);
+		transform[id] = lookAt(position[id], target[id], vec3(0, 1, 0));
 		glUniformMatrix4fv(MODEL_LOCATION, 1, false, &obj[0][0]);
-		glUniformMatrix4fv(VIEW_LOCATION, 1, false, &transform[0][0]);
-		glUniformMatrix4fv(PROJECTION_LOCATION, 1, false, &projection[0][0]);
-
+		glUniformMatrix4fv(VIEW_LOCATION, 1, false, &transform[id][0][0]);
+		glUniformMatrix4fv(PROJECTION_LOCATION, 1, false, &projection[id][0][0]);
 	}
 }
 
@@ -809,31 +840,40 @@ namespace Light {
 		0.5, 0.5, 0.5, 1.0
 	);
 
-	glm::vec3 color;
-	glm::vec3 direction;
+	int SIZE;
+
 	glm::vec3 ambient;
-	glm::mat4 transform;
-	glm::mat4 projection;
+	std::vector<glm::mat4> transform, projection;
+	std::vector<glm::vec3> position, target, direction;
 
-	glm::vec3 position, target;
-
-	void init() {
-		color = vec3(.1f, .1f, .1f);
-		direction = vec3(0, -1, 0);
+	void init(int n) {
 		ambient = vec3(0.05, 0.05, 0.05);
-		projection = ortho<float>(-5, 5, -5, 5, -5, 30);
+		SIZE = n;
+		transform.resize(SIZE);
+		projection.assign(SIZE, ortho<float>(-5, 5, -5, 5, -5, 30));
+		position.resize(SIZE);
+		target.resize(SIZE);
+		direction.resize(SIZE);
 	}
 
 	void update() {
-		transform = lookAt(position, target, vec3(0, 1, 0));
-		direction = normalize(target - position);
-		glUniform3f(LIGHT_LOCATION, direction.x, direction.y, direction.z);
+		for (int i = 0; i < SIZE; i++) {
+			transform[i] = lookAt(position[i], target[i], vec3(0, 1, 0));
+			direction[i] = normalize(target[i] - position[i]);
+			glUniform3f(LIGHT_LOCATION, direction[i].x, direction[i].y, direction[i].z);
+		}
 		glUniform3f(AMBIENT_LOCATION, ambient.x, ambient.y, ambient.z);
 	}
 
-	void renderShadowMap(Graphics::MyGeometry* geometry, mat4 obj) {
-		glBindFramebuffer(GL_FRAMEBUFFER, Graphics::shadowFbo.fbo);
-		glBindTexture(GL_TEXTURE_2D, Graphics::shadowFbo.texture);
+	void renderShadowMapId(Graphics::MyGeometry* geometry, mat4 obj, int id) {
+		if (id == 0) {
+			glBindFramebuffer(GL_FRAMEBUFFER, Graphics::shadowFbo.fbo);
+			glBindTexture(GL_TEXTURE_2D, Graphics::shadowFbo.texture);
+		}
+		else {
+			glBindFramebuffer(GL_FRAMEBUFFER, Graphics::shadowFbo1.fbo);
+			glBindTexture(GL_TEXTURE_2D, Graphics::shadowFbo1.texture);
+		}
 
 		// enable gl depth test
 		glEnable(GL_DEPTH_TEST);
@@ -842,15 +882,28 @@ namespace Light {
 
 		// bind our shader program and the vertex array object containing our
 		// scene geometry, then tell OpenGL to draw our geometry
-		glUseProgram(Graphics::shadowFbo.shader.program);
+		glUseProgram(Graphics::shadowmapShader.program);
 		glBindVertexArray(geometry->vertexArray);
 
-		transform = lookAt(position, target, vec3(0, 1, 0));
-		direction = normalize(target - position);
-		mat4 mvp = projection*transform*obj;
+		transform[id] = lookAt(position[id], target[id], vec3(0, 1, 0));
+		direction[id] = normalize(target[id] - position[id]);
+		mat4 mvp = projection[id] * transform[id] * obj;
 		glUniformMatrix4fv(1, 1, GL_FALSE, &mvp[0][0]);
 
 		glDrawArrays(GL_TRIANGLES, 0, geometry->elementCount);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
+
+	void renderShadowMap(Graphics::MyGeometry* geometry, mat4 obj) {
+		if (Graphics::SHADOW) {
+			renderShadowMapId(geometry, obj, 0);
+			if (Graphics::SPLIT_SCREEN)renderShadowMapId(geometry, obj, 1);
+		}
+	}
+}
+
+namespace Effects {
+	float sigma = 8;
+	int blurSize = 24;
+	float splitscreenLineThickness = 2.0f / WINDOW_WIDTH;
 }
