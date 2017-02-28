@@ -43,7 +43,7 @@ Gamepad::Gamepad()
 //constructor for gamepad for joystick index this will be the constructor used
 Gamepad::Gamepad(int a_iIndex)
 {
-	m_iGamepadIndex = a_iIndex - 1;
+	m_iGamepadIndex = a_iIndex;
 
 	for (int i = 0; i < ButtonCount; i++)
 	{
