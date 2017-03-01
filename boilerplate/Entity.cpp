@@ -27,6 +27,15 @@ void Plane::render(glm::mat4 parentTransform) {
 	}
 }
 
+
+void HUDobj::update(glm::mat4 parentTransform) {
+	Light::renderShadowMap(&Resources::plane, parentTransform*transform);
+}
+
+void HUDobj::render(glm::mat4 parentTransform) {
+	Graphics::Render(&Resources::plane, &Resources::emmisiveMaterial, parentTransform*transform);
+}
+
 void Cube::update(glm::mat4 parentTransform) {
 	Light::renderShadowMap(&Resources::cube, parentTransform*transform);
 }

@@ -34,15 +34,15 @@
 #define SHADOW_MVP_LOCATION 9
 #define SOFT_SHADOW_LOCATION 10
 
-#define WINDOW_WIDTH 1280
-#define WINDOW_HEIGHT 720
+#define WINDOW_WIDTH 2500
+#define WINDOW_HEIGHT 1700
 
-#define MSAA 2
+#define MSAA 1
 #define VSYNC 1
 #define SHADOWMAP_SIZE 1600
 
-#define EFFECTS 1
-#define HDR_ENABLED 1
+#define EFFECTS 0
+#define HDR_ENABLED 0
 
 namespace Graphics {
 	extern bool SPLIT_SCREEN;
@@ -53,7 +53,7 @@ namespace Graphics {
 	extern int SOFT_SHADOW;
 
 	int init();
-	int shouldClose();
+	int shouldClose(); 
 	void update();
 	void destroy();
 
@@ -112,7 +112,7 @@ namespace Graphics {
 
 namespace Viewport {
 	extern std::vector<glm::mat4> projection;
-
+	extern std::vector<glm::mat4> transform;
 	extern std::vector<glm::vec3> position, target;
 
 	void init(int);
