@@ -157,12 +157,12 @@ void InputManager::motion(GLFWwindow* w, double x, double y)
 namespace Keyboard {
 	vector<bool> v, pv;
 	void init() {
-		v.assign(256, 0);
-		pv.assign(256, 0);
+		v.assign(349, 0);
+		pv.assign(349, 0);
 	}
 
 	void update() {
-		for (int i = 0; i < 256; i++) pv[i] = v[i];
+		for (int i = 0; i < 349; i++) pv[i] = v[i];
 	}
 
 	bool keyDown(int key) {
@@ -178,7 +178,7 @@ namespace Keyboard {
 	}
 
 	void Callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
-		if (key < 0 || key >= 256)return;
+		if (key < 0 || key >= 349)return;
 		if (action == GLFW_PRESS) {
 			v[key] = 1;
 		}

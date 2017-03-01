@@ -38,6 +38,16 @@ void contactModifcation::onContact(const PxContactPairHeader& pairHeader, const 
 
 namespace PhysicsManager {
 
+	enum Layer {
+		LAYER0 = (1 << 0),
+		LAYER1 = (1 << 1),
+		LAYER2 = (1 << 2),
+		LAYER3 = (1 << 3),
+		LAYER4 = (1 << 4),
+		LAYER5 = (1 << 5),
+		LAYER6 = (1 << 6),
+		LAYER7 = (1 << 7)
+	};
 
 	PxFoundation *mFoundation;
 	PxPhysics *mPhysics;
@@ -46,9 +56,6 @@ namespace PhysicsManager {
 	PxVisualDebuggerConnection* gConnection;
 	contactModifcation mySimulationEventCallback;
 
-
-	//remove later
-	PxRigidDynamic *player1;
 
 	void init()
 	{
@@ -85,6 +92,7 @@ namespace PhysicsManager {
 
 		// infinite collision plane
 		PxRigidStatic* groundPlane = PxCreatePlane(*mPhysics, PxPlane(0, 1, 0, 0), *mMaterial);
+		
 		mScene->addActor(*groundPlane);
 
 		PxReal density = 1.0f;
@@ -147,8 +155,9 @@ namespace PhysicsManager {
 		PxBoxGeometry geometry(dimensions);
 		PxRigidDynamic* dynamic = PxCreateDynamic(*mPhysics, t, geometry, *mMaterial, 1.0f);
 		//actor = PxCreateDynamic(*PhysicsManager::mPhysics, t, geometry, *PhysicsManager::mPhysics->createMaterial(0.1f, 0.1f, 0.5f), PxReal(1.0f));
+		
+		dynamic->setAngularDamping(0.2f);
 
-		dynamic->setAngularDamping(1.0f);
 		dynamic->setLinearVelocity(velocity);
 		mScene->addActor(*dynamic);
 		return dynamic;
