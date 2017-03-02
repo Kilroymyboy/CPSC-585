@@ -46,6 +46,9 @@ Aventador::Aventador(int id) {
 	actor->setMass(5.5);
 	actor->setAngularDamping(0.8);
 	actor->setLinearDamping(0.5);
+
+	PhysicsManager::attachSimulationShape(actor, dimensions,200);
+	PhysicsManager::setContactFilter(actor, FilterGroup::eAventador, FilterGroup::eAventador | FilterGroup::ePowerUp);
 }
 
 void Aventador::update(glm::mat4 parentTransform) {

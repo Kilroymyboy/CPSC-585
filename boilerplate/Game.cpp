@@ -19,7 +19,8 @@ namespace Game {
 		aventador1 = shared_ptr<Aventador>(new Aventador(1));
 		entities.push_back(aventador0);
 		entities.push_back(aventador1);
-		entities.push_back(shared_ptr<Path>(new Path(100)));
+		entities.push_back(shared_ptr<Path>(new Path(100)));	//the path that gets drawn under the road
+
 			//	entities.push_back(unique_ptr<Cube>(new Cube));
 		//	entities.push_back(unique_ptr<CenteredCube>(new CenteredCube(vec3(0, 3, 0))));
 	//	entities.push_back(unique_ptr<Plane>(new Plane));

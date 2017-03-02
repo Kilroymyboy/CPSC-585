@@ -80,3 +80,10 @@ public:
 	void render(glm::mat4 parentTransform)override;
 	Aventador(int);
 };
+
+struct FilterGroup {
+	enum Enum {
+		eAventador = (1 << 0),
+		ePowerUp = (1 << 1),
+	};
+};

@@ -9,8 +9,7 @@ void contactModifcation::onContact(const PxContactPairHeader& pairHeader, const 
 
 		if (cp.events & PxPairFlag::eNOTIFY_TOUCH_FOUND)
 		{
-			//check if the collision is between two PxRigidDynamic actors. In our case, the Aventador and the CenteredCube
-			//It appears that actor[0] is usually the Aventador
+			
 			if (pairHeader.actors[0]->getType() == PxActorType::Enum::eRIGID_DYNAMIC || pairHeader.actors[1]->getType() == PxActorType::Enum::eRIGID_DYNAMIC)
 			{
 				std::cout << "Rigid Dynamic touched Rigid Dynamic.\n";
@@ -18,7 +17,7 @@ void contactModifcation::onContact(const PxContactPairHeader& pairHeader, const 
 				//force one of the actors to change positions. This eventually crashes the game lol
 				PxRigidActor *actor1 = pairHeader.actors[0];
 				PxRigidActor *actor2 = pairHeader.actors[1];
-				PxTransform pose(PxVec3(0, 1, 0)); //this somehow affects the inital position of the centered cube
+				PxTransform pose(PxVec3(0, 5, 0));
 				actor1->setGlobalPose(pose);
 
 				/*From SampleSubmarine

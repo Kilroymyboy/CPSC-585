@@ -27,10 +27,3 @@ namespace Time {
 	void update();
 }
 
-struct FilterGroup {
-	enum Enum {
-		eAventador = (1 << 0),
-		eCenteredCube = (1 << 1),
-		ePowerUp = (1 << 2),
-	};
-};
