@@ -4,6 +4,7 @@
 #include "Resources.h"
 #include "InputManager.h"
 #include "Graphics.h"
+#include "ContactSimulation.h"
 #include <vector>
 #include <list>
 #include <memory>
@@ -82,11 +83,4 @@ public:
 	void render(glm::mat4 parentTransform)override;
 	physx::PxRigidDynamic *const getActor();
 	Aventador(int);
-};
-
-struct FilterGroup {
-	enum Enum {
-		eAventador = (1 << 0),
-		ePowerUp = (1 << 1),
-	};
 };
