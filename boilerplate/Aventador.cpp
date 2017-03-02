@@ -234,6 +234,11 @@ void Aventador::updateBraking() {
 	}
 }
 
+physx::PxRigidDynamic *const Aventador::getActor() {
+	return actor;
+}
+
+
 void AventadorWheel::update(glm::mat4 parentTransform) {
 	rotation += rotateSpeed*rotateInverse;
 	rotation = rotation - 2 * PI*((int)(rotation / (2 * PI)));

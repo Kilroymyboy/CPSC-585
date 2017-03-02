@@ -9,10 +9,13 @@ void contactModifcation::onContact(const PxContactPairHeader& pairHeader, const 
 
 		if (cp.events & PxPairFlag::eNOTIFY_TOUCH_FOUND)
 		{
-			
-			if (pairHeader.actors[0]->getType() == PxActorType::Enum::eRIGID_DYNAMIC || pairHeader.actors[1]->getType() == PxActorType::Enum::eRIGID_DYNAMIC)
+			//if one of the actors is the first aventador
+			bool isAventador0 = pairHeader.actors[0] == Game::aventador0->getActor() || pairHeader.actors[1] == Game::aventador0->getActor();
+			bool isAventador1 = pairHeader.actors[0] == Game::aventador1->getActor() || pairHeader.actors[1] == Game::aventador1->getActor();
+
+			if (isAventador0 && isAventador1)
 			{
-				std::cout << "Rigid Dynamic touched Rigid Dynamic.\n";
+				std::cout << "Aventador made contact with another aventador\n";
 
 				//force one of the actors to change positions. This eventually crashes the game lol
 				PxRigidActor *actor1 = pairHeader.actors[0];
@@ -169,7 +172,7 @@ namespace PhysicsManager {
 	void attachSimulationShape(PxRigidDynamic *actor, const PxVec3& dimensions, PxReal distance ) {
 		//exclusion means that the shape is not shared among objects
 		PxShape *shape = PxGetPhysics().createShape(PxBoxGeometry(dimensions), *mMaterial, true);
-		shape->setContactOffset(distance); //conact triggers at a distance. 
+		//shape->setContactOffset(distance); //conact triggers at a distance. 
 		/*If the collision shapes are sized to be the exact same size 
 		as the graphics shapes, a restOffset of zero is needed. 
 		If the collision shapes are an epsilon bigger than the graphics shapes, 

@@ -48,10 +48,11 @@ public:
 class Aventador : public Entity {
 	int aventadorId;
 
+	physx::PxRigidDynamic *actor;
+
 	glm::mat4 tempTransform;
 	glm::mat3 inverseRotation;
 	glm::vec3 modelDisplacement;
-	physx::PxRigidDynamic *actor;
 
 	std::vector<bool> wheelHit;
 	std::vector<physx::PxRaycastBuffer> wheelHitInfo;
@@ -71,6 +72,7 @@ class Aventador : public Entity {
 	float wheelAngle;
 	float brakeForce;
 	std::vector<float> tireHeat;
+
 public:
 	// 0: front right, 1: front left, 2: rear left, 3: rear right
 	std::vector<std::unique_ptr<AventadorWheel> > wheel;
@@ -78,6 +80,7 @@ public:
 	void update(glm::mat4 parentTransform)override;
 	void renderShadowMap(glm::mat4 parentTransform)override;
 	void render(glm::mat4 parentTransform)override;
+	physx::PxRigidDynamic *const getActor();
 	Aventador(int);
 };
 
