@@ -2,59 +2,6 @@
 #include "Game.h"
 #include "extensions\PxRigidBodyExt.h"
 
-void contactModifcation::onContact(const PxContactPairHeader& pairHeader, const PxContactPair* pairs, PxU32 nbPairs) {
-	for (PxU32 i = 0; i < nbPairs; i++)
-	{
-		const PxContactPair& cp = pairs[i];
-
-		if (cp.events & PxPairFlag::eNOTIFY_TOUCH_FOUND)
-		{
-			//if one of the actors is the first aventador
-			bool isAventador0 = pairHeader.actors[0] == Game::aventador0->getActor() || pairHeader.actors[1] == Game::aventador0->getActor();
-			bool isAventador1 = pairHeader.actors[0] == Game::aventador1->getActor() || pairHeader.actors[1] == Game::aventador1->getActor();
-			bool isPowerUp = pairHeader.actors[0] == Game::powerUp0->getActor() || pairHeader.actors[1] == Game::powerUp0->getActor();
-
-			if (isAventador0 && isAventador1) {
-
-				std::cout << "Aventador made contact with another aventador\n";
-
-				//force one of the actors to change positions.
-				PxRigidActor *actor1 = pairHeader.actors[0];
-				PxRigidActor *actor2 = pairHeader.actors[1];
-				PxTransform pose(PxVec3(0, 1, 0));
-				actor1->setGlobalPose(pose);
-
-				/*From SampleSubmarine
-				PxActor* otherActor = (mSubmarineActor == pairHeader.actors[0]) ? pairHeader.actors[1] : pairHeader.actors[0];
-				Seamine* mine = reinterpret_cast<Seamine*>(otherActor->userData);
-				 insert only once
-				if (std::find(mMinesToExplode.begin(), mMinesToExplode.end(), mine) == mMinesToExplode.end())
-					mMinesToExplode.push_back(mine);
-				*/
-
-				break;
-			}
-			else if (isAventador0 && isPowerUp) {
-				std::cout << "aventador0 contacted a power up\n";
-				auto power = std::find(Game::entities.begin(), Game::entities.end(), Game::powerUp0);
-				if (power != Game::entities.end()) {
-					Game::entities.erase(power);
-					//have the aventador0 hold the power up
-				}
-				break;
-			}
-			else if (isAventador1 && isPowerUp) {
-				std::cout << "aventador1 contacted a power up\n";
-				auto power = std::find(Game::entities.begin(), Game::entities.end(), Game::powerUp0);
-				if (power != Game::entities.end()) {
-					Game::entities.erase(power);
-					//have the aventador1 hold the power up
-				}
-				break;
-			}
-		}
-	}
-};
 
 namespace PhysicsManager {
 
@@ -201,6 +148,15 @@ namespace PhysicsManager {
 		shape->release();
 	}
 
+	void attachTriggerShape(PxRigidDynamic *actor, const PxVec3& dimensions) {
+		//exclusion means that the shape is not shared among objects
+		PxShape *shape = PxGetPhysics().createShape(PxBoxGeometry(dimensions), *mMaterial, true);
+		shape->setFlag(PxShapeFlag::eSIMULATION_SHAPE, false);
+		shape->setFlag(PxShapeFlag::eTRIGGER_SHAPE, true);
+		actor->attachShape(*shape);
+		shape->release();
+	}
+
 	//set up the filter flags
 	void setContactFilter(PxRigidActor *actor, PxU32 filterGroup, PxU32 filterMask) {
 		PxFilterData filterData;
@@ -258,4 +214,89 @@ namespace PhysicsManager {
 	}
 }
 
+void contactModifcation::onContact(const PxContactPairHeader& pairHeader, const PxContactPair* pairs, PxU32 nbPairs) {
+	for (PxU32 i = 0; i < nbPairs; i++)
+	{
+		const PxContactPair& cp = pairs[i];
 
+		if (cp.events & PxPairFlag::eNOTIFY_TOUCH_FOUND)
+		{
+			//if one of the actors is the first aventador
+			bool isAventador0 = pairHeader.actors[0] == Game::aventador0->getActor() || pairHeader.actors[1] == Game::aventador0->getActor();
+			bool isAventador1 = pairHeader.actors[0] == Game::aventador1->getActor() || pairHeader.actors[1] == Game::aventador1->getActor();
+			bool isPowerUp = pairHeader.actors[0] == Game::powerUp0->getActor() || pairHeader.actors[1] == Game::powerUp0->getActor();
+
+			if (isAventador0 && isAventador1) {
+
+				std::cout << "Aventador made contact with another aventador\n";
+
+				//force one of the actors to change positions.
+				PxRigidActor *actor1 = pairHeader.actors[0];
+				PxRigidActor *actor2 = pairHeader.actors[1];
+				PxTransform pose(PxVec3(0, 1, 0));
+				actor1->setGlobalPose(pose);
+
+				/*From SampleSubmarine
+				PxActor* otherActor = (mSubmarineActor == pairHeader.actors[0]) ? pairHeader.actors[1] : pairHeader.actors[0];
+				Seamine* mine = reinterpret_cast<Seamine*>(otherActor->userData);
+				insert only once
+				if (std::find(mMinesToExplode.begin(), mMinesToExplode.end(), mine) == mMinesToExplode.end())
+				mMinesToExplode.push_back(mine);
+				*/
+
+				break;
+			}
+			else if (isAventador0 && isPowerUp) {
+				std::cout << "aventador0 contacted a power up\n";
+				auto power = std::find(Game::entities.begin(), Game::entities.end(), Game::powerUp0);
+				if (power != Game::entities.end()) {
+					Game::entities.erase(power);
+					//have the aventador0 hold the power up
+				}
+				break;
+			}
+			else if (isAventador1 && isPowerUp) {
+				std::cout << "aventador1 contacted a power up\n";
+				auto power = std::find(Game::entities.begin(), Game::entities.end(), Game::powerUp0);
+				if (power != Game::entities.end()) {
+					Game::entities.erase(power);
+					//have the aventador1 hold the power up
+				}
+				break;
+			}
+		}
+	}
+}
+
+void contactModifcation::onTrigger(PxTriggerPair* pairs, PxU32 count) {
+	for (PxU32 i = 0; i < count; i++) {
+		// ignore pairs when shapes have been deleted
+		if (pairs[i].flags & (PxTriggerPairFlag::eREMOVED_SHAPE_TRIGGER | PxTriggerPairFlag::eREMOVED_SHAPE_OTHER))
+			continue;
+
+		
+		//std::shared_ptr<PowerUp> trigger = pairs[i].triggerActor;
+		if ((pairs[i].otherActor == Game::aventador0->getActor() && (pairs[i].triggerActor->getName() == "powerup"))) {
+			std::cout << "aventador0 contacted a power up\n";
+			PxRigidActor* trigger = pairs[i].triggerActor;
+			auto power = find_if(Game::entities.begin(), Game::entities.end(), [&](std::shared_ptr<Entity>toFind) { PowerUp* power = static_cast<PowerUp*>(toFind.get());
+																														return power->getActor() == trigger;					});
+			if (power != Game::entities.end()) {
+				Game::entities.erase(power);
+				//have the aventador0 hold the power up
+			}
+			break;
+		}
+		else if ((pairs[i].otherActor == Game::aventador1->getActor() && (pairs[i].triggerActor->getName() == "powerup"))) {
+			std::cout << "aventador1 contacted a power up\n";
+			PxRigidActor* trigger = pairs[i].triggerActor;
+			auto power = find_if(Game::entities.begin(), Game::entities.end(), [&](std::shared_ptr<Entity>toFind) { PowerUp* power = static_cast<PowerUp*>(toFind.get());
+			return power->getActor() == trigger;					});
+			if (power != Game::entities.end()) {
+				Game::entities.erase(power);
+				//have the aventador0 hold the power up
+			}
+			break;
+		}
+	}
+}

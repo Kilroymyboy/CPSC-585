@@ -151,7 +151,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Aventador.h" />
-    <ClInclude Include="ContactSimulation.h" />
+    <ClInclude Include="FilterGroup.h" />
     <ClInclude Include="Entity.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="Graphics.h" />

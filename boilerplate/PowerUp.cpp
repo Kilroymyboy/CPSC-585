@@ -3,13 +3,16 @@ using namespace std;
 using namespace glm;
 using namespace physx;
 
-PowerUp::PowerUp(vec3 position) {
-	PxTransform t(PxVec3(position.x, position.y, position.z), PxQuat::createIdentity());
-
+PowerUp::PowerUp(int num) {
+	id = &num;
+	PxTransform t(getRandLocation(), PxQuat::createIdentity());
 	PxVec3 dimensions(0.5f, 0.5f, 0.5f);
 	actor = PhysicsManager::createDynamic(t, dimensions);
+	actor->setName("powerup");
+	actor->userData = id;
 	actor->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, true);
-	PhysicsManager::attachSimulationShape(actor, dimensions, 0); //may want to use a trigger shape for power ups
+	//PhysicsManager::attachSimulationShape(actor, dimensions, 0); //may want to use a trigger shape for power ups
+	PhysicsManager::attachTriggerShape(actor, dimensions);
 	PhysicsManager::setContactFilter(actor, FilterGroup::ePowerUp, FilterGroup::eAventador);
 }
 
@@ -31,4 +34,13 @@ void PowerUp::render(mat4 parentTransform) {
 
 physx::PxRigidDynamic *const PowerUp::getActor() {
 	return actor;
+}
+
+PxVec3 PowerUp::getRandLocation() {
+	float x, y, z;
+	x = (rand()%20)-10; //random number between -9 to 9
+	y = 1.0f;
+	z = (rand()%20)-10;
+	
+	return PxVec3(x, y, z);
 }

@@ -13,12 +13,15 @@ namespace Game {
 	shared_ptr<Aventador> aventador0;
 	shared_ptr<Aventador> aventador1;
 	shared_ptr<PowerUp> powerUp0;
+	double powerUpCoolDown = 5.0;
+	double powerUpSpawnTime = Time::time += powerUpCoolDown;
+	int powerUpID = 0;
 
 	// we can customize this function as much as we want for now for debugging
 	void init() {
 		aventador0 = shared_ptr<Aventador>(new Aventador(0));
 		aventador1 = shared_ptr<Aventador>(new Aventador(1));
-		powerUp0 = shared_ptr<PowerUp>(new PowerUp(vec3(0, 1, 5)));
+		powerUp0 = shared_ptr<PowerUp>(new PowerUp(powerUpID));
 		entities.push_back(aventador0);
 		entities.push_back(aventador1);
 		entities.push_back(shared_ptr<Path>(new Path(100)));	//the path that gets drawn under the road
@@ -41,6 +44,11 @@ namespace Game {
 			else {
 				it = entities.erase(it);
 			}
+		}
+		if (Time::time > powerUpSpawnTime) {
+			powerUpSpawnTime += powerUpCoolDown;
+			powerUpID++;
+			entities.push_back(shared_ptr<Entity>(new PowerUp(powerUpID)));
 		}
 	}
 }

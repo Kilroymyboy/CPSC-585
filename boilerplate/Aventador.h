@@ -4,7 +4,7 @@
 #include "Resources.h"
 #include "InputManager.h"
 #include "Graphics.h"
-#include "ContactSimulation.h"
+#include "FilterGroup.h"
 #include <vector>
 #include <list>
 #include <memory>

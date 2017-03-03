@@ -107,7 +107,7 @@
     <ClInclude Include="PowerUp.h">
       <Filter>Header Files\Game</Filter>
     </ClInclude>
-    <ClInclude Include="ContactSimulation.h">
+    <ClInclude Include="FilterGroup.h">
       <Filter>Header Files\Physics</Filter>
     </ClInclude>
   </ItemGroup>
