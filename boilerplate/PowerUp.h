@@ -14,16 +14,4 @@ public:
 	void render(glm::mat4 parentTransform)override;
 	physx::PxRigidDynamic *const getActor();
 	PxVec3 PowerUp::getRandLocation();
-
-	/*
-	bool operator==(const PowerUp& p) const {
-		if (id < p.id) {
-			return false;
-		}
-		else if (id > p.id) {
-			return false;
-		}
-		return true;
-	}
-	*/
 };

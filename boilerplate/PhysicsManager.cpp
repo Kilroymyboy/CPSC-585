@@ -227,7 +227,6 @@ void contactModifcation::onContact(const PxContactPairHeader& pairHeader, const 
 			bool isPowerUp = pairHeader.actors[0]->getName() == "powerup" || pairHeader.actors[1]->getName() == "powerup";
 
 			if (isAventador0 && isAventador1) {
-
 				std::cout << "Aventador made contact with another aventador\n";
 
 				//force one of the actors to change positions.

@@ -10,7 +10,7 @@ PowerUp::PowerUp() {
 	actor->setName("powerup");
 	//actor->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, true);
 	//PhysicsManager::attachTriggerShape(actor, dimensions);
-	PhysicsManager::attachSimulationShape(actor, dimensions, 0); //may want to use a trigger shape for power ups
+	PhysicsManager::attachSimulationShape(actor, dimensions, 0);
 	PhysicsManager::setContactFilter(actor, FilterGroup::ePowerUp, FilterGroup::eAventador);
 }
 
@@ -36,7 +36,7 @@ physx::PxRigidDynamic *const PowerUp::getActor() {
 
 PxVec3 PowerUp::getRandLocation() {
 	float x, y, z;
-	x = (rand()%20)-10; //random number between -9 to 9
+	x = (rand()%20)-10; //random number between -10 to 9
 	y = 1.0f;
 	z = (rand()%20)-10;
 	
