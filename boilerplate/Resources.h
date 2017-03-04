@@ -17,9 +17,11 @@ namespace Resources {
 
 	void pureBlackMaterial();
 
-	void emmisiveBlueMaterial();
+	void coralMaterial();
 
-	void emmisiveCoralMaterial();
+	void paleGreenMaterial();
+
+	void emmisiveBlueMaterial();
 
 	void emmisiveMaterial();
 }

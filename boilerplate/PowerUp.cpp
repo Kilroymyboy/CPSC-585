@@ -3,7 +3,8 @@ using namespace std;
 using namespace glm;
 using namespace physx;
 
-PowerUp::PowerUp() {
+PowerUp::PowerUp(int id) {
+	powerId = id;
 	PxTransform t(getRandLocation(), PxQuat::createIdentity());
 	PxVec3 dimensions(0.5f, 0.5f, 0.5f);
 	actor = PhysicsManager::createDynamic(t, dimensions);
@@ -11,7 +12,12 @@ PowerUp::PowerUp() {
 	//actor->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, true);
 	//PhysicsManager::attachTriggerShape(actor, dimensions);
 	PhysicsManager::attachSimulationShape(actor, dimensions, 0);
-	PhysicsManager::setContactFilter(actor, FilterGroup::ePowerUp, FilterGroup::eAventador);
+	if (powerId == 0) {
+		PhysicsManager::setContactFilter(actor, FilterGroup::ePowerUp0, FilterGroup::eAventador0);
+	}
+	else {
+		PhysicsManager::setContactFilter(actor, FilterGroup::ePowerUp1, FilterGroup::eAventador1);
+	}
 }
 
 void PowerUp::update(mat4 parentTransform) {
@@ -27,7 +33,12 @@ void PowerUp::update(mat4 parentTransform) {
 }
 
 void PowerUp::render(mat4 parentTransform) {
-	Graphics::Render(&Resources::centeredCube, &Resources::emmisiveCoralMaterial, transform);
+	if (powerId == 0) {
+		Graphics::Render(&Resources::centeredCube, &Resources::coralMaterial, transform);
+	}
+	else {
+		Graphics::Render(&Resources::centeredCube, &Resources::paleGreenMaterial, transform);
+	}
 }
 
 physx::PxRigidDynamic *const PowerUp::getActor() {

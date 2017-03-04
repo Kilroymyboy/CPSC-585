@@ -7,9 +7,10 @@
 
 class PowerUp :public Entity {
 	physx::PxRigidDynamic *actor;
+	int powerId;
 
 public:
-	PowerUp();
+	PowerUp(int id);
 	void update(glm::mat4 parentTransform)override;
 	void render(glm::mat4 parentTransform)override;
 	physx::PxRigidDynamic *const getActor();

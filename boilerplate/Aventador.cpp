@@ -48,7 +48,13 @@ Aventador::Aventador(int id) {
 	actor->setLinearDamping(0.5);
 
 	PhysicsManager::attachSimulationShape(actor, dimensions,200);
-	PhysicsManager::setContactFilter(actor, FilterGroup::eAventador, FilterGroup::eAventador | FilterGroup::ePowerUp);
+
+	if (aventadorId == 0) {
+		PhysicsManager::setContactFilter(actor, FilterGroup::eAventador0, FilterGroup::eAventador1 | FilterGroup::ePowerUp0);
+	}
+	else {
+		PhysicsManager::setContactFilter(actor, FilterGroup::eAventador1, FilterGroup::eAventador0 | FilterGroup::ePowerUp1);
+	}
 }
 
 void Aventador::update(glm::mat4 parentTransform) {

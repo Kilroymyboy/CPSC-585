@@ -2,7 +2,9 @@
 
 struct FilterGroup {
 	enum Enum {
-		eAventador = (1 << 0),
-		ePowerUp = (1 << 1),
+		eAventador0 = (1 << 0),
+		eAventador1 = (1 << 1),
+		ePowerUp0 = (1 << 2),
+		ePowerUp1 = (1 << 3),
 	};
 };

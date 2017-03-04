@@ -130,19 +130,9 @@ namespace PhysicsManager {
 		return dynamic;
 	}
 
-	/*
-	* attaching a simulation shape to the actor. This is used to detect collision.
-	* release(): Decrements the reference count of a shape and releases it if the new reference count is zero
-	*/
 	void attachSimulationShape(PxRigidDynamic *actor, const PxVec3& dimensions, PxReal distance ) {
 		//exclusion means that the shape is not shared among objects
 		PxShape *shape = PxGetPhysics().createShape(PxBoxGeometry(dimensions), *mMaterial, true);
-		//shape->setContactOffset(distance); //conact triggers at a distance. 
-		/*If the collision shapes are sized to be the exact same size 
-		as the graphics shapes, a restOffset of zero is needed. 
-		If the collision shapes are an epsilon bigger than the graphics shapes, 
-		a restOffset of negative epsilon is correct.
-		--question: confirm the size of the graphic shape*/
 		shape->setFlag(PxShapeFlag::eSIMULATION_SHAPE, true);
 		actor->attachShape(*shape);
 		shape->release();

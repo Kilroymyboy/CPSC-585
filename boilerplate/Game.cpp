@@ -8,6 +8,8 @@ using namespace std;
 using namespace glm;
 using namespace physx;
 
+unsigned int pseudoRand();
+
 namespace Game {
 	list<shared_ptr<Entity> > entities;
 	shared_ptr<Aventador> aventador0;
@@ -21,8 +23,7 @@ namespace Game {
 		aventador1 = shared_ptr<Aventador>(new Aventador(1));
 		entities.push_back(aventador0);
 		entities.push_back(aventador1);
-		entities.push_back(shared_ptr<Path>(new Path(100)));	//the path that gets drawn under the road
-		entities.push_back(shared_ptr<PowerUp>(new PowerUp()));
+		entities.push_back(shared_ptr<Path>(new Path(100)));	//the path that gets drawn under the car
 
 		//entities.push_back(unique_ptr<Cube>(new Cube));
 		//entities.push_back(unique_ptr<CenteredCube>(new CenteredCube(vec3(0, 3, 0))));
@@ -44,7 +45,8 @@ namespace Game {
 		//adding more power ups into the scene
 		if (Time::time > powerUpSpawnTime) {
 			powerUpSpawnTime += spawnCoolDown;
-			entities.push_back(shared_ptr<Entity>(new PowerUp()));
+			int id = pseudoRand() % 2; //0 or 1
+			entities.push_back(shared_ptr<Entity>(new PowerUp(id)));
 		}
 	}
 }
@@ -77,4 +79,12 @@ namespace Time {
 			tfps++;
 		}
 	}
+}
+
+unsigned int pseudoRand()
+{
+	// our initial starting seed is 5323
+	static unsigned int seed = 5323;
+	seed = (8253729 * seed + 2396403);
+	return seed;
 }
