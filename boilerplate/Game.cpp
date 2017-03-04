@@ -16,16 +16,16 @@ namespace Game {
 	// we can customize this function as much as we want for now for debugging
 	void init() {
 		aventador0 = shared_ptr<Aventador>(new Aventador(0));
-		aventador1 = shared_ptr<Aventador>(new Aventador(1));
+	//	aventador1 = shared_ptr<Aventador>(new Aventador(1));
 		entities.push_back(aventador0);
-		entities.push_back(aventador1);
-		entities.push_back(shared_ptr<Path>(new Path(100,1,0)));
-		entities.push_back(shared_ptr<Path>(new Path(100,2,3)));
-		entities.push_back(shared_ptr<Path>(new Path(100,1,2)));
-		entities.push_back(shared_ptr<Path>(new Path(100,0,3)));
+	//	entities.push_back(aventador1);
+	//	entities.push_back(shared_ptr<Path>(new Path(100,1,0)));
+	//	entities.push_back(shared_ptr<Path>(new Path(100,2,3)));
+	//	entities.push_back(shared_ptr<Path>(new Path(100,1,2)));
+	//	entities.push_back(shared_ptr<Path>(new Path(100,0,3)));
 			//	entities.push_back(unique_ptr<Cube>(new Cube));
 		//	entities.push_back(unique_ptr<CenteredCube>(new CenteredCube(vec3(0, 3, 0))));
-	//	entities.push_back(unique_ptr<Plane>(new Plane));
+		entities.push_back(unique_ptr<Plane>(new Plane));
 	}
 
 	void update() {

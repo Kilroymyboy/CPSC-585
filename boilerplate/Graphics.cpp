@@ -40,7 +40,7 @@ namespace Graphics {
 
 	GLuint frameBufferVao;
 
-	bool SPLIT_SCREEN = 1;
+	bool SPLIT_SCREEN = 0;
 	// 0 horizontal/side by side, 1 vertical/stacked
 	int SPLIT_SCREEN_ORIENTATION = 0;
 
@@ -207,7 +207,7 @@ namespace Graphics {
 
 		material();
 		Viewport::update(transform, id);
-		Light::update();
+		Light::update(id);
 
 		//	glUniform1i(SOFT_SHADOW_LOCATION, SOFT_SHADOW);
 
@@ -856,12 +856,11 @@ namespace Light {
 		direction.resize(SIZE);
 	}
 
-	void update() {
-		for (int i = 0; i < SIZE; i++) {
-			transform[i] = lookAt(position[i], target[i], vec3(0, 1, 0));
-			direction[i] = normalize(target[i] - position[i]);
-			glUniform3f(LIGHT_LOCATION, direction[i].x, direction[i].y, direction[i].z);
-		}
+	void update(int id) {
+		transform[id] = lookAt(position[id], target[id], vec3(0, 1, 0));
+		direction[id] = normalize(target[id] - position[id]);
+		glUniform3f(LIGHT_LOCATION, direction[id].x, direction[id].y, direction[id].z);
+
 		glUniform3f(AMBIENT_LOCATION, ambient.x, ambient.y, ambient.z);
 	}
 
@@ -874,6 +873,7 @@ namespace Light {
 			glBindFramebuffer(GL_FRAMEBUFFER, Graphics::shadowFbo1.fbo);
 			glBindTexture(GL_TEXTURE_2D, Graphics::shadowFbo1.texture);
 		}
+		glUseProgram(Graphics::shadowmapShader.program);
 
 		// enable gl depth test
 		glEnable(GL_DEPTH_TEST);
@@ -882,7 +882,6 @@ namespace Light {
 
 		// bind our shader program and the vertex array object containing our
 		// scene geometry, then tell OpenGL to draw our geometry
-		glUseProgram(Graphics::shadowmapShader.program);
 		glBindVertexArray(geometry->vertexArray);
 
 		transform[id] = lookAt(position[id], target[id], vec3(0, 1, 0));
