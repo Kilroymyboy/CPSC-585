@@ -3,16 +3,14 @@ using namespace std;
 using namespace glm;
 using namespace physx;
 
-PowerUp::PowerUp(int num) {
-	id = &num;
+PowerUp::PowerUp() {
 	PxTransform t(getRandLocation(), PxQuat::createIdentity());
 	PxVec3 dimensions(0.5f, 0.5f, 0.5f);
 	actor = PhysicsManager::createDynamic(t, dimensions);
 	actor->setName("powerup");
-	actor->userData = id;
-	actor->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, true);
-	//PhysicsManager::attachSimulationShape(actor, dimensions, 0); //may want to use a trigger shape for power ups
-	PhysicsManager::attachTriggerShape(actor, dimensions);
+	//actor->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, true);
+	//PhysicsManager::attachTriggerShape(actor, dimensions);
+	PhysicsManager::attachSimulationShape(actor, dimensions, 0); //may want to use a trigger shape for power ups
 	PhysicsManager::setContactFilter(actor, FilterGroup::ePowerUp, FilterGroup::eAventador);
 }
 

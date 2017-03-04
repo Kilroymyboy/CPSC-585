@@ -224,7 +224,7 @@ void contactModifcation::onContact(const PxContactPairHeader& pairHeader, const 
 			//if one of the actors is the first aventador
 			bool isAventador0 = pairHeader.actors[0] == Game::aventador0->getActor() || pairHeader.actors[1] == Game::aventador0->getActor();
 			bool isAventador1 = pairHeader.actors[0] == Game::aventador1->getActor() || pairHeader.actors[1] == Game::aventador1->getActor();
-			bool isPowerUp = pairHeader.actors[0] == Game::powerUp0->getActor() || pairHeader.actors[1] == Game::powerUp0->getActor();
+			bool isPowerUp = pairHeader.actors[0]->getName() == "powerup" || pairHeader.actors[1]->getName() == "powerup";
 
 			if (isAventador0 && isAventador1) {
 
@@ -236,67 +236,30 @@ void contactModifcation::onContact(const PxContactPairHeader& pairHeader, const 
 				PxTransform pose(PxVec3(0, 1, 0));
 				actor1->setGlobalPose(pose);
 
-				/*From SampleSubmarine
-				PxActor* otherActor = (mSubmarineActor == pairHeader.actors[0]) ? pairHeader.actors[1] : pairHeader.actors[0];
-				Seamine* mine = reinterpret_cast<Seamine*>(otherActor->userData);
-				insert only once
-				if (std::find(mMinesToExplode.begin(), mMinesToExplode.end(), mine) == mMinesToExplode.end())
-				mMinesToExplode.push_back(mine);
-				*/
-
 				break;
 			}
-			else if (isAventador0 && isPowerUp) {
-				std::cout << "aventador0 contacted a power up\n";
-				auto power = std::find(Game::entities.begin(), Game::entities.end(), Game::powerUp0);
+			else if (isPowerUp) {
+				//remove the power up from the scene
+				PxRigidActor* pickedUp = (pairHeader.actors[0]->getName() == "powerup") ? pairHeader.actors[0] : pairHeader.actors[1];
+				PxRigidActor* aventador = (pairHeader.actors[0]->getName() == "powerup") ? pairHeader.actors[1] : pairHeader.actors[0];
+				auto power = find_if(Game::entities.begin(), Game::entities.end(), [&](std::shared_ptr<Entity>toFind) {
+					PowerUp* power = static_cast<PowerUp*>(toFind.get());
+					return power->getActor() == pickedUp; });
 				if (power != Game::entities.end()) {
 					Game::entities.erase(power);
-					//have the aventador0 hold the power up
 				}
-				break;
-			}
-			else if (isAventador1 && isPowerUp) {
-				std::cout << "aventador1 contacted a power up\n";
-				auto power = std::find(Game::entities.begin(), Game::entities.end(), Game::powerUp0);
-				if (power != Game::entities.end()) {
-					Game::entities.erase(power);
-					//have the aventador1 hold the power up
+
+				if (isAventador0) {
+					std::cout << "aventador0 contacted a power up\n";
+					//have aventador hold the power up
+					break;
 				}
-				break;
+				else if (isAventador1) {
+					std::cout << "aventador0 contacted a power up\n";
+					//have aventador hold the power up
+					break;
+				}
 			}
-		}
-	}
-}
-
-void contactModifcation::onTrigger(PxTriggerPair* pairs, PxU32 count) {
-	for (PxU32 i = 0; i < count; i++) {
-		// ignore pairs when shapes have been deleted
-		if (pairs[i].flags & (PxTriggerPairFlag::eREMOVED_SHAPE_TRIGGER | PxTriggerPairFlag::eREMOVED_SHAPE_OTHER))
-			continue;
-
-		
-		//std::shared_ptr<PowerUp> trigger = pairs[i].triggerActor;
-		if ((pairs[i].otherActor == Game::aventador0->getActor() && (pairs[i].triggerActor->getName() == "powerup"))) {
-			std::cout << "aventador0 contacted a power up\n";
-			PxRigidActor* trigger = pairs[i].triggerActor;
-			auto power = find_if(Game::entities.begin(), Game::entities.end(), [&](std::shared_ptr<Entity>toFind) { PowerUp* power = static_cast<PowerUp*>(toFind.get());
-																														return power->getActor() == trigger;					});
-			if (power != Game::entities.end()) {
-				Game::entities.erase(power);
-				//have the aventador0 hold the power up
-			}
-			break;
-		}
-		else if ((pairs[i].otherActor == Game::aventador1->getActor() && (pairs[i].triggerActor->getName() == "powerup"))) {
-			std::cout << "aventador1 contacted a power up\n";
-			PxRigidActor* trigger = pairs[i].triggerActor;
-			auto power = find_if(Game::entities.begin(), Game::entities.end(), [&](std::shared_ptr<Entity>toFind) { PowerUp* power = static_cast<PowerUp*>(toFind.get());
-			return power->getActor() == trigger;					});
-			if (power != Game::entities.end()) {
-				Game::entities.erase(power);
-				//have the aventador0 hold the power up
-			}
-			break;
 		}
 	}
 }

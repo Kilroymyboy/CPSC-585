@@ -4,8 +4,9 @@
 #include "extensions\PxRigidBodyExt.h"
 #include "FilterGroup.h"
 #include <vector>
+#include <string>
 
-#include <iostream>;
+#include <iostream>
 
 using namespace physx;
 
@@ -34,11 +35,11 @@ class contactModifcation : public PxSimulationEventCallback {
 
 public:
 	void onContact(const PxContactPairHeader& pairHeader, const PxContactPair* pairs, PxU32 nbPairs);
-	void onTrigger(PxTriggerPair* pairs, PxU32 count);
 
 	//needs to be overidden to set as our simulationEventCallback
 	void onConstraintBreak(PxConstraintInfo* constraints, PxU32 count) {}
 	void onWake(PxActor** actors, PxU32 count) {}
 	void onSleep(PxActor** actors, PxU32 count) {}
+	void onTrigger(PxTriggerPair* pairs, PxU32 count) {}
 
 };
