@@ -94,9 +94,9 @@ void Aventador::updateLightCamera() {
 }
 
 void Aventador::renderShadowMap(glm::mat4 parentTransform) {
-	Light::renderShadowMap(&Resources::aventadorBody, tempTransform);
-	Light::renderShadowMap(&Resources::aventadorBodyGlow, tempTransform);
-	Light::renderShadowMap(&Resources::aventadorUnder, tempTransform);
+	Light::renderShadowMapInstanced(&Resources::aventadorBody, tempTransform);
+	Light::renderShadowMapInstanced(&Resources::aventadorBodyGlow, tempTransform);
+	Light::renderShadowMapInstanced(&Resources::aventadorUnder, tempTransform);
 
 	for (int i = 0; i < wheel.size(); i++) {
 		wheel[i].get()->renderShadowMap(tempTransform);
@@ -241,8 +241,8 @@ void AventadorWheel::update(glm::mat4 parentTransform) {
 }
 
 void AventadorWheel::renderShadowMap(glm::mat4 parentTransform) {
-	Light::renderShadowMap(&Resources::aventadorWheel, parentTransform*tempTransform);
-	Light::renderShadowMap(&Resources::aventadorWheelGlow, parentTransform*tempTransform);
+	Light::renderShadowMapInstanced(&Resources::aventadorWheel, parentTransform*tempTransform);
+	Light::renderShadowMapInstanced(&Resources::aventadorWheelGlow, parentTransform*tempTransform);
 }
 
 void AventadorWheel::render(glm::mat4 parentTransform) {

@@ -137,6 +137,8 @@ namespace Light {
 	void init(int);
 	void update(int);
 	void renderShadowMap(Graphics::MyGeometry* geometry, glm::mat4 obj);
+	void renderShadowMapInstanced(Graphics::MyGeometry* geometry, glm::mat4 obj);
+	void flushShadowMap();
 }
 
 namespace Effects {
