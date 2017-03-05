@@ -47,6 +47,8 @@ namespace Graphics {
 	bool SHADOW = 1;
 	int SOFT_SHADOW = 1;
 
+	int tDrawCalls = 0;
+
 	vector<MyGeometry*> instancedGeometry;
 
 	void QueryGLVersion();
@@ -181,75 +183,77 @@ namespace Graphics {
 	}
 
 	// render to a framebuffer with an id
-	void RenderId(MyGeometry *geometry, void(*material)(), mat4 transform, int id) {\
-		if (id == 0) {
-			glBindFramebuffer(GL_FRAMEBUFFER, defaultFbo.fbo);
-			glBindTexture(GL_TEXTURE_2D, defaultFbo.texture);
-		}
-		else {
-			glBindFramebuffer(GL_FRAMEBUFFER, defaultFbo1.fbo);
-			glBindTexture(GL_TEXTURE_2D, defaultFbo1.texture);
-		}
+	void RenderId(MyGeometry *geometry, void(*material)(), mat4 transform, int id) {
+		\
+			if (id == 0) {
+				glBindFramebuffer(GL_FRAMEBUFFER, defaultFbo.fbo);
+				glBindTexture(GL_TEXTURE_2D, defaultFbo.texture);
+			}
+			else {
+				glBindFramebuffer(GL_FRAMEBUFFER, defaultFbo1.fbo);
+				glBindTexture(GL_TEXTURE_2D, defaultFbo1.texture);
+			}
 
-		// enable gl depth test
-		glEnable(GL_DEPTH_TEST);
-		if (SPLIT_SCREEN) {
-			vec2 defaultFboDimension(WINDOW_WIDTH*MSAA / ((SPLIT_SCREEN && (!SPLIT_SCREEN_ORIENTATION)) ? 2 : 1),
-				WINDOW_HEIGHT*MSAA / ((SPLIT_SCREEN && SPLIT_SCREEN_ORIENTATION) ? 2 : 1));
+			// enable gl depth test
+			glEnable(GL_DEPTH_TEST);
+			if (SPLIT_SCREEN) {
+				vec2 defaultFboDimension(WINDOW_WIDTH*MSAA / ((SPLIT_SCREEN && (!SPLIT_SCREEN_ORIENTATION)) ? 2 : 1),
+					WINDOW_HEIGHT*MSAA / ((SPLIT_SCREEN && SPLIT_SCREEN_ORIENTATION) ? 2 : 1));
 
-			glScissor(0, 0, defaultFboDimension.x, defaultFboDimension.y);
-			glViewport(0, 0, defaultFboDimension.x, defaultFboDimension.y);
-		}
-		else {
-			glScissor(0, 0, WINDOW_WIDTH*MSAA, WINDOW_HEIGHT*MSAA);
-			glViewport(0, 0, WINDOW_WIDTH*MSAA, WINDOW_HEIGHT*MSAA);
-		}
+				glScissor(0, 0, defaultFboDimension.x, defaultFboDimension.y);
+				glViewport(0, 0, defaultFboDimension.x, defaultFboDimension.y);
+			}
+			else {
+				glScissor(0, 0, WINDOW_WIDTH*MSAA, WINDOW_HEIGHT*MSAA);
+				glViewport(0, 0, WINDOW_WIDTH*MSAA, WINDOW_HEIGHT*MSAA);
+			}
 
 
-		glBindBuffer(GL_ARRAY_BUFFER, geometry->transformBuffer);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(mat4), &transform, GL_DYNAMIC_DRAW);
+			glBindBuffer(GL_ARRAY_BUFFER, geometry->transformBuffer);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(mat4), &transform, GL_DYNAMIC_DRAW);
 
-		glBindVertexArray(geometry->vertexArray);
+			glBindVertexArray(geometry->vertexArray);
 
-		glEnableVertexAttribArray(TRANSFORM_LOCATION);
-		glVertexAttribPointer(TRANSFORM_LOCATION, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (GLvoid*)0);
-		glEnableVertexAttribArray(TRANSFORM_LOCATION + 1);
-		glVertexAttribPointer(TRANSFORM_LOCATION + 1, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (GLvoid*)(sizeof(glm::vec4)));
-		glEnableVertexAttribArray(TRANSFORM_LOCATION + 2);
-		glVertexAttribPointer(TRANSFORM_LOCATION + 2, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (GLvoid*)(2 * sizeof(glm::vec4)));
-		glEnableVertexAttribArray(TRANSFORM_LOCATION + 3);
-		glVertexAttribPointer(TRANSFORM_LOCATION + 3, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (GLvoid*)(3 * sizeof(glm::vec4)));
-		glVertexAttribDivisor(TRANSFORM_LOCATION, 1);
-		glVertexAttribDivisor(TRANSFORM_LOCATION + 1, 1);
-		glVertexAttribDivisor(TRANSFORM_LOCATION + 2, 1);
-		glVertexAttribDivisor(TRANSFORM_LOCATION + 3, 1);
+			glEnableVertexAttribArray(TRANSFORM_LOCATION);
+			glVertexAttribPointer(TRANSFORM_LOCATION, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (GLvoid*)0);
+			glEnableVertexAttribArray(TRANSFORM_LOCATION + 1);
+			glVertexAttribPointer(TRANSFORM_LOCATION + 1, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (GLvoid*)(sizeof(glm::vec4)));
+			glEnableVertexAttribArray(TRANSFORM_LOCATION + 2);
+			glVertexAttribPointer(TRANSFORM_LOCATION + 2, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (GLvoid*)(2 * sizeof(glm::vec4)));
+			glEnableVertexAttribArray(TRANSFORM_LOCATION + 3);
+			glVertexAttribPointer(TRANSFORM_LOCATION + 3, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (GLvoid*)(3 * sizeof(glm::vec4)));
+			glVertexAttribDivisor(TRANSFORM_LOCATION, 1);
+			glVertexAttribDivisor(TRANSFORM_LOCATION + 1, 1);
+			glVertexAttribDivisor(TRANSFORM_LOCATION + 2, 1);
+			glVertexAttribDivisor(TRANSFORM_LOCATION + 3, 1);
 
-		// unbind our buffers, resetting to default state
-		glBindVertexArray(0);
-		glBindVertexArray(geometry->vertexArray);
+			// unbind our buffers, resetting to default state
+			glBindVertexArray(0);
+			glBindVertexArray(geometry->vertexArray);
 
-		material();
-		Viewport::update(id);
-		Light::update(id);
+			material();
+			Viewport::update(id);
+			Light::update(id);
 
-		//	glUniform1i(SOFT_SHADOW_LOCATION, SOFT_SHADOW);
+			//	glUniform1i(SOFT_SHADOW_LOCATION, SOFT_SHADOW);
 
-		mat4 shadowMvp = Light::biasMatrix*Light::projection[id] * Light::transform[id];
-		glUniformMatrix4fv(SHADOW_MVP_LOCATION, 1, GL_FALSE, &shadowMvp[0][0]);
+			mat4 shadowMvp = Light::biasMatrix*Light::projection[id] * Light::transform[id];
+			glUniformMatrix4fv(SHADOW_MVP_LOCATION, 1, GL_FALSE, &shadowMvp[0][0]);
 
-		glActiveTexture(GL_TEXTURE0);
-		if (id == 0)glBindTexture(GL_TEXTURE_2D, shadowFbo.texture);
-		else glBindTexture(GL_TEXTURE_2D, shadowFbo1.texture);
+			glActiveTexture(GL_TEXTURE0);
+			if (id == 0)glBindTexture(GL_TEXTURE_2D, shadowFbo.texture);
+			else glBindTexture(GL_TEXTURE_2D, shadowFbo1.texture);
 
-		glDrawArraysInstanced(GL_TRIANGLES, 0, geometry->elementCount, 1);
+			tDrawCalls++;
+			glDrawArraysInstanced(GL_TRIANGLES, 0, geometry->elementCount, 1);
 
-		// reset state to default (no shader or geometry bound)
-		glBindVertexArray(0);
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		glBindTexture(GL_TEXTURE_2D, 0);
+			// reset state to default (no shader or geometry bound)
+			glBindVertexArray(0);
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+			glBindTexture(GL_TEXTURE_2D, 0);
 
-		// check for an report any OpenGL errors
-		CheckGLErrors();
+			// check for an report any OpenGL errors
+			CheckGLErrors();
 	}
 
 	void Render(MyGeometry *geometry, void(*material)(), mat4 transform)
@@ -321,6 +325,7 @@ namespace Graphics {
 		if (id == 0)glBindTexture(GL_TEXTURE_2D, shadowFbo.texture);
 		else glBindTexture(GL_TEXTURE_2D, shadowFbo1.texture);
 
+		tDrawCalls++;
 		glDrawArraysInstanced(GL_TRIANGLES, 0, geometry->elementCount, geometry->transforms.size());
 
 		// reset state to default (no shader or geometry bound)
@@ -481,6 +486,11 @@ namespace Graphics {
 
 	void initInstancedGeometry() {
 		instancedGeometry.push_back(&Resources::plane);
+		instancedGeometry.push_back(&Resources::aventadorBody);
+		instancedGeometry.push_back(&Resources::aventadorBodyGlow);
+		instancedGeometry.push_back(&Resources::aventadorUnder);
+		instancedGeometry.push_back(&Resources::aventadorWheel);
+		instancedGeometry.push_back(&Resources::aventadorWheelGlow);
 	}
 
 	int init() {
@@ -829,6 +839,11 @@ namespace Graphics {
 		if (EFFECTS) {
 			renderAberration();
 		}
+
+		if (PRINT_DRAW_CALLS) {
+			cout << "Draw Calls:\t" << tDrawCalls << "\n";
+		}
+		tDrawCalls = 0;
 
 		CheckGLErrors();
 
