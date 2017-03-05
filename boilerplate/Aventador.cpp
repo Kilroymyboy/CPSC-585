@@ -104,9 +104,9 @@ void Aventador::renderShadowMap(glm::mat4 parentTransform) {
 }
 
 void Aventador::render(glm::mat4 parentTransform) {
-	Graphics::Render(&Resources::aventadorBody, &(Resources::darkGreyMaterial), tempTransform);
-	Graphics::Render(&Resources::aventadorBodyGlow, &Resources::emmisiveBlueMaterial, tempTransform);
-	Graphics::Render(&Resources::aventadorUnder, &Resources::pureBlackMaterial, tempTransform);
+	Graphics::Render(&Resources::aventadorBody, &Resources::defaultMaterialObject, tempTransform);
+	Graphics::Render(&Resources::aventadorBodyGlow, &Resources::emmisiveMaterialObject, tempTransform);
+	Graphics::Render(&Resources::aventadorUnder, &Resources::blackMaterialObject, tempTransform);
 
 	for (int i = 0; i < wheel.size(); i++) {
 		wheel[i].get()->render(tempTransform);
@@ -246,6 +246,6 @@ void AventadorWheel::renderShadowMap(glm::mat4 parentTransform) {
 }
 
 void AventadorWheel::render(glm::mat4 parentTransform) {
-	Graphics::Render(&Resources::aventadorWheel, &Resources::darkGreyMaterial, parentTransform*tempTransform);
-	Graphics::Render(&Resources::aventadorWheelGlow, &Resources::emmisiveBlueMaterial, parentTransform*tempTransform);
+	Graphics::Render(&Resources::aventadorWheel, &Resources::defaultMaterialObject, parentTransform*tempTransform);
+	Graphics::Render(&Resources::aventadorWheelGlow, &Resources::emmisiveMaterialObject, parentTransform*tempTransform);
 }
