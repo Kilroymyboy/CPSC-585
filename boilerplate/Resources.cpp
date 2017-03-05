@@ -1,11 +1,16 @@
 #include "Resources.h"
 
+using namespace glm;
 // TODO, destroy these things on exit?
 
 namespace Resources {
 	Graphics::MyGeometry aventadorBody, aventadorBodyGlow, aventadorUnder, aventadorWheel, aventadorWheelGlow;
 	Graphics::MyGeometry plane, cube, centeredCube;
 	Graphics::MyShader standardShader;
+
+	Graphics::StandardShaderMaterial defaultMaterialObject(vec3(1, 1, 1));
+	Graphics::StandardShaderMaterial emmisiveMaterialObject(vec3(1, 1, 1), vec3(1.7, 4.2, 11));
+	Graphics::StandardShaderMaterial blackMaterialObject(vec3(0, 0, 0));
 
 	void init() {
 		Graphics::loadGeometry(&aventadorBody, "models/aventador_body.obj");
@@ -45,7 +50,7 @@ namespace Resources {
 	}
 
 	void emmisiveMaterial() {
-		glUniform3f(COLOR_LOCATION, 0.0f, 0.0f, 0.0f);
-		glUniform3f(EMISSION_COLOR_LOCATION, 1.05f, 1.05f, 1.05f);
+		glUniform3f(COLOR_LOCATION, 1.0f, 1.0f, 1.0f);
+		glUniform3f(EMISSION_COLOR_LOCATION, 0.0f, 0.0f, 0.0f);
 	}
 }

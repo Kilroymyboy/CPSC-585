@@ -104,9 +104,9 @@ void Aventador::renderShadowMap(glm::mat4 parentTransform) {
 }
 
 void Aventador::render(glm::mat4 parentTransform) {
-	Graphics::Render(&Resources::aventadorBody, &(Resources::darkGreyMaterial), tempTransform);
-	Graphics::Render(&Resources::aventadorBodyGlow, &Resources::emmisiveBlueMaterial, tempTransform);
-	Graphics::Render(&Resources::aventadorUnder, &Resources::pureBlackMaterial, tempTransform);
+	Graphics::Render(&Resources::aventadorBody, &Resources::defaultMaterialObject, tempTransform);
+	Graphics::Render(&Resources::aventadorBodyGlow, &Resources::emmisiveMaterialObject, tempTransform);
+	Graphics::Render(&Resources::aventadorUnder, &Resources::blackMaterialObject, tempTransform);
 
 	for (int i = 0; i < wheel.size(); i++) {
 		wheel[i].get()->render(tempTransform);
@@ -177,9 +177,10 @@ void Aventador::updateFriction() {
 			vec3 forwardv = proj(Util::p2g(wspeed), wheeld); forwardv.y = 0;
 			vec3 frictionv = Util::p2g(wspeed) - forwardv;
 			vec3 frictiond = -normalize(frictionv); frictiond.y = 0;
-			PxRigidBodyExt::addForceAtPos(*actor, Util::g2p(frictiond / (1 + tireHeat[i]))*min(wspeed.magnitude() * aventadorData.wheelSideFriction, aventadorData.wheelSideMaxFriction),
-				Util::g2p(transform*vec4(wheelPos[i] - vec3(0, aventadorData.dimensionHeight, 0), 1)), PxForceMode::eFORCE);
-			PxRigidBodyExt::addForceAtPos(*actor, Util::g2p(-normalize(forwardv)*brakeForce),
+			PxVec3 sideFriction = Util::g2p(frictiond / (1 + tireHeat[i]))*min(wspeed.magnitude() * aventadorData.wheelSideFriction, aventadorData.wheelSideMaxFriction),
+				brakeFriction = Util::g2p(-normalize(forwardv)*brakeForce);
+
+			PxRigidBodyExt::addForceAtPos(*actor, sideFriction + brakeFriction,
 				Util::g2p(transform*vec4(wheelPos[i] - vec3(0, aventadorData.dimensionHeight, 0), 1)), PxForceMode::eFORCE);
 			tireHeat[i] += length(frictionv) *aventadorData.tireHeatIncrease[i];
 		}
@@ -245,6 +246,6 @@ void AventadorWheel::renderShadowMap(glm::mat4 parentTransform) {
 }
 
 void AventadorWheel::render(glm::mat4 parentTransform) {
-	Graphics::Render(&Resources::aventadorWheel, &Resources::darkGreyMaterial, parentTransform*tempTransform);
-	Graphics::Render(&Resources::aventadorWheelGlow, &Resources::emmisiveBlueMaterial, parentTransform*tempTransform);
+	Graphics::Render(&Resources::aventadorWheel, &Resources::defaultMaterialObject, parentTransform*tempTransform);
+	Graphics::Render(&Resources::aventadorWheelGlow, &Resources::emmisiveMaterialObject, parentTransform*tempTransform);
 }
