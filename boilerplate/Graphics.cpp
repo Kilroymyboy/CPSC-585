@@ -205,13 +205,9 @@ namespace Graphics {
 			glViewport(0, 0, WINDOW_WIDTH*MSAA, WINDOW_HEIGHT*MSAA);
 		}
 
-		vector<mat4> asdf;
-		asdf.push_back(transform);
-		asdf.push_back(translate(transform, vec3(0, 1, 0)));
-
 
 		glBindBuffer(GL_ARRAY_BUFFER, geometry->transformBuffer);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(mat4)*asdf.size(), &asdf[0], GL_DYNAMIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(mat4), &transform, GL_DYNAMIC_DRAW);
 
 		glBindVertexArray(geometry->vertexArray);
 
@@ -245,7 +241,7 @@ namespace Graphics {
 		if (id == 0)glBindTexture(GL_TEXTURE_2D, shadowFbo.texture);
 		else glBindTexture(GL_TEXTURE_2D, shadowFbo1.texture);
 
-		glDrawArraysInstanced(GL_TRIANGLES, 0, geometry->elementCount, asdf.size());
+		glDrawArraysInstanced(GL_TRIANGLES, 0, geometry->elementCount, 1);
 
 		// reset state to default (no shader or geometry bound)
 		glBindVertexArray(0);
@@ -822,29 +818,6 @@ namespace Graphics {
 		glBindBuffer(GL_ARRAY_BUFFER, geometry->normalBuffer);
 		glVertexAttribPointer(VERTEX_NORMAL_LOCATION, 3, GL_FLOAT, GL_FALSE, 0, 0);
 		glEnableVertexAttribArray(VERTEX_NORMAL_LOCATION);
-		glBindVertexArray(0);
-		return;
-		
-		glBindBuffer(GL_ARRAY_BUFFER, geometry->transformBuffer);
-		mat4 transform(1);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(mat4), &transform, GL_DYNAMIC_DRAW);
-		
-		glBindVertexArray(geometry->vertexArray);
-
-		glEnableVertexAttribArray(TRANSFORM_LOCATION);
-		glVertexAttribPointer(TRANSFORM_LOCATION, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (GLvoid*)0);
-		glEnableVertexAttribArray(TRANSFORM_LOCATION+1);
-		glVertexAttribPointer(TRANSFORM_LOCATION+1, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (GLvoid*)(sizeof(glm::vec4)));
-		glEnableVertexAttribArray(TRANSFORM_LOCATION+2);
-		glVertexAttribPointer(TRANSFORM_LOCATION+2, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (GLvoid*)(2*sizeof(glm::vec4)));
-		glEnableVertexAttribArray(TRANSFORM_LOCATION+3);
-		glVertexAttribPointer(TRANSFORM_LOCATION+3, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (GLvoid*)(3*sizeof(glm::vec4)));
-		glVertexAttribDivisor(TRANSFORM_LOCATION, 1);
-		glVertexAttribDivisor(TRANSFORM_LOCATION+1, 1);
-		glVertexAttribDivisor(TRANSFORM_LOCATION+2, 1);
-		glVertexAttribDivisor(TRANSFORM_LOCATION+3, 1);
-
-		// unbind our buffers, resetting to default state
 		glBindVertexArray(0);
 	}
 
