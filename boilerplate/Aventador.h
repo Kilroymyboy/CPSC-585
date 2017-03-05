@@ -31,6 +31,8 @@ public:
 	float tireHeatDecrease = 0.45;
 	float tireHeatFastDecrease = 0.1;
 	float manualTireHeatIncrease = 0.15;
+
+	bool powerStatus = false;
 };
 
 class AventadorWheel :public Entity {
@@ -48,7 +50,6 @@ public:
 
 class Aventador : public Entity {
 	int aventadorId;
-	int role; //0 is the front care; 1 is the back car
 
 	physx::PxRigidDynamic *actor;
 
@@ -82,7 +83,13 @@ public:
 	void update(glm::mat4 parentTransform)override;
 	void renderShadowMap(glm::mat4 parentTransform)override;
 	void render(glm::mat4 parentTransform)override;
-	void setRole(int r);
 	physx::PxRigidDynamic *const getActor();
 	Aventador(int);
+
+	bool hasPowerUp() {
+		return aventadorData.powerStatus;
+	}
+	void setPowerUpStatus(bool status) {
+		aventadorData.powerStatus = status;
+	}
 };

@@ -14,7 +14,7 @@ PowerUp::PowerUp(int id) {
 		note:	eIGNORE_CONACT causes the cubes to fall through the infinite ground plane
 					-eDISABLE_GRAVITY is a work around for this
 				This flag does not have the same effect for a aventators for some reason
-				--I'll find out why from Modan later
+					-possibly because of the wheels?
 	*/
 	actor->userData = (void*)ContactModFlags::eIGNORE_CONTACT;
 	actor->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, true);
@@ -37,7 +37,6 @@ void PowerUp::update(mat4 parentTransform) {
 	transform = m;
 
 	Light::renderShadowMap(&Resources::centeredCube, transform);
-
 }
 
 void PowerUp::render(mat4 parentTransform) {

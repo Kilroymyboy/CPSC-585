@@ -56,8 +56,8 @@ Aventador::Aventador(int id) {
 		actor->setName("back");
 	}
 
-	//ignore testing
-	actor->userData = (void*)ContactModFlags::eIGNORE_CONTACT;
+	//Setting contact modification flags
+	actor->userData = (void*)(ContactModFlags::eIGNORE_CONTACT | ContactModFlags::eTARGET_VELOCITY);
 }
 
 void Aventador::update(glm::mat4 parentTransform) {
@@ -245,14 +245,6 @@ void Aventador::updateBraking() {
 
 physx::PxRigidDynamic *const Aventador::getActor() {
 	return actor;
-}
-
-/*
-0: front car
-1: back car
-*/
-void Aventador::setRole(int r) {
-	role = r;
 }
 
 void AventadorWheel::update(glm::mat4 parentTransform) {

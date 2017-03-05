@@ -217,10 +217,13 @@ void ContactBehaviourCallback::onContact(const PxContactPairHeader& pairHeader, 
 			bool isAventador1 = pairHeader.actors[0] == a1 || pairHeader.actors[1] == a1;
 			bool isPowerUp = pairHeader.actors[0]->getName() == "powerup" || pairHeader.actors[1]->getName() == "powerup";
 
-			//swtiching the front/back roles
+			/*swtiching the front/back roles
+				setName() is not allowed here. Need to figure out another way
+			*/
 			if (isAventador0 && isAventador1) {
 				std::cout << "Aventador made contact with another aventador\n";
 
+				/*
 				if (a0->getName() == "front") {
 					a0->setName("back");
 					a1->setName("front");
@@ -229,9 +232,10 @@ void ContactBehaviourCallback::onContact(const PxContactPairHeader& pairHeader, 
 					a0->setName("front");
 					a1->setName("back");
 				}
+				*/
 
-				
 				//for testing: force one of the actors to change positions.
+				//	-causes an overwrite error
 				PxTransform pose(PxVec3(0, 1, 0));
 				a1->setGlobalPose(pose);
 				
@@ -244,18 +248,27 @@ void ContactBehaviourCallback::onContact(const PxContactPairHeader& pairHeader, 
 				auto power = find_if(Game::entities.begin(), Game::entities.end(), [&](std::shared_ptr<Entity>toFind) {
 					PowerUp* power = static_cast<PowerUp*>(toFind.get());
 					return power->getActor() == pickedUp; });
+
 				if (power != Game::entities.end()) {
 					Game::entities.erase(power);
 				}
 
 				if (isAventador0) {
 					std::cout << "aventador0 contacted a power up\n";
-					//have aventador hold the power up
+					//have aventador hold the power up. Holds one power up at a time
+					Aventador* a = Game::aventador0.get();
+					if (!a->hasPowerUp()) {
+						a->setPowerUpStatus(true);
+					}
 					break;
 				}
 				else if (isAventador1) {
 					std::cout << "aventador0 contacted a power up\n";
-					//have aventador hold the power up
+					//have aventador hold the power up. Holds one power up at a time
+					Aventador* a = Game::aventador1.get();
+					if (!a->hasPowerUp()) {
+						a->setPowerUpStatus(true);
+					}
 					break;
 				}
 			}
@@ -269,6 +282,13 @@ static void ignoreContacts(PxContactModifyPair& pair) {
 	}
 }
 
+static void setTargetVelocity(PxContactModifyPair& pair, const PxVec3& targetVelocity) {
+	for (PxU32 i = 0; i < pair.contacts.size(); ++i)
+	{
+		pair.contacts.setTargetVelocity(i, targetVelocity);
+	}
+}
+
 void ContactModifyCallback::onContactModify(PxContactModifyPair* const pairs, PxU32 count) {
 
 	for (PxU32 i = 0; i < count; i++) {
@@ -276,6 +296,14 @@ void ContactModifyCallback::onContactModify(PxContactModifyPair* const pairs, Px
 
 		if (flags & ContactModFlags::eIGNORE_CONTACT) {
 			ignoreContacts(pairs[i]);
+		}
+
+		//increase the speed of the back car?
+		//doesn't work yet
+		const PxVec3 targetVelocity(0.f, 0.f, 100.f);
+		bool isBackAventator = pairs->actor[0] == Game::aventador1->getActor() || pairs->actor[1] == Game::aventador1->getActor();
+		if ((flags & ContactModFlags::eTARGET_VELOCITY)){
+			setTargetVelocity(pairs[i],targetVelocity);
 		}
 	}
 }
