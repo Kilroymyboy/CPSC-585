@@ -13,17 +13,19 @@
 in vec3 Normal;
 in vec4 ShadowCoord;
 
-layout(location = 4) uniform mat4 View;
+layout(location = 6) uniform mat4 Projection;
+layout(location = 7) uniform mat4 View;
+layout(location = 8) uniform mat4 Model;
 
-layout(location = 6) uniform vec3 LightDirection;
-layout(location = 7) uniform vec3 AmbientLight;
+layout(location = 9) uniform vec3 LightDirection;
+layout(location = 10) uniform vec3 AmbientLight;
 
-layout(location = 8) uniform vec3 Color;
-layout(location = 9) uniform vec3 EmissionColor;
+layout(location = 11) uniform vec3 Color;
+layout(location = 12) uniform vec3 EmissionColor;
 
-layout(location = 10) uniform mat4 shadowMVP;
+layout(location = 13) uniform mat4 shadowMVP;
 
-layout(location = 11) uniform int softShadow;
+layout(location = 14) uniform int softShadow;
 
 uniform sampler2D shadowMap;
 
