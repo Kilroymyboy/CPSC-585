@@ -8,3 +8,10 @@ struct FilterGroup {
 		ePowerUp1 = (1 << 3),
 	};
 };
+
+
+struct ContactModFlags {
+	enum {
+		eIGNORE_CONTACT = (1 << 0),
+	};
+};

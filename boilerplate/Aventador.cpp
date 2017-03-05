@@ -46,15 +46,18 @@ Aventador::Aventador(int id) {
 	actor->setMass(5.5);
 	actor->setAngularDamping(0.8);
 	actor->setLinearDamping(0.5);
-
 	PhysicsManager::attachSimulationShape(actor, dimensions,200);
-
 	if (aventadorId == 0) {
 		PhysicsManager::setContactFilter(actor, FilterGroup::eAventador0, FilterGroup::eAventador1 | FilterGroup::ePowerUp0);
+		actor->setName("front");
 	}
 	else {
 		PhysicsManager::setContactFilter(actor, FilterGroup::eAventador1, FilterGroup::eAventador0 | FilterGroup::ePowerUp1);
+		actor->setName("back");
 	}
+
+	//ignore testing
+	actor->userData = (void*)ContactModFlags::eIGNORE_CONTACT;
 }
 
 void Aventador::update(glm::mat4 parentTransform) {
@@ -244,6 +247,13 @@ physx::PxRigidDynamic *const Aventador::getActor() {
 	return actor;
 }
 
+/*
+0: front car
+1: back car
+*/
+void Aventador::setRole(int r) {
+	role = r;
+}
 
 void AventadorWheel::update(glm::mat4 parentTransform) {
 	rotation += rotateSpeed*rotateInverse;

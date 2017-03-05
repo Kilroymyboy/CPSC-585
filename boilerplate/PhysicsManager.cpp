@@ -21,8 +21,8 @@ namespace PhysicsManager {
 	PxScene *mScene;
 	PxMaterial *mMaterial;
 	PxVisualDebuggerConnection* gConnection;
-	contactModifcation mySimulationEventCallback;
-
+	ContactBehaviourCallback gSimulationEventCallback;
+	ContactModifyCallback gContactModifyCallback;
 
 	void init()
 	{
@@ -51,7 +51,8 @@ namespace PhysicsManager {
 		sceneDesc.gravity = PxVec3(0.0f, -9.8f, 0.0f);
 		sceneDesc.cpuDispatcher = PxDefaultCpuDispatcherCreate(2);
 		sceneDesc.filterShader = contactFilterShader;
-		sceneDesc.simulationEventCallback = &mySimulationEventCallback;
+		sceneDesc.simulationEventCallback = &gSimulationEventCallback;
+		sceneDesc.contactModifyCallback = &gContactModifyCallback;
 		sceneDesc.flags |= PxSceneFlag::eENABLE_ACTIVETRANSFORMS;
 		mScene = mPhysics->createScene(sceneDesc);
 
@@ -153,7 +154,6 @@ namespace PhysicsManager {
 		filterData.word0 = filterGroup; //filter ID of the actor
 		filterData.word1 = filterMask; //filter ID that triggers a contact callback with the actor
 		
-		//actor should only have one shape, but need to do this to get the shape
 		const PxU32 numShapes = actor->getNbShapes();
 		PxShape** shapes = (PxShape**)malloc(sizeof(PxShape*)*numShapes);
 		actor->getShapes(shapes, numShapes);
@@ -165,7 +165,7 @@ namespace PhysicsManager {
 		free(shapes);
 	}
 
-	//the filter shader
+	//Filter actors that contact each other
 	PxFilterFlags contactFilterShader(PxFilterObjectAttributes attributes0,
 		PxFilterData filterData0, PxFilterObjectAttributes attributes1,
 		PxFilterData filterData1, PxPairFlags& pairFlags,
@@ -181,13 +181,11 @@ namespace PhysicsManager {
 		}
 
 		// Generate a default contact report
-		pairFlags |= PxPairFlag::eCONTACT_DEFAULT;
+		pairFlags |= PxPairFlag::eCONTACT_DEFAULT | PxPairFlag::eMODIFY_CONTACTS;
 
-		// trigger the contact callback for pairs (A,B) where
-		// the filtermask of A contains the ID of B and vice versa.
+		//check if the filter group and mask match
 		if ((filterData0.word0 & filterData1.word1) && (filterData1.word0 & filterData0.word1))
 		{
-			// Report the collision
 			pairFlags |= PxPairFlag::eNOTIFY_TOUCH_FOUND;
 		}
 
@@ -204,27 +202,39 @@ namespace PhysicsManager {
 	}
 }
 
-void contactModifcation::onContact(const PxContactPairHeader& pairHeader, const PxContactPair* pairs, PxU32 nbPairs) {
+/******************************************************************************************************************************/
+
+void ContactBehaviourCallback::onContact(const PxContactPairHeader& pairHeader, const PxContactPair* pairs, PxU32 nbPairs) {
 	for (PxU32 i = 0; i < nbPairs; i++)
 	{
 		const PxContactPair& cp = pairs[i];
 
 		if (cp.events & PxPairFlag::eNOTIFY_TOUCH_FOUND)
 		{
-			//if one of the actors is the first aventador
-			bool isAventador0 = pairHeader.actors[0] == Game::aventador0->getActor() || pairHeader.actors[1] == Game::aventador0->getActor();
-			bool isAventador1 = pairHeader.actors[0] == Game::aventador1->getActor() || pairHeader.actors[1] == Game::aventador1->getActor();
+			PxRigidActor* a0 = Game::aventador0->getActor();
+			PxRigidActor* a1 = Game::aventador1->getActor();
+			bool isAventador0 = pairHeader.actors[0] == a0 || pairHeader.actors[1] == a0;
+			bool isAventador1 = pairHeader.actors[0] == a1 || pairHeader.actors[1] == a1;
 			bool isPowerUp = pairHeader.actors[0]->getName() == "powerup" || pairHeader.actors[1]->getName() == "powerup";
 
+			//swtiching the front/back roles
 			if (isAventador0 && isAventador1) {
 				std::cout << "Aventador made contact with another aventador\n";
 
-				//force one of the actors to change positions.
-				PxRigidActor *actor1 = pairHeader.actors[0];
-				PxRigidActor *actor2 = pairHeader.actors[1];
-				PxTransform pose(PxVec3(0, 1, 0));
-				actor1->setGlobalPose(pose);
+				if (a0->getName() == "front") {
+					a0->setName("back");
+					a1->setName("front");
+				}
+				else {
+					a0->setName("front");
+					a1->setName("back");
+				}
 
+				
+				//for testing: force one of the actors to change positions.
+				PxTransform pose(PxVec3(0, 1, 0));
+				a1->setGlobalPose(pose);
+				
 				break;
 			}
 			else if (isPowerUp) {
@@ -249,6 +259,23 @@ void contactModifcation::onContact(const PxContactPairHeader& pairHeader, const 
 					break;
 				}
 			}
+		}
+	}
+}
+
+static void ignoreContacts(PxContactModifyPair& pair) {
+	for (PxU32 i = 0; i < pair.contacts.size(); ++i) {
+		pair.contacts.ignore(i);
+	}
+}
+
+void ContactModifyCallback::onContactModify(PxContactModifyPair* const pairs, PxU32 count) {
+
+	for (PxU32 i = 0; i < count; i++) {
+		PxU32 flags = static_cast<PxU32>(reinterpret_cast<size_t>(pairs[i].actor[0]->userData) | reinterpret_cast<size_t>(pairs[i].actor[0]->userData));
+
+		if (flags & ContactModFlags::eIGNORE_CONTACT) {
+			ignoreContacts(pairs[i]);
 		}
 	}
 }

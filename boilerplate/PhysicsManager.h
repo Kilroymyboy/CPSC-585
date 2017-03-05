@@ -31,7 +31,7 @@ namespace PhysicsManager
 	extern physx::PxScene *mScene;
 };
 
-class contactModifcation : public PxSimulationEventCallback {
+class ContactBehaviourCallback : public PxSimulationEventCallback {
 
 public:
 	void onContact(const PxContactPairHeader& pairHeader, const PxContactPair* pairs, PxU32 nbPairs);
@@ -42,4 +42,8 @@ public:
 	void onSleep(PxActor** actors, PxU32 count) {}
 	void onTrigger(PxTriggerPair* pairs, PxU32 count) {}
 
+};
+
+class ContactModifyCallback : public PxContactModifyCallback {
+	void onContactModify(PxContactModifyPair* const pairs, PxU32 count);
 };

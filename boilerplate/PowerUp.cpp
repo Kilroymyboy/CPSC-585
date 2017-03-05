@@ -9,7 +9,15 @@ PowerUp::PowerUp(int id) {
 	PxVec3 dimensions(0.5f, 0.5f, 0.5f);
 	actor = PhysicsManager::createDynamic(t, dimensions);
 	actor->setName("powerup");
-	//actor->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, true);
+
+	/*
+		note:	eIGNORE_CONACT causes the cubes to fall through the infinite ground plane
+					-eDISABLE_GRAVITY is a work around for this
+				This flag does not have the same effect for a aventators for some reason
+				--I'll find out why from Modan later
+	*/
+	actor->userData = (void*)ContactModFlags::eIGNORE_CONTACT;
+	actor->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, true);
 	//PhysicsManager::attachTriggerShape(actor, dimensions);
 	PhysicsManager::attachSimulationShape(actor, dimensions, 0);
 	if (powerId == 0) {
