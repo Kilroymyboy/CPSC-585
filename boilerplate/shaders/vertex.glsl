@@ -18,7 +18,7 @@ layout(location = 2) in mat4 Transform;
 // 5
 layout(location = 6) uniform mat4 Projection;
 layout(location = 7) uniform mat4 View;
-layout(location = 8) uniform mat4 Model;
+//layout(location = 8) uniform mat4 Model;
 
 layout(location = 9) uniform vec3 LightDirection;
 layout(location = 10) uniform vec3 AmbientLight;
@@ -34,6 +34,6 @@ out vec4 ShadowCoord;
 void main()
 {
     gl_Position = Projection * View * Transform * vec4(VertexPosition, 1.0);
-	Normal=mat3(Model)*VertexNormal;
-	ShadowCoord = shadowMVP * Model * vec4(VertexPosition, 1.0);
+	Normal=mat3(Transform)*VertexNormal;
+	ShadowCoord = shadowMVP * Transform * vec4(VertexPosition, 1.0);
 }

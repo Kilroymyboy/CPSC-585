@@ -92,6 +92,8 @@ namespace Graphics {
 		GLsizei elementCount;
 		GLuint  transformBuffer;
 
+		std::vector<glm::mat4> transforms;
+
 		// initialize object names to zero (OpenGL reserved value)
 		MyGeometry() : vertexBuffer(0), normalBuffer(0), vertexArray(0), elementCount(0), transformBuffer(0)
 		{}
@@ -107,6 +109,7 @@ namespace Graphics {
 
 	void loadGeometry(MyGeometry* geometry, char* path);
 	void Render(MyGeometry *geometry, void(*material)(), glm::mat4 transform);
+	void RenderInstanced(MyGeometry *geometry, glm::mat4 transform);
 	bool InitializeShaders(MyShader *shader, const std::string vertex, const std::string fragment);
 	bool InitializeFrameBuffer(MyFrameBuffer* frameBuffer, glm::vec2 dimension, bool HDR);
 	bool InitializeShadowMap(MyFrameBuffer* frameBuffer, glm::vec2 dimension);
@@ -118,7 +121,7 @@ namespace Viewport {
 	extern std::vector<glm::vec3> position, target;
 
 	void init(int);
-	void update(glm::mat4, int);
+	void update(int);
 }
 
 namespace Light {

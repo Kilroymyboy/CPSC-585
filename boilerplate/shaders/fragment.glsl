@@ -15,7 +15,7 @@ in vec4 ShadowCoord;
 
 layout(location = 6) uniform mat4 Projection;
 layout(location = 7) uniform mat4 View;
-layout(location = 8) uniform mat4 Model;
+//layout(location = 8) uniform mat4 Model;
 
 layout(location = 9) uniform vec3 LightDirection;
 layout(location = 10) uniform vec3 AmbientLight;

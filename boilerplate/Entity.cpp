@@ -14,10 +14,10 @@ void Plane::update(glm::mat4 parentTransform) {
 }
 
 void Plane::render(glm::mat4 parentTransform) {
-	for (int i = -1; i < 1; i++) {
-		for (int j = -1; j < 1; j++) {
+	for (int i = -5; i < 6; i++) {
+		for (int j = -5; j < 6; j++) {
 			mat4 t = translate(transform, vec3(i * 16, 0, j * 16));
-			Graphics::Render(&Resources::plane, &Resources::defaultMaterial, parentTransform*t);
+			Graphics::RenderInstanced(&Resources::plane, parentTransform*t);
 		}
 	}
 }
