@@ -6,6 +6,7 @@
 #include <string>
 #include <iterator>
 #include <string>
+#include <vector>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -31,6 +32,7 @@
 #define COLOR_LOCATION 7
 #define EMISSION_COLOR_LOCATION 8
 #define SHADOW_MVP_LOCATION 9
+#define SOFT_SHADOW_LOCATION 10
 
 #define WINDOW_WIDTH 1280
 #define WINDOW_HEIGHT 720
@@ -43,8 +45,16 @@
 #define BLOOM_DOWNSAMPLE1 8
 
 #define EFFECTS 1
+#define HDR_ENABLED 1
 
 namespace Graphics {
+	extern bool SPLIT_SCREEN;
+	// 0 horizontal/side by side, 1 vertical/stacked
+	extern int SPLIT_SCREEN_ORIENTATION;
+
+	extern bool SHADOW;
+	extern int SOFT_SHADOW;
+
 	int init();
 	int shouldClose();
 	void update();
@@ -91,45 +101,42 @@ namespace Graphics {
 	struct MyFrameBuffer {
 		GLuint fbo;
 		GLuint texture;
-		GLuint vbo;
-		GLuint vao;
 		GLuint rbo;
 
-		MyShader shader;
-
-		MyFrameBuffer() :fbo(0), texture(0), vbo(0), vao(0), rbo(0) {}
+		MyFrameBuffer() :fbo(0), texture(0), rbo(0) {}
 	};
 
-	void clearFrameBuffer();
 	void loadGeometry(MyGeometry* geometry, char* path);
-	void RenderScene(MyGeometry *geometry, MyShader *shader, void(*material)(), glm::mat4 transform);
+	void Render(MyGeometry *geometry, void(*material)(), glm::mat4 transform);
 	bool InitializeShaders(MyShader *shader, const std::string vertex, const std::string fragment);
-	bool InitializeFrameBuffer(MyFrameBuffer* frameBuffer, const std::string& fragment, glm::vec2 dimension, bool HDR);
+	bool InitializeFrameBuffer(MyFrameBuffer* frameBuffer, glm::vec2 dimension, bool HDR);
 	bool InitializeShadowMap(MyFrameBuffer* frameBuffer, glm::vec2 dimension);
-	bool InitializeAdditiveFrameBuffer(MyFrameBuffer* frameBuffer, const std::string &fragment, glm::vec2 dimension, bool HDR);
 }
 
 namespace Viewport {
-	extern glm::mat4 projection;
+	extern std::vector<glm::mat4> projection;
 
-	extern glm::vec3 position, target;
+	extern std::vector<glm::vec3> position, target;
 
-	void init();
-	void update(glm::mat4);
+	void init(int);
+	void update(glm::mat4, int);
 }
 
 namespace Light {
 	extern glm::mat4 biasMatrix;
 
-	extern glm::vec3 color;
-	extern glm::vec3 direction;
 	extern glm::vec3 ambient;
 
-	extern glm::mat4 transform;
-	extern glm::mat4 projection;
-	extern glm::vec3 position, target;
+	extern std::vector<glm::mat4> transform, projection;
+	extern std::vector<glm::vec3> position, target, direction;
 
-	void init();
+	void init(int);
 	void update();
 	void renderShadowMap(Graphics::MyGeometry* geometry, glm::mat4 obj);
+}
+
+namespace Effects {
+	extern float sigma;
+	extern int blurSize;
+	extern float splitscreenLineThickness;
 }

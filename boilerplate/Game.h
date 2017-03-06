@@ -5,19 +5,19 @@
 #include <memory>
 #include "Graphics.h"
 #include "PhysicsManager.h"
+#include "Util.h"
+#include "Resources.h"
+#include "Entity.h"
+#include "Aventador.h"
+#include "PowerUp.h"
 
-#define PRINT_FPS 1
 
-class Entity {
-public:
-	bool alive = true;
-	glm::mat4 transform;
-	virtual void update0(glm::mat4 parentTransform) {}
-	virtual void update(glm::mat4 parentTransform) {}
-};
+#define PRINT_FPS 0
 
 namespace Game {
-	extern std::list<std::unique_ptr<Entity> > entities;
+	extern std::list<std::shared_ptr<Entity> > entities;
+	extern std::shared_ptr<Aventador> aventador0;
+	extern std::shared_ptr<Aventador> aventador1;
 	void init();
 	void update();
 }
@@ -29,22 +29,3 @@ namespace Time {
 	void update();
 }
 
-class Plane :public Entity {
-public:
-	void update0(glm::mat4 parentTransform)override;
-	void update(glm::mat4 parentTransform)override;
-};
-
-class Cube :public Entity {
-public:
-	void update0(glm::mat4 parentTransform)override;
-	void update(glm::mat4 parentTransform)override;
-};
-
-class CenteredCube :public Entity {
-	physx::PxRigidDynamic *actor;
-public:
-	CenteredCube(glm::vec3);
-	void update0(glm::mat4 parentTransform)override;
-	void update(glm::mat4 parentTransform)override;
-};
