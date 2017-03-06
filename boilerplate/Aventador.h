@@ -33,6 +33,7 @@ public:
 	float manualTireHeatIncrease = 0.15;
 
 	bool powerStatus = false;
+	bool isAI = false;
 };
 
 class AventadorWheel :public Entity {
@@ -76,6 +77,10 @@ class Aventador : public Entity {
 	float brakeForce;
 	std::vector<float> tireHeat;
 
+	double dCoolDown = 0.25;
+	double dChangeTime;
+	int randDirection;
+
 public:
 	// 0: front right, 1: front left, 2: rear left, 3: rear right
 	std::vector<std::unique_ptr<AventadorWheel> > wheel;
@@ -84,12 +89,9 @@ public:
 	void renderShadowMap(glm::mat4 parentTransform)override;
 	void render(glm::mat4 parentTransform)override;
 	physx::PxRigidDynamic *const getActor();
+	bool hasPowerUp();
+	void setPowerUpStatus(bool status);
 	Aventador(int);
 
-	bool hasPowerUp() {
-		return aventadorData.powerStatus;
-	}
-	void setPowerUpStatus(bool status) {
-		aventadorData.powerStatus = status;
-	}
+	int Aventador::pseudoRand();
 };

@@ -3,8 +3,8 @@ using namespace std;
 using namespace glm;
 using namespace physx;
 
-PowerUp::PowerUp(int id) {
-	powerId = id;
+PowerUp::PowerUp() {
+	powerId = pseudoRand() % 2; //0 or 1;
 	PxTransform t(getRandLocation(), PxQuat::createIdentity());
 	PxVec3 dimensions(0.5f, 0.5f, 0.5f);
 	actor = PhysicsManager::createDynamic(t, dimensions);
@@ -54,9 +54,16 @@ physx::PxRigidDynamic *const PowerUp::getActor() {
 
 PxVec3 PowerUp::getRandLocation() {
 	float x, y, z;
-	x = (rand()%20)-10; //random number between -10 to 9
+	x = (float)(pseudoRand() %20) - 10; //random number between -10 to 9
 	y = 1.0f;
-	z = (rand()%20)-10;
+	z = (float)(pseudoRand() %20);
 	
 	return PxVec3(x, y, z);
+}
+
+int PowerUp::pseudoRand() {
+	// our initial starting seed is 5323
+	static unsigned int seed = 5323;
+	seed = (8253729 * seed + 2396403);
+	return seed;
 }

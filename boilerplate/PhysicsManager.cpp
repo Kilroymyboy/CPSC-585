@@ -237,7 +237,7 @@ void ContactBehaviourCallback::onContact(const PxContactPairHeader& pairHeader, 
 				//for testing: force one of the actors to change positions.
 				//	-causes an overwrite error
 				PxTransform pose(PxVec3(0, 1, 0));
-				a1->setGlobalPose(pose);
+				a0->setGlobalPose(pose);
 				
 				break;
 			}
