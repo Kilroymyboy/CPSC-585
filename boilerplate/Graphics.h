@@ -25,15 +25,15 @@
 #define VERTEX_POSITION_LOCATION 0
 #define VERTEX_NORMAL_LOCATION 1
 #define TRANSFORM_LOCATION 2
-#define PROJECTION_LOCATION 3
-#define VIEW_LOCATION 4
-#define MODEL_LOCATION 5
-#define LIGHT_LOCATION 6
-#define AMBIENT_LOCATION 7
-#define COLOR_LOCATION 8
-#define EMISSION_COLOR_LOCATION 9
-#define SHADOW_MVP_LOCATION 10
-#define SOFT_SHADOW_LOCATION 11
+#define PROJECTION_LOCATION 6
+#define VIEW_LOCATION 7
+#define MODEL_LOCATION 8
+#define LIGHT_LOCATION 9
+#define AMBIENT_LOCATION 10
+#define COLOR_LOCATION 11
+#define EMISSION_COLOR_LOCATION 12
+#define SHADOW_MVP_LOCATION 13
+#define SOFT_SHADOW_LOCATION 14
 
 #define WINDOW_WIDTH 1280
 #define WINDOW_HEIGHT 720
@@ -42,8 +42,10 @@
 #define VSYNC 1
 #define SHADOWMAP_SIZE 1600
 
-#define EFFECTS 1
-#define HDR_ENABLED 1
+#define EFFECTS 0
+#define HDR_ENABLED 0
+
+#define PRINT_DRAW_CALLS 0
 
 namespace Graphics {
 	extern bool SPLIT_SCREEN;
@@ -90,9 +92,12 @@ namespace Graphics {
 		GLuint  normalBuffer;
 		GLuint  vertexArray;
 		GLsizei elementCount;
+		GLuint  transformBuffer;
+
+		std::vector<glm::mat4> transforms;
 
 		// initialize object names to zero (OpenGL reserved value)
-		MyGeometry() : vertexBuffer(0), normalBuffer(0), vertexArray(0), elementCount(0)
+		MyGeometry() : vertexBuffer(0), normalBuffer(0), vertexArray(0), elementCount(0), transformBuffer(0)
 		{}
 	};
 
@@ -109,6 +114,7 @@ namespace Graphics {
 	void initGeometry(MyGeometry* geometry);
 	void loadGeometry(MyGeometry* geometry, char* path);
 	void Render(MyGeometry *geometry, void(*material)(), glm::mat4 transform);
+	void RenderInstanced(MyGeometry *geometry, glm::mat4 transform);
 	bool InitializeShaders(MyShader *shader, const std::string vertex, const std::string fragment);
 	bool InitializeFrameBuffer(MyFrameBuffer* frameBuffer, glm::vec2 dimension, bool HDR);
 	bool InitializeShadowMap(MyFrameBuffer* frameBuffer, glm::vec2 dimension);
@@ -120,7 +126,7 @@ namespace Viewport {
 	extern std::vector<glm::vec3> position, target;
 
 	void init(int);
-	void update(glm::mat4, int);
+	void update(int);
 }
 
 namespace Light {
@@ -134,6 +140,8 @@ namespace Light {
 	void init(int);
 	void update(int);
 	void renderShadowMap(Graphics::MyGeometry* geometry, glm::mat4 obj);
+	void renderShadowMapInstanced(Graphics::MyGeometry* geometry, glm::mat4 obj);
+	void flushShadowMap();
 }
 
 namespace Effects {
