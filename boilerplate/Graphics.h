@@ -60,6 +60,14 @@ namespace Graphics {
 	void update();
 	void destroy();
 
+	struct Material {
+		glm::vec3 color;
+		glm::vec3 emmisiveColor;
+		Material() :color(glm::vec3(0)), emmisiveColor(glm::vec3(0)) {}
+		Material(glm::vec3 c) :color(c), emmisiveColor(glm::vec3(0)) {}
+		Material(glm::vec3 c, glm::vec3 e) :color(c), emmisiveColor(e) {}
+	};
+
 	struct MyShader
 	{
 		// OpenGL names for vertex and fragment shaders, shader program
@@ -95,6 +103,7 @@ namespace Graphics {
 		GLuint  transformBuffer;
 
 		std::vector<glm::mat4> transforms;
+		std::vector<Material> materials;
 
 		// initialize object names to zero (OpenGL reserved value)
 		MyGeometry() : vertexBuffer(0), normalBuffer(0), vertexArray(0), elementCount(0), transformBuffer(0)
@@ -113,7 +122,7 @@ namespace Graphics {
 	void bufferGeometry(MyGeometry* geometry, const std::vector<glm::vec3>& pos, const std::vector<glm::vec3>& nor);
 	void initGeometry(MyGeometry* geometry);
 	void loadGeometry(MyGeometry* geometry, char* path);
-	void Render(MyGeometry *geometry, void(*material)(), glm::mat4 transform);
+	void Render(MyGeometry *geometry, Material* materal, glm::mat4 transform);
 	void RenderInstanced(MyGeometry *geometry, glm::mat4 transform);
 	bool InitializeShaders(MyShader *shader, const std::string vertex, const std::string fragment);
 	bool InitializeFrameBuffer(MyFrameBuffer* frameBuffer, glm::vec2 dimension, bool HDR);

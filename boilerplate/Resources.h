@@ -11,13 +11,8 @@ namespace Resources {
 
 	void nullMaterial();
 
-	void defaultMaterial();
-
-	void darkGreyMaterial();
-
-	void pureBlackMaterial();
-
-	void emmisiveBlueMaterial();
-
-	void emmisiveMaterial();
+	extern Graphics::Material defaultMaterial;
+	extern Graphics::Material darkGreyMaterial;
+	extern Graphics::Material emmisiveMaterial;
+	extern Graphics::Material pureBlackMaterial;
 }

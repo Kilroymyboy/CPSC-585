@@ -183,7 +183,7 @@ namespace Graphics {
 	}
 
 	// render to a framebuffer with an id
-	void RenderId(MyGeometry *geometry, void(*material)(), mat4 transform, int id) {
+	void RenderId(MyGeometry *geometry, Material* material, mat4 transform, int id) {
 		if (id == 0) {
 			glBindFramebuffer(GL_FRAMEBUFFER, defaultFbo.fbo);
 			glBindTexture(GL_TEXTURE_2D, defaultFbo.texture);
@@ -229,7 +229,9 @@ namespace Graphics {
 
 		glBindVertexArray(geometry->vertexArray);
 
-		material();
+
+		glUniform3f(COLOR_LOCATION, material->color.x, material->color.y, material->color.z);
+		glUniform3f(EMISSION_COLOR_LOCATION, material->emmisiveColor.x, material->emmisiveColor.y, material->emmisiveColor.z);
 		Viewport::update(id);
 		Light::update(id);
 
@@ -254,7 +256,7 @@ namespace Graphics {
 		CheckGLErrors();
 	}
 
-	void Render(MyGeometry *geometry, void(*material)(), mat4 transform)
+	void Render(MyGeometry *geometry, Material* material, mat4 transform)
 	{
 		RenderId(geometry, material, transform, 0);
 		if (SPLIT_SCREEN) RenderId(geometry, material, transform, 1);
@@ -875,11 +877,11 @@ namespace Graphics {
 	void initGeometry(MyGeometry* geometry) {
 		glGenBuffers(1, &geometry->vertexBuffer);
 		glBindBuffer(GL_ARRAY_BUFFER, geometry->vertexBuffer);
-		
+
 		// create another one for storing our colours
 		glGenBuffers(1, &geometry->normalBuffer);
 		glBindBuffer(GL_ARRAY_BUFFER, geometry->normalBuffer);
-		
+
 		// create a vertex array object encapsulating all our vertex attributes
 		glGenVertexArrays(1, &geometry->vertexArray);
 		glBindVertexArray(geometry->vertexArray);
@@ -976,7 +978,7 @@ namespace Light {
 		0.0, 0.5, 0.0, 0.0,
 		0.0, 0.0, 0.5, 0.0,
 		0.5, 0.5, 0.5, 1.0
-	);
+		);
 
 	int SIZE;
 

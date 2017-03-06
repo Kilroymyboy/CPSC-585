@@ -24,28 +24,8 @@ namespace Resources {
 
 	}
 
-	void defaultMaterial() {
-		glUniform3f(COLOR_LOCATION, 1.0f, 1.0f, 1.0f);
-		glUniform3f(EMISSION_COLOR_LOCATION, 0.0f, 0.0f, 0.0f);
-	}
-
-	void darkGreyMaterial() {
-		glUniform3f(COLOR_LOCATION, 0.15f, 0.15f, 0.15f);
-		glUniform3f(EMISSION_COLOR_LOCATION, 0.0f, 0.0f, 0.0f);
-	}
-
-	void pureBlackMaterial() {
-		glUniform3f(COLOR_LOCATION, 0.0f, 0.0f, 0.0f);
-		glUniform3f(EMISSION_COLOR_LOCATION, 0.0f, 0.0f, 0.0f);
-	}
-
-	void emmisiveBlueMaterial() {
-		glUniform3f(COLOR_LOCATION, 0.0f, 0.0f, 0.0f);
-		glUniform3f(EMISSION_COLOR_LOCATION, 1.75f, 4.25f, 11.25f);
-	}
-
-	void emmisiveMaterial() {
-		glUniform3f(COLOR_LOCATION, 1.0f, 1.0f, 1.0f);
-		glUniform3f(EMISSION_COLOR_LOCATION, 0.0f, 0.0f, 0.0f);
-	}
+	Graphics::Material defaultMaterial(glm::vec3(1));
+	Graphics::Material darkGreyMaterial(glm::vec3(.15));
+	Graphics::Material emmisiveMaterial(glm::vec3(1), glm::vec3(1.7, 4.2, 11.2));
+	Graphics::Material pureBlackMaterial(glm::vec3(0));
 }
