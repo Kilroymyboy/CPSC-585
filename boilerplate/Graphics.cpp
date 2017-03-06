@@ -735,6 +735,44 @@ namespace Graphics {
 		cout << "Goodbye!" << endl;
 	}
 
+	void bufferGeometry(MyGeometry* geometry, const vector<vec3>& pos, const vector<vec3>& nor) {
+		geometry->elementCount = pos.size();
+
+		glBindBuffer(GL_ARRAY_BUFFER, geometry->vertexBuffer);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(vec3)*pos.size(), &pos[0], GL_STATIC_DRAW);
+
+		glBindBuffer(GL_ARRAY_BUFFER, geometry->normalBuffer);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(vec3)*nor.size(), &nor[0], GL_STATIC_DRAW);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+	}
+
+	void initGeometry(MyGeometry* geometry) {
+		glGenBuffers(1, &geometry->vertexBuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, geometry->vertexBuffer);
+		
+		// create another one for storing our colours
+		glGenBuffers(1, &geometry->normalBuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, geometry->normalBuffer);
+		
+		// create a vertex array object encapsulating all our vertex attributes
+		glGenVertexArrays(1, &geometry->vertexArray);
+		glBindVertexArray(geometry->vertexArray);
+
+		// associate the position array with the vertex array object
+		glBindBuffer(GL_ARRAY_BUFFER, geometry->vertexBuffer);
+		glVertexAttribPointer(VERTEX_POSITION_LOCATION, 3, GL_FLOAT, GL_FALSE, 0, 0);
+		glEnableVertexAttribArray(VERTEX_POSITION_LOCATION);
+
+		// assocaite the colour array with the vertex array object
+		glBindBuffer(GL_ARRAY_BUFFER, geometry->normalBuffer);
+		glVertexAttribPointer(VERTEX_NORMAL_LOCATION, 3, GL_FLOAT, GL_FALSE, 0, 0);
+		glEnableVertexAttribArray(VERTEX_NORMAL_LOCATION);
+
+		// unbind our buffers, resetting to default state
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindVertexArray(0);
+	}
+
 	void loadGeometry(MyGeometry* geometry, char* path) {
 		vector<vec3> vertices, normals, bufferVertices, bufferNormals;
 		FILE * file = fopen(path, "r");
@@ -770,34 +808,8 @@ namespace Graphics {
 			}
 		}
 
-		geometry->elementCount = bufferVertices.size();
-
-		glGenBuffers(1, &geometry->vertexBuffer);
-		glBindBuffer(GL_ARRAY_BUFFER, geometry->vertexBuffer);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(vec3)*bufferVertices.size(), &bufferVertices[0], GL_STATIC_DRAW);
-
-		// create another one for storing our colours
-		glGenBuffers(1, &geometry->normalBuffer);
-		glBindBuffer(GL_ARRAY_BUFFER, geometry->normalBuffer);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(vec3)*bufferNormals.size(), &bufferNormals[0], GL_STATIC_DRAW);
-
-		// create a vertex array object encapsulating all our vertex attributes
-		glGenVertexArrays(1, &geometry->vertexArray);
-		glBindVertexArray(geometry->vertexArray);
-
-		// associate the position array with the vertex array object
-		glBindBuffer(GL_ARRAY_BUFFER, geometry->vertexBuffer);
-		glVertexAttribPointer(VERTEX_POSITION_LOCATION, 3, GL_FLOAT, GL_FALSE, 0, 0);
-		glEnableVertexAttribArray(VERTEX_POSITION_LOCATION);
-
-		// assocaite the colour array with the vertex array object
-		glBindBuffer(GL_ARRAY_BUFFER, geometry->normalBuffer);
-		glVertexAttribPointer(VERTEX_NORMAL_LOCATION, 3, GL_FLOAT, GL_FALSE, 0, 0);
-		glEnableVertexAttribArray(VERTEX_NORMAL_LOCATION);
-
-		// unbind our buffers, resetting to default state
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		glBindVertexArray(0);
+		initGeometry(geometry);
+		bufferGeometry(geometry, bufferVertices, bufferNormals);
 	}
 
 }

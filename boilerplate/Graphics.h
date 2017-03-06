@@ -104,6 +104,9 @@ namespace Graphics {
 		MyFrameBuffer() :fbo(0), texture(0), rbo(0) {}
 	};
 
+
+	void bufferGeometry(MyGeometry* geometry, const std::vector<glm::vec3>& pos, const std::vector<glm::vec3>& nor);
+	void initGeometry(MyGeometry* geometry);
 	void loadGeometry(MyGeometry* geometry, char* path);
 	void Render(MyGeometry *geometry, void(*material)(), glm::mat4 transform);
 	bool InitializeShaders(MyShader *shader, const std::string vertex, const std::string fragment);
