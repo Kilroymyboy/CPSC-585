@@ -211,18 +211,19 @@ void Aventador::updateFriction() {
 
 void Aventador::updateSteering() {
 
-	if (Time::time > dChangeTime && aventadorData.isAI) {
-		dChangeTime += dCoolDown;
-		randDirection = pseudoRand() % 3;
-
-		if (randDirection == 0) {
-			wheelAngle += 1.0;
-		}
-		else if (randDirection == 1) {
-			wheelAngle -= 1.0;
-		}
-		else if (randDirection == 2) {
-			wheelAngle *= 1.0;
+	if (aventadorData.isAI) {
+		if (Time::time > dChangeTime) {
+			dChangeTime += dCoolDown;
+			randDirection = pseudoRand() % 3;
+			if (randDirection == 0) {
+				wheelAngle += 0.5;
+			}
+			else if (randDirection == 1) {
+				wheelAngle -= 0.5;
+			}
+			else if (randDirection == 2) {
+				wheelAngle *= 0.5;
+			}
 		}
 	}
 	else {
