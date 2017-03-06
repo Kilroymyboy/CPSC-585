@@ -200,9 +200,10 @@ void Aventador::updateFriction() {
 			vec3 forwardv = proj(Util::p2g(wspeed), wheeld); forwardv.y = 0;
 			vec3 frictionv = Util::p2g(wspeed) - forwardv;
 			vec3 frictiond = -normalize(frictionv); frictiond.y = 0;
-			PxRigidBodyExt::addForceAtPos(*actor, Util::g2p(frictiond / (1 + tireHeat[i]))*min(wspeed.magnitude() * aventadorData.wheelSideFriction, aventadorData.wheelSideMaxFriction),
-				Util::g2p(transform*vec4(wheelPos[i] - vec3(0, aventadorData.dimensionHeight, 0), 1)), PxForceMode::eFORCE);
-			PxRigidBodyExt::addForceAtPos(*actor, Util::g2p(-normalize(forwardv)*brakeForce),
+			PxVec3 sideFriction = Util::g2p(frictiond / (1 + tireHeat[i]))*min(wspeed.magnitude() * aventadorData.wheelSideFriction, aventadorData.wheelSideMaxFriction),
+				brakeFriction = Util::g2p(-normalize(forwardv)*brakeForce);
+
+			PxRigidBodyExt::addForceAtPos(*actor, sideFriction + brakeFriction,
 				Util::g2p(transform*vec4(wheelPos[i] - vec3(0, aventadorData.dimensionHeight, 0), 1)), PxForceMode::eFORCE);
 			tireHeat[i] += length(frictionv) *aventadorData.tireHeatIncrease[i];
 		}

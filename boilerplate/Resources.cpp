@@ -55,8 +55,8 @@ namespace Resources {
 	}
 
 	void emmisiveMaterial() {
-		glUniform3f(COLOR_LOCATION, 0.0f, 0.0f, 0.0f);
-		glUniform3f(EMISSION_COLOR_LOCATION, 1.05f, 1.05f, 1.05f);
+		glUniform3f(COLOR_LOCATION, 1.0f, 1.0f, 1.0f);
+		glUniform3f(EMISSION_COLOR_LOCATION, 0.0f, 0.0f, 0.0f);
 	}
 
 }

@@ -4,6 +4,15 @@ using namespace std;
 using namespace glm;
 using namespace physx;
 
+const float thickness = 4;
+
+const std::vector<glm::vec3> displacements{
+	glm::vec3(-thickness,0,thickness),
+	glm::vec3(thickness,0,thickness),
+	glm::vec3(thickness,0,-thickness),
+	glm::vec3(-thickness,0,-thickness)
+};
+
 void initPathGeometry(Graphics::MyGeometry* geometry, int size) {
 	vector<vec3> normals;
 	for (int i = 0; i < 6 * (size + 1); i++)
@@ -37,10 +46,11 @@ void initPathGeometry(Graphics::MyGeometry* geometry, int size) {
 	glBindVertexArray(0);
 }
 
-Path::Path(int geometrySize) {
+Path::Path(int geometrySize, int wheel0, int wheel1) {
 	size = geometrySize;
-	thickness = 1.5;
 	initPathGeometry(&geometry, size);
+	this->wheel0 = wheel0;
+	this->wheel1 = wheel1;
 	cooldown = 0.1;
 	nextGenTime = Time::time + cooldown;
 	for (int i = 0; i < (size + 1) * 2; i++) {
@@ -75,21 +85,20 @@ void Path::update(mat4 parentTransform) {
 			v.push_back(positions[i]);
 		}
 		mat4 m = Game::aventador0.get()->transform;
-		vec3 pl = vec3(m*vec4(Game::aventador0.get()->wheelPos[1] + vec3(thickness, 0, 0), 1));
-		vec3 pr = vec3(m*vec4(Game::aventador0.get()->wheelPos[0] - vec3(thickness, 0, 0), 1));
+		vec3 pl = vec3(m*vec4(Game::aventador0.get()->wheelPos[wheel0] + displacements[wheel0], 1));
+		vec3 pr = vec3(m*vec4(Game::aventador0.get()->wheelPos[wheel1] + displacements[wheel1], 1));
 		pl.y = pr.y = 0;
 		v.push_back(pl);
 		v.push_back(pr);
 		positions = v;
-
 	}
 
 	{
 		positions.pop_back();
 		positions.pop_back();
 		mat4 m = Game::aventador0.get()->transform;
-		vec3 pl = vec3(m*vec4(Game::aventador0.get()->wheelPos[1] + vec3(thickness, 0, thickness), 1));
-		vec3 pr = vec3(m*vec4(Game::aventador0.get()->wheelPos[0] - vec3(thickness, 0, -thickness), 1));
+		vec3 pl = vec3(m*vec4(Game::aventador0.get()->wheelPos[wheel0] + displacements[wheel0], 1));
+		vec3 pr = vec3(m*vec4(Game::aventador0.get()->wheelPos[wheel1] + displacements[wheel1], 1));
 		pl.y = pr.y = 0;
 		positions.push_back(pl);
 		positions.push_back(pr);
