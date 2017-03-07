@@ -1,10 +1,13 @@
 #include "PowerUp.h"
+#include "Game.h"
 using namespace std;
 using namespace glm;
 using namespace physx;
 
 PowerUp::PowerUp() {
 	powerId = pseudoRand() % 2; //0 or 1;
+	deleteTime = Time::time += countDown;
+
 	PxTransform t(getRandLocation(), PxQuat::createIdentity());
 	PxVec3 dimensions(0.5f, 0.5f, 0.5f);
 	actor = PhysicsManager::createDynamic(t, dimensions);
@@ -37,6 +40,13 @@ void PowerUp::update(mat4 parentTransform) {
 	transform = m;
 
 	Light::renderShadowMap(&Resources::centeredCube, transform);
+
+	/* attempt to delete after X seconds
+	if (Time::time > deleteTime) {
+		deleteTime += countDown;
+		alive = false;
+	}
+	*/
 }
 
 void PowerUp::render(mat4 parentTransform) {

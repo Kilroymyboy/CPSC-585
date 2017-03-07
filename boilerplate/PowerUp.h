@@ -5,8 +5,11 @@
 #include "Graphics.h"
 #include "FilterGroup.h"
 
-class PowerUp :public Entity {
+class PowerUp : public Entity {
 	physx::PxRigidDynamic *actor;
+	double countDown = 3.0;
+	double deleteTime;
+
 	int powerId;
 	int pseudoRand();
 
