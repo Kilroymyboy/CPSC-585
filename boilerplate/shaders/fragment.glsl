@@ -12,20 +12,17 @@
 // interpolated colour received from vertex stage
 in vec3 Normal;
 in vec4 ShadowCoord;
+in vec3 Color;
+in vec3 EmissionColor;
 
-layout(location = 6) uniform mat4 Projection;
-layout(location = 7) uniform mat4 View;
-//layout(location = 8) uniform mat4 Model;
+layout(location = 8) uniform mat4 Projection;
+layout(location = 9) uniform mat4 View;
 
-layout(location = 9) uniform vec3 LightDirection;
-layout(location = 10) uniform vec3 AmbientLight;
+layout(location = 10) uniform vec3 LightDirection;
+layout(location = 11) uniform vec3 AmbientLight;
 
-layout(location = 11) uniform vec3 Color;
-layout(location = 12) uniform vec3 EmissionColor;
-
-layout(location = 13) uniform mat4 shadowMVP;
-
-layout(location = 14) uniform int softShadow;
+layout(location = 12) uniform mat4 shadowMVP;
+layout(location = 13) uniform int softShadow;
 
 uniform sampler2D shadowMap;
 
