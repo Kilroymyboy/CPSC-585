@@ -20,10 +20,6 @@ namespace Resources {
 		Graphics::loadGeometry(&centeredCube, "models/cube_center.obj");
 	}
 
-	void nullMaterial() {
-
-	}
-
 	Graphics::Material defaultMaterial(glm::vec3(1));
 	Graphics::Material darkGreyMaterial(glm::vec3(.15));
 	Graphics::Material emmisiveMaterial(glm::vec3(1), glm::vec3(1.7, 4.2, 11.2));

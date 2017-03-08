@@ -9,8 +9,6 @@ namespace Resources {
 
 	void init();
 
-	void nullMaterial();
-
 	extern Graphics::Material defaultMaterial;
 	extern Graphics::Material darkGreyMaterial;
 	extern Graphics::Material emmisiveMaterial;
