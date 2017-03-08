@@ -3,6 +3,13 @@ using namespace std;
 using namespace Sound;
 namespace Sound 
 {
+	ALuint setSource(ALuint source);
+	void list_audio_devices(const ALCchar *devices);
+	void checkError();
+	char* findPathToFile();
+	ALenum formatWav(wavFile wav);
+	wavFile openWavFile(std::string fileName, wavFile toPlay);
+
 	wavFile wav, wav2, wav3, wav4; //creative names later
 	void init()
 	{
