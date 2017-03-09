@@ -10,7 +10,8 @@
 
 namespace Sound
 {
-	struct wavFile {
+	struct wavInfo {
+
 		char type[4];
 		DWORD size, chunkSize;
 		short formatType, channels;
@@ -21,12 +22,13 @@ namespace Sound
 		ALuint source;
 		ALenum format;
 		unsigned char* songBuf;
-
 	};
 
 	void init();
 	void destroy();
 	void setListener();
+	void list_audio_devices(const ALCchar *devices);
+	void playSound(ALuint a);
 
 	extern ALCdevice device;
 	extern ALCcontext *ctx;

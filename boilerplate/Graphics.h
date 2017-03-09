@@ -45,7 +45,7 @@
 #define EFFECTS 0
 #define HDR_ENABLED 0
 
-#define PRINT_DRAW_CALLS 1
+#define PRINT_DRAW_CALLS 0
 
 namespace Graphics {
 	extern bool SPLIT_SCREEN;
