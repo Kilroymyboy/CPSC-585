@@ -53,6 +53,7 @@ Aventador::Aventador(int id) {
 		actor->setName("front");
 		aventadorData.isAI = true;
 		aventadorData.force = 30;
+		aventadorData.wheelTurnRate = 0.5;
 		dChangeTime = Time::time += dCoolDown;
 	}
 	else {
@@ -216,13 +217,13 @@ void Aventador::updateSteering() {
 			dChangeTime += dCoolDown;
 			randDirection = pseudoRand() % 3;
 			if (randDirection == 0) {
-				wheelAngle += 0.5;
+				wheelAngle += aventadorData.wheelTurnRate;
 			}
 			else if (randDirection == 1) {
-				wheelAngle -= 0.5;
+				wheelAngle -= aventadorData.wheelTurnRate;
 			}
 			else if (randDirection == 2) {
-				wheelAngle *= 0.5;
+				wheelAngle *= aventadorData.wheelTurnRate;
 			}
 		}
 	}

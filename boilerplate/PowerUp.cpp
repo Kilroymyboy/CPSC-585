@@ -6,7 +6,7 @@ using namespace physx;
 
 PowerUp::PowerUp() {
 	powerId = pseudoRand() % 2; //0 or 1;
-	deleteTime = Time::time += countDown;
+	deleteTime = Time::time += countDown+20; //allows at most 6 power ups at a time
 
 	PxTransform t(getRandLocation(), PxQuat::createIdentity());
 	PxVec3 dimensions(0.5f, 0.5f, 0.5f);
@@ -41,12 +41,12 @@ void PowerUp::update(mat4 parentTransform) {
 
 	Light::renderShadowMap(&Resources::centeredCube, transform);
 
-	/* attempt to delete after X seconds
+	// power up time out
 	if (Time::time > deleteTime) {
 		deleteTime += countDown;
 		alive = false;
 	}
-	*/
+	
 }
 
 void PowerUp::render(mat4 parentTransform) {

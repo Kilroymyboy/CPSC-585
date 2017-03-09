@@ -7,7 +7,7 @@
 
 class PowerUp : public Entity {
 	physx::PxRigidDynamic *actor;
-	double countDown = 3.0;
+	double countDown = 8.0;
 	double deleteTime;
 
 	int powerId;
