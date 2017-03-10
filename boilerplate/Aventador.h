@@ -16,8 +16,8 @@ public:
 	float maxWheelAngle = PI / 5;
 	float dimensionHeight = 0.45;
 	float maxWheelDist = 0.46;
-	float wheelTurnRate = 0.015;
-	float wheelReurnRate = 0.925;
+	float wheelTurnRate = 0.01;
+	float wheelReurnRate = 0.85;
 
 	float force = 45;
 	float wheelSideFriction = 6.25;
