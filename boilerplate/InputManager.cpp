@@ -14,8 +14,8 @@ InputManager::~InputManager()
 {
 }
 
-Gamepad controller1 = Gamepad(0);
-Gamepad controller2 = Gamepad(1);
+Gamepad controller1 = Gamepad(1);
+Gamepad controller2 = Gamepad(2);
 
 //has wasd and qe for keys mapped if we want player 2 on keyboard since the numpad mapping is actually just 1=a and so on up to 9 will have to use some other mapping
 void InputManager::keyBoard(unsigned char key, int x, int y)
