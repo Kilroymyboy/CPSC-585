@@ -11,23 +11,17 @@ PowerUp::PowerUp() {
 	PxTransform t(getRandLocation(), PxQuat::createIdentity());
 	PxVec3 dimensions(0.5f, 0.5f, 0.5f);
 	actor = PhysicsManager::createDynamic(t, dimensions);
-	actor->setName("powerup");
-
-	/*
-		note:	eIGNORE_CONACT causes the cubes to fall through the infinite ground plane
-					-eDISABLE_GRAVITY is a work around for this
-				This flag does not have the same effect for a aventators for some reason
-					-possibly because of the wheels?
-	*/
 	actor->userData = (void*)ContactModFlags::eIGNORE_CONTACT;
-	actor->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, true);
+	//actor->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, true);
 	//PhysicsManager::attachTriggerShape(actor, dimensions);
 	PhysicsManager::attachSimulationShape(actor, dimensions, 0);
+	PhysicsManager::setContactFilter(actor, FilterGroup::ePowerUp, FilterGroup::eAventador);
+
 	if (powerId == 0) {
-		PhysicsManager::setContactFilter(actor, FilterGroup::ePowerUp0, FilterGroup::eAventador0);
+		actor->setName("powerup0");
 	}
 	else {
-		PhysicsManager::setContactFilter(actor, FilterGroup::ePowerUp1, FilterGroup::eAventador1);
+		actor->setName("powerup1");
 	}
 }
 

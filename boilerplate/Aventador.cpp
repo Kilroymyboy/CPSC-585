@@ -48,8 +48,8 @@ Aventador::Aventador(int id) {
 	actor->setAngularDamping(0.8);
 	actor->setLinearDamping(0.5);
 	PhysicsManager::attachSimulationShape(actor, dimensions,200);
+	PhysicsManager::setContactFilter(actor, FilterGroup::eAventador, FilterGroup::eAventador | FilterGroup::ePowerUp);
 	if (aventadorId == 0) {
-		PhysicsManager::setContactFilter(actor, FilterGroup::eAventador0, FilterGroup::eAventador1 | FilterGroup::ePowerUp0);
 		aventadorData.isFront = true;
 		//aventadorData.isAI = true;
 		aventadorData.force = 30;
@@ -57,8 +57,7 @@ Aventador::Aventador(int id) {
 		dChangeTime = Time::time += dCoolDown;
 	}
 	else {
-		PhysicsManager::setContactFilter(actor, FilterGroup::eAventador1, FilterGroup::eAventador0 | FilterGroup::ePowerUp1);
-		aventadorData.isFront = true;
+		aventadorData.isFront = false;
 	}
 
 	//Setting contact modification flags

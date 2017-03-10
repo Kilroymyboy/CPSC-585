@@ -181,12 +181,12 @@ namespace PhysicsManager {
 		}
 
 		// Generate a default contact report
-		pairFlags |= PxPairFlag::eCONTACT_DEFAULT | PxPairFlag::eMODIFY_CONTACTS;
+		pairFlags |= PxPairFlag::eCONTACT_DEFAULT;
 
 		//check if the filter group and mask match
 		if ((filterData0.word0 & filterData1.word1) && (filterData1.word0 & filterData0.word1))
 		{
-			pairFlags |= PxPairFlag::eNOTIFY_TOUCH_FOUND;
+			pairFlags |= PxPairFlag::eNOTIFY_TOUCH_FOUND | PxPairFlag::eMODIFY_CONTACTS;
 		}
 
 		// Add the Continuous Collision Detection (CCD) flag, so that
@@ -213,50 +213,55 @@ void ContactBehaviourCallback::onContact(const PxContactPairHeader& pairHeader, 
 		{
 			PxRigidActor* a0 = Game::aventador0->getActor();
 			PxRigidActor* a1 = Game::aventador1->getActor();
+			const char* name0 = "powerup0";
+			const char* name1 = "powerup1";
 			bool isAventador0 = pairHeader.actors[0] == a0 || pairHeader.actors[1] == a0;
 			bool isAventador1 = pairHeader.actors[0] == a1 || pairHeader.actors[1] == a1;
-			bool isPowerUp = pairHeader.actors[0]->getName() == "powerup" || pairHeader.actors[1]->getName() == "powerup";
+			bool isPowerUp0 = pairHeader.actors[0]->getName() == name0 || pairHeader.actors[1]->getName() == name0;
+			bool isPowerUp1 = pairHeader.actors[0]->getName() == name1 || pairHeader.actors[1]->getName() == name1;
+			//bool isPowerUp = strcmp(pairHeader.actors[0]->getName(),"powerUp") || strcmp(pairHeader.actors[1]->getName(), "powerUp");
+
 
 			if (isAventador0 && isAventador1) {
 				std::cout << "Aventador made contact with another aventador\n";
 
 				Game::switchRole();
 
-				//PxTransform pose(PxVec3(0, 1, 0));
-				//a0->setGlobalPose(pose);
-				
 				break;
 			}
-			else if (isPowerUp) {
+			else if (isPowerUp0 && isAventador0) {
 				//remove the power up from the scene
-				PxRigidActor* pickedUp = (pairHeader.actors[0]->getName() == "powerup") ? pairHeader.actors[0] : pairHeader.actors[1];
-				PxRigidActor* aventador = (pairHeader.actors[0]->getName() == "powerup") ? pairHeader.actors[1] : pairHeader.actors[0];
+				PxRigidActor* pickedUp = (pairHeader.actors[0]->getName() == name0) ? pairHeader.actors[0] : pairHeader.actors[1];
 				auto power = find_if(Game::entities.begin(), Game::entities.end(), [&](std::shared_ptr<Entity>toFind) {
 					PowerUp* power = static_cast<PowerUp*>(toFind.get());
 					return power->getActor() == pickedUp; });
-
 				if (power != Game::entities.end()) {
 					Game::entities.erase(power);
 				}
-
-				if (isAventador0) {
-					std::cout << "aventador0 contacted a power up\n";
-					//have aventador hold the power up. Holds one power up at a time
-					Aventador* a = Game::aventador0.get();
-					if (!a->hasPowerUp()) {
-						a->setPowerUpStatus(true);
-					}
-					break;
+				std::cout << "aventador0 contacted a power up\n";
+				//have aventador hold the power up. Holds one power up at a time
+				Aventador* a = Game::aventador0.get();
+				if (!a->hasPowerUp()) {
+					a->setPowerUpStatus(true);
 				}
-				else if (isAventador1) {
-					std::cout << "aventador0 contacted a power up\n";
-					//have aventador hold the power up. Holds one power up at a time
-					Aventador* a = Game::aventador1.get();
-					if (!a->hasPowerUp()) {
-						a->setPowerUpStatus(true);
-					}
-					break;
+				break;
+			}
+			else if (isPowerUp1 && isAventador1) {
+				//remove the power up from the scene
+				PxRigidActor* pickedUp = (pairHeader.actors[0]->getName() == name1) ? pairHeader.actors[0] : pairHeader.actors[1];
+				auto power = find_if(Game::entities.begin(), Game::entities.end(), [&](std::shared_ptr<Entity>toFind) {
+					PowerUp* power = static_cast<PowerUp*>(toFind.get());
+					return power->getActor() == pickedUp; });
+				if (power != Game::entities.end()) {
+					Game::entities.erase(power);
 				}
+				std::cout << "aventador0 contacted a power up\n";
+				//have aventador hold the power up. Holds one power up at a time
+				Aventador* a = Game::aventador1.get();
+				if (!a->hasPowerUp()) {
+					a->setPowerUpStatus(true);
+				}
+				break;
 			}
 		}
 	}
