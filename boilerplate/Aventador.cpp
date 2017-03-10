@@ -50,19 +50,19 @@ Aventador::Aventador(int id) {
 	PhysicsManager::attachSimulationShape(actor, dimensions,200);
 	if (aventadorId == 0) {
 		PhysicsManager::setContactFilter(actor, FilterGroup::eAventador0, FilterGroup::eAventador1 | FilterGroup::ePowerUp0);
-		actor->setName("front");
-		aventadorData.isAI = true;
+		aventadorData.isFront = true;
+		//aventadorData.isAI = true;
 		aventadorData.force = 30;
 		aventadorData.wheelTurnRate = 0.5;
 		dChangeTime = Time::time += dCoolDown;
 	}
 	else {
 		PhysicsManager::setContactFilter(actor, FilterGroup::eAventador1, FilterGroup::eAventador0 | FilterGroup::ePowerUp1);
-		actor->setName("back");
+		aventadorData.isFront = true;
 	}
 
 	//Setting contact modification flags
-	actor->userData = (void*)(ContactModFlags::eIGNORE_CONTACT | ContactModFlags::eTARGET_VELOCITY);
+	actor->userData = (void*)(ContactModFlags::eIGNORE_CONTACT);
 }
 
 void Aventador::update(glm::mat4 parentTransform) {
@@ -282,6 +282,10 @@ bool Aventador::hasPowerUp() {
 }
 void Aventador::setPowerUpStatus(bool status) {
 	aventadorData.powerStatus = status;
+}
+
+void Aventador::changeRole() {
+	aventadorData.isFront = !aventadorData.isFront;
 }
 
 int Aventador::pseudoRand() {

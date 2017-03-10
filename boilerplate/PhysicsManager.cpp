@@ -217,27 +217,13 @@ void ContactBehaviourCallback::onContact(const PxContactPairHeader& pairHeader, 
 			bool isAventador1 = pairHeader.actors[0] == a1 || pairHeader.actors[1] == a1;
 			bool isPowerUp = pairHeader.actors[0]->getName() == "powerup" || pairHeader.actors[1]->getName() == "powerup";
 
-			/*swtiching the front/back roles
-				setName() is not allowed here. Need to figure out another way
-			*/
 			if (isAventador0 && isAventador1) {
 				std::cout << "Aventador made contact with another aventador\n";
 
-				/*
-				if (a0->getName() == "front") {
-					a0->setName("back");
-					a1->setName("front");
-				}
-				else {
-					a0->setName("front");
-					a1->setName("back");
-				}
-				*/
+				Game::switchRole();
 
-				//for testing: force one of the actors to change positions.
-				//	-causes an overwrite error
-				PxTransform pose(PxVec3(0, 1, 0));
-				a0->setGlobalPose(pose);
+				//PxTransform pose(PxVec3(0, 1, 0));
+				//a0->setGlobalPose(pose);
 				
 				break;
 			}

@@ -20,6 +20,7 @@ namespace Game {
 	extern std::shared_ptr<Aventador> aventador1;
 	void init();
 	void update();
+	void switchRole();
 }
 
 namespace Time {

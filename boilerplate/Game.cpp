@@ -46,6 +46,11 @@ namespace Game {
 			entities.push_back(shared_ptr<Entity>(new PowerUp()));
 		}
 	}
+
+	void switchRole() {
+		aventador0->changeRole();
+		aventador1->changeRole();
+	}
 }
 
 namespace Time {
