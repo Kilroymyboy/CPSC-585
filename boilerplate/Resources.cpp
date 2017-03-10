@@ -39,13 +39,24 @@ namespace Resources {
 		glUniform3f(EMISSION_COLOR_LOCATION, 0.0f, 0.0f, 0.0f);
 	}
 
+	void coralMaterial() {
+		glUniform3f(COLOR_LOCATION, 0.0f, 0.0f, 0.0f);
+		glUniform3f(EMISSION_COLOR_LOCATION, 1.00f, 0.49f, 0.31f);
+	}
+
+	void paleGreenMaterial() {
+		glUniform3f(COLOR_LOCATION, 0.0f, 0.0f, 0.0f);
+		glUniform3f(EMISSION_COLOR_LOCATION, 0.49f, 0.80f, 0.49f);
+	}
+
 	void emmisiveBlueMaterial() {
 		glUniform3f(COLOR_LOCATION, 0.0f, 0.0f, 0.0f);
 		glUniform3f(EMISSION_COLOR_LOCATION, 1.75f, 4.25f, 11.25f);
 	}
 
 	void emmisiveMaterial() {
-		glUniform3f(COLOR_LOCATION, 0.0f, 0.0f, 0.0f);
-		glUniform3f(EMISSION_COLOR_LOCATION, 1.05f, 1.05f, 1.05f);
+		glUniform3f(COLOR_LOCATION, 1.0f, 1.0f, 1.0f);
+		glUniform3f(EMISSION_COLOR_LOCATION, 0.0f, 0.0f, 0.0f);
 	}
+
 }

@@ -24,15 +24,16 @@
 
 #define VERTEX_POSITION_LOCATION 0
 #define VERTEX_NORMAL_LOCATION 1
-#define PROJECTION_LOCATION 2
-#define VIEW_LOCATION 3
-#define MODEL_LOCATION 4
-#define LIGHT_LOCATION 5
-#define AMBIENT_LOCATION 6
-#define COLOR_LOCATION 7
-#define EMISSION_COLOR_LOCATION 8
-#define SHADOW_MVP_LOCATION 9
-#define SOFT_SHADOW_LOCATION 10
+#define TRANSFORM_LOCATION 2
+#define PROJECTION_LOCATION 3
+#define VIEW_LOCATION 4
+#define MODEL_LOCATION 5
+#define LIGHT_LOCATION 6
+#define AMBIENT_LOCATION 7
+#define COLOR_LOCATION 8
+#define EMISSION_COLOR_LOCATION 9
+#define SHADOW_MVP_LOCATION 10
+#define SOFT_SHADOW_LOCATION 11
 
 #define WINDOW_WIDTH 1280
 #define WINDOW_HEIGHT 720
@@ -40,6 +41,9 @@
 #define MSAA 2
 #define VSYNC 1
 #define SHADOWMAP_SIZE 1600
+
+#define BLOOM_DOWNSAMPLE 2
+#define BLOOM_DOWNSAMPLE1 8
 
 #define EFFECTS 1
 #define HDR_ENABLED 1
@@ -128,7 +132,7 @@ namespace Light {
 	extern std::vector<glm::vec3> position, target, direction;
 
 	void init(int);
-	void update();
+	void update(int);
 	void renderShadowMap(Graphics::MyGeometry* geometry, glm::mat4 obj);
 }
 

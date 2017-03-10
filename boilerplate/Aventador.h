@@ -4,6 +4,7 @@
 #include "Resources.h"
 #include "InputManager.h"
 #include "Graphics.h"
+#include "FilterGroup.h"
 #include <vector>
 #include <list>
 #include <memory>
@@ -15,8 +16,8 @@ public:
 	float maxWheelAngle = PI / 5;
 	float dimensionHeight = 0.45;
 	float maxWheelDist = 0.46;
-	float wheelTurnRate = 0.015;
-	float wheelReurnRate = 0.925;
+	float wheelTurnRate = 0.01;
+	float wheelReurnRate = 0.85;
 
 	float force = 45;
 	float wheelSideFriction = 6.25;
@@ -30,6 +31,9 @@ public:
 	float tireHeatDecrease = 0.45;
 	float tireHeatFastDecrease = 0.1;
 	float manualTireHeatIncrease = 0.15;
+
+	bool powerStatus = false;
+	bool isAI = false;
 };
 
 class AventadorWheel :public Entity {
@@ -48,10 +52,11 @@ public:
 class Aventador : public Entity {
 	int aventadorId;
 
+	physx::PxRigidDynamic *actor;
+
 	glm::mat4 tempTransform;
 	glm::mat3 inverseRotation;
 	glm::vec3 modelDisplacement;
-	physx::PxRigidDynamic *actor;
 
 	std::vector<bool> wheelHit;
 	std::vector<physx::PxRaycastBuffer> wheelHitInfo;
@@ -71,6 +76,11 @@ class Aventador : public Entity {
 	float wheelAngle;
 	float brakeForce;
 	std::vector<float> tireHeat;
+
+	double dCoolDown = 0.25;
+	double dChangeTime;
+	int randDirection;
+
 public:
 	// 0: front right, 1: front left, 2: rear left, 3: rear right
 	std::vector<std::unique_ptr<AventadorWheel> > wheel;
@@ -78,5 +88,10 @@ public:
 	void update(glm::mat4 parentTransform)override;
 	void renderShadowMap(glm::mat4 parentTransform)override;
 	void render(glm::mat4 parentTransform)override;
+	physx::PxRigidDynamic *const getActor();
+	bool hasPowerUp();
+	void setPowerUpStatus(bool status);
 	Aventador(int);
+
+	int Aventador::pseudoRand();
 };
