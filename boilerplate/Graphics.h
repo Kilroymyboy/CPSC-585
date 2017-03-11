@@ -37,7 +37,7 @@
 #define WINDOW_WIDTH 1280
 #define WINDOW_HEIGHT 720
 
-#define MSAA 2
+#define MSAA 4
 #define VSYNC 1
 #define SHADOWMAP_SIZE 1600
 

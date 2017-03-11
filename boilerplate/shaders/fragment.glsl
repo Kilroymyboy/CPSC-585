@@ -37,7 +37,7 @@ void main(void)
     FragmentColour.xyz+=AmbientLight;
 
 	int hits=0;
-	float bias = 0.002*tan(acos(cosTheta));
+	float bias = 0.0005*tan(acos(cosTheta));
 	bias = max(0, min(0.004, bias));
 	
 	int maxHits=softShadow*2+1;
@@ -45,7 +45,7 @@ void main(void)
 	if(ShadowCoord.x<0||ShadowCoord.x>1||ShadowCoord.y<0||ShadowCoord.y>1)
 		hits=maxHits;
 	else for(int i=-softShadow;i<=softShadow;i++)for(int j=-softShadow;j<=softShadow;j++)
-		if(texture(shadowMap, ShadowCoord.xy+vec2(j/2400.1,i/1600.9)).x >= ShadowCoord.z - bias)
+		if(texture(shadowMap, ShadowCoord.xy+vec2(j/1600.1,i/1600.9)).x >= ShadowCoord.z - bias)
 			hits++;
 	FragmentColour.xyz*=Color*hits/maxHits;
 	FragmentColour.xyz+=EmissionColor;

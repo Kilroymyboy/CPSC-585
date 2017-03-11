@@ -26,7 +26,7 @@ public:
 	float brakeSpeed = 0.8;
 	float maxBrakeForce = 60;
 
-	std::vector<float> tireHeatIncrease{ 0.006f,0.006f,0.02f,0.02f };
+	std::vector<float> tireHeatIncrease{ 0.00f,0.00f,0.0f,0.0f };
 	float tireHeatDecrease = 0.45;
 	float tireHeatFastDecrease = 0.1;
 	float manualTireHeatIncrease = 0.15;

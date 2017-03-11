@@ -28,6 +28,12 @@
     <Filter Include="Header Files\Game">
       <UniqueIdentifier>{402b5cb3-bddb-4f38-b8a2-6b8b7baa137e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Geometry">
+      <UniqueIdentifier>{b126d77b-0daf-4de0-bf87-ac4dd23d342e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Geometry">
+      <UniqueIdentifier>{d8b38d6d-93c2-4952-b66c-bca15d3a8609}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\middleware\glad\src\glad.c">
@@ -66,6 +72,9 @@
     <ClCompile Include="Entity.cpp">
       <Filter>Source Files\Game</Filter>
     </ClCompile>
+    <ClCompile Include="Geometry.cpp">
+      <Filter>Source Files\Geometry</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Graphics.h">
@@ -100,6 +109,9 @@
     </ClInclude>
     <ClInclude Include="Entity.h">
       <Filter>Header Files\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Geometry.h">
+      <Filter>Header Files\Geometry</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

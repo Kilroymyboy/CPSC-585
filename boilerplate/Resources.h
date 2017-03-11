@@ -4,8 +4,9 @@
 
 namespace Resources {
 	extern Graphics::MyGeometry aventadorBody, aventadorBodyGlow, aventadorUnder, aventadorWheel, aventadorWheelGlow;
-	extern Graphics::MyGeometry plane, cube, centeredCube;
+	extern Graphics::MyGeometry plane, cube, centeredCube, simplePlane;
 	extern Graphics::MyShader standardShader;
+	extern Graphics::MyGeometry gridLines;
 
 	void init();
 
