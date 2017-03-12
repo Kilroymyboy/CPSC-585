@@ -262,8 +262,9 @@ namespace Graphics {
 		if (SPLIT_SCREEN) RenderId(geometry, material, transform, 1);
 	}
 
-	void RenderInstanced(MyGeometry *geometry, mat4 transform) {
+	void RenderInstanced(MyGeometry *geometry, Material* material, mat4 transform) {
 		geometry->transforms.push_back(transform);
+		geometry->materials.push_back(material);
 	}
 
 	void flushInstancedGeometryId(MyGeometry *geometry, int id) {
@@ -311,8 +312,13 @@ namespace Graphics {
 		glBindVertexArray(0);
 
 		vector<vec3> c, ec;
-		c.assign(geometry->transforms.size(), vec3(0));
-		ec.assign(geometry->transforms.size(), vec3(1));
+		c.resize(geometry->transforms.size());
+		ec.resize(geometry->transforms.size());
+
+		for (int i = 0; i < geometry->transforms.size(); i++) {
+			c[i] = geometry->materials[i]->color;
+			ec[i] = geometry->materials[i]->emmisiveColor;
+		}
 
 		glBindBuffer(GL_ARRAY_BUFFER, geometry->colorBuffer);
 		glBufferData(GL_ARRAY_BUFFER, sizeof(vec3)*c.size(), &c[0], GL_DYNAMIC_DRAW);
@@ -332,8 +338,8 @@ namespace Graphics {
 		// unbind our buffers, resetting to default state
 		glBindVertexArray(geometry->vertexArray);
 
-	//	glUniform3f(COLOR_LOCATION, 1.0f, 1.0f, 1.0f);
-	//	glUniform3f(EMISSION_COLOR_LOCATION, 0.0f, 0.0f, 0.0f);
+		//	glUniform3f(COLOR_LOCATION, 1.0f, 1.0f, 1.0f);
+		//	glUniform3f(EMISSION_COLOR_LOCATION, 0.0f, 0.0f, 0.0f);
 		Viewport::update(id);
 		Light::update(id);
 
@@ -358,6 +364,7 @@ namespace Graphics {
 		flushInstancedGeometryId(geometry, 0);
 		if (SPLIT_SCREEN)flushInstancedGeometryId(geometry, 1);
 		geometry->transforms.clear();
+		geometry->materials.clear();
 	}
 
 	void QueryGLVersion()

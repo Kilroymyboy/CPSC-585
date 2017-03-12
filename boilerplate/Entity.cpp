@@ -3,6 +3,7 @@
 #include "InputManager.h"
 #include "Aventador.h"
 #include "Path.h"
+#include "Resources.h"
 
 using namespace std;
 using namespace glm;
@@ -14,12 +15,7 @@ void Plane::update(glm::mat4 parentTransform) {
 }
 
 void Plane::render(glm::mat4 parentTransform) {
-//	for (int i = -15; i < 16; i++) {
-	//	for (int j = -15; j < 16; j++) {
-	//		mat4 t = translate(transform, vec3(i * 16, 0, j * 16));
-			Graphics::RenderInstanced(&Resources::gridLines, parentTransform);
-//		}
-//	}
+	Graphics::RenderInstanced(&Resources::gridLines, &Resources::defaultMaterial, parentTransform);
 }
 
 void Cube::update(glm::mat4 parentTransform) {
