@@ -37,7 +37,7 @@
 #define WINDOW_WIDTH 1280
 #define WINDOW_HEIGHT 720
 
-#define MSAA 4
+#define MSAA 2
 #define VSYNC 1
 #define SHADOWMAP_SIZE 1600
 
@@ -45,6 +45,9 @@
 #define HDR_ENABLED 0
 
 #define PRINT_DRAW_CALLS 0
+
+#define CHECK_GL_ERRORS 0
+
 
 namespace Graphics {
 	extern bool SPLIT_SCREEN;

@@ -1,4 +1,5 @@
 #include "Aventador.h"
+#include "Game.h"
 #include <glm\gtx\projection.hpp>
 
 using namespace std;
@@ -46,6 +47,21 @@ Aventador::Aventador(int id) {
 	actor->setMass(5.5);
 	actor->setAngularDamping(0.8);
 	actor->setLinearDamping(0.5);
+	PhysicsManager::attachSimulationShape(actor, dimensions,200);
+	if (aventadorId == 0) {
+		PhysicsManager::setContactFilter(actor, FilterGroup::eAventador0, FilterGroup::eAventador1 | FilterGroup::ePowerUp0);
+		actor->setName("front");
+		aventadorData.isAI = true;
+		aventadorData.force = 30;
+		dChangeTime = Time::time += dCoolDown;
+	}
+	else {
+		PhysicsManager::setContactFilter(actor, FilterGroup::eAventador1, FilterGroup::eAventador0 | FilterGroup::ePowerUp1);
+		actor->setName("back");
+	}
+
+	//Setting contact modification flags
+	actor->userData = (void*)(ContactModFlags::eIGNORE_CONTACT | ContactModFlags::eTARGET_VELOCITY);
 }
 
 void Aventador::update(glm::mat4 parentTransform) {
@@ -161,15 +177,22 @@ void Aventador::updateFriction() {
 		vec3 wheeld(sin(wheelA), 0, cos(wheelA));
 		wheeld = mat3(transform)*wheeld;
 		if (wheelHit[i]) {
-			if (Keyboard::keyDown(aventadorId ? GLFW_KEY_UP : GLFW_KEY_W)) {
+			if (aventadorData.isAI) {
 				PxRigidBodyExt::addLocalForceAtLocalPos(*actor,
 					PxVec3(sin(wheelA) * aventadorData.force, 0, cos(wheelA) *  aventadorData.force),
 					Util::g2p(wheelPos[i] - vec3(0, aventadorData.dimensionHeight, 0)), PxForceMode::eFORCE);
 			}
-			else if (Keyboard::keyDown(aventadorId ? GLFW_KEY_DOWN : GLFW_KEY_S)) {
-				PxRigidBodyExt::addLocalForceAtLocalPos(*actor,
-					PxVec3(sin(wheelA) * -aventadorData.force, 0, cos(wheelA) * -aventadorData.force),
-					Util::g2p(wheelPos[i] - vec3(0, aventadorData.dimensionHeight, 0)), PxForceMode::eFORCE);
+			else {
+				if (Keyboard::keyDown(aventadorId ? GLFW_KEY_UP : GLFW_KEY_W)) {
+					PxRigidBodyExt::addLocalForceAtLocalPos(*actor,
+						PxVec3(sin(wheelA) * aventadorData.force, 0, cos(wheelA) *  aventadorData.force),
+						Util::g2p(wheelPos[i] - vec3(0, aventadorData.dimensionHeight, 0)), PxForceMode::eFORCE);
+				}
+				else if (Keyboard::keyDown(aventadorId ? GLFW_KEY_DOWN : GLFW_KEY_S)) {
+					PxRigidBodyExt::addLocalForceAtLocalPos(*actor,
+						PxVec3(sin(wheelA) * -aventadorData.force, 0, cos(wheelA) * -aventadorData.force),
+						Util::g2p(wheelPos[i] - vec3(0, aventadorData.dimensionHeight, 0)), PxForceMode::eFORCE);
+				}
 			}
 
 			PxVec3 wspeed = PxRigidBodyExt::getVelocityAtPos(*actor, Util::g2p(transform*vec4(wheelPos[i], 1)));
@@ -188,15 +211,33 @@ void Aventador::updateFriction() {
 }
 
 void Aventador::updateSteering() {
-	if (Keyboard::keyDown(aventadorId ? GLFW_KEY_LEFT : GLFW_KEY_A)) {
-		wheelAngle += aventadorData.wheelTurnRate;
+
+	if (aventadorData.isAI) {
+		if (Time::time > dChangeTime) {
+			dChangeTime += dCoolDown;
+			randDirection = pseudoRand() % 3;
+			if (randDirection == 0) {
+				wheelAngle += 0.5;
+			}
+			else if (randDirection == 1) {
+				wheelAngle -= 0.5;
+			}
+			else if (randDirection == 2) {
+				wheelAngle *= 0.5;
+			}
+		}
 	}
-	if (Keyboard::keyDown(aventadorId ? GLFW_KEY_RIGHT : GLFW_KEY_D)) {
-		wheelAngle -= aventadorData.wheelTurnRate;
-	}
-	if (!(Keyboard::keyDown(aventadorId ? GLFW_KEY_LEFT : GLFW_KEY_A)
-		|| Keyboard::keyDown(aventadorId ? GLFW_KEY_RIGHT : GLFW_KEY_D))) {
-		wheelAngle *= aventadorData.wheelReurnRate;
+	else {
+		if (Keyboard::keyDown(aventadorId ? GLFW_KEY_LEFT : GLFW_KEY_A)) {
+			wheelAngle += aventadorData.wheelTurnRate;
+		}
+		if (Keyboard::keyDown(aventadorId ? GLFW_KEY_RIGHT : GLFW_KEY_D)) {
+			wheelAngle -= aventadorData.wheelTurnRate;
+		}
+		if (!(Keyboard::keyDown(aventadorId ? GLFW_KEY_LEFT : GLFW_KEY_A)
+			|| Keyboard::keyDown(aventadorId ? GLFW_KEY_RIGHT : GLFW_KEY_D))) {
+			wheelAngle *= aventadorData.wheelReurnRate;
+		}
 	}
 	wheelAngle = min(max(wheelAngle, -aventadorData.maxWheelAngle), aventadorData.maxWheelAngle);
 	wheel[0].get()->facingAngle = wheelAngle;
@@ -230,6 +271,24 @@ void Aventador::updateBraking() {
 	else {
 		brakeForce = 0;
 	}
+}
+
+physx::PxRigidDynamic *const Aventador::getActor() {
+	return actor;
+}
+
+bool Aventador::hasPowerUp() {
+	return aventadorData.powerStatus;
+}
+void Aventador::setPowerUpStatus(bool status) {
+	aventadorData.powerStatus = status;
+}
+
+int Aventador::pseudoRand() {
+	// our initial starting seed is 5323
+	static unsigned int seed = 5323;
+	seed = (8253729 * seed + 2396403);
+	return seed;
 }
 
 void AventadorWheel::update(glm::mat4 parentTransform) {

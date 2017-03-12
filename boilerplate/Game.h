@@ -9,8 +9,10 @@
 #include "Resources.h"
 #include "Entity.h"
 #include "Aventador.h"
+#include "PowerUp.h"
 
-#define PRINT_FPS 1
+
+#define PRINT_FPS 0
 
 namespace Game {
 	extern std::list<std::shared_ptr<Entity> > entities;
@@ -26,3 +28,4 @@ namespace Time {
 	void init();
 	void update();
 }
+

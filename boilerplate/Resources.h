@@ -14,4 +14,7 @@ namespace Resources {
 	extern Graphics::Material darkGreyMaterial;
 	extern Graphics::Material emmisiveMaterial;
 	extern Graphics::Material pureBlackMaterial;
+
+	extern Graphics::Material coralMaterial;
+	extern Graphics::Material paleGreenMaterial;
 }

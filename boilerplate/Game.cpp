@@ -12,19 +12,20 @@ namespace Game {
 	list<shared_ptr<Entity> > entities;
 	shared_ptr<Aventador> aventador0;
 	shared_ptr<Aventador> aventador1;
+	double spawnCoolDown = 5.0;
+	double powerUpSpawnTime = Time::time += spawnCoolDown;
 
 	// we can customize this function as much as we want for now for debugging
 	void init() {
 		aventador0 = shared_ptr<Aventador>(new Aventador(0));
-	//	aventador1 = shared_ptr<Aventador>(new Aventador(1));
+		aventador1 = shared_ptr<Aventador>(new Aventador(1));
 		entities.push_back(aventador0);
-	//	entities.push_back(aventador1);
-	//	entities.push_back(shared_ptr<Path>(new Path(100,1,0)));
-	//	entities.push_back(shared_ptr<Path>(new Path(100,2,3)));
-	//	entities.push_back(shared_ptr<Path>(new Path(100,1,2)));
-	//	entities.push_back(shared_ptr<Path>(new Path(100,0,3)));
-			//	entities.push_back(unique_ptr<Cube>(new Cube));
-		//	entities.push_back(unique_ptr<CenteredCube>(new CenteredCube(vec3(0, 3, 0))));
+
+		entities.push_back(aventador1);
+		entities.push_back(shared_ptr<Path>(new Path(100,1,0)));	//the path that gets drawn under the car
+
+		//entities.push_back(unique_ptr<Cube>(new Cube));
+		//entities.push_back(unique_ptr<CenteredCube>(new CenteredCube(vec3(0, 3, 0))));
 		entities.push_back(unique_ptr<Plane>(new Plane));
 	}
 
@@ -38,6 +39,11 @@ namespace Game {
 			else {
 				it = entities.erase(it);
 			}
+		}
+		//adding more power ups into the scene
+		if (Time::time > powerUpSpawnTime) {
+			powerUpSpawnTime += spawnCoolDown;
+			entities.push_back(shared_ptr<Entity>(new PowerUp()));
 		}
 	}
 }

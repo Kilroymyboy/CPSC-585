@@ -4,7 +4,7 @@ using namespace std;
 using namespace glm;
 using namespace physx;
 
-const float thickness = 2;
+const float thickness = 4;
 
 const std::vector<glm::vec3> displacements{
 	glm::vec3(-thickness,0,thickness),

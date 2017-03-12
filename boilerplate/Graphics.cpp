@@ -40,9 +40,9 @@ namespace Graphics {
 
 	GLuint frameBufferVao;
 
-	bool SPLIT_SCREEN = 0;
+	bool SPLIT_SCREEN = 1;
 	// 0 horizontal/side by side, 1 vertical/stacked
-	int SPLIT_SCREEN_ORIENTATION = 0;
+	int SPLIT_SCREEN_ORIENTATION = 1;
 
 	bool SHADOW = 1;
 	int SOFT_SHADOW = 1;
@@ -207,12 +207,10 @@ namespace Graphics {
 			glViewport(0, 0, WINDOW_WIDTH*MSAA, WINDOW_HEIGHT*MSAA);
 		}
 
-
 		glBindBuffer(GL_ARRAY_BUFFER, geometry->transformBuffer);
 		glBufferData(GL_ARRAY_BUFFER, sizeof(mat4), &transform, GL_DYNAMIC_DRAW);
 
 		glBindVertexArray(geometry->vertexArray);
-
 		glEnableVertexAttribArray(TRANSFORM_LOCATION);
 		glVertexAttribPointer(TRANSFORM_LOCATION, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (GLvoid*)0);
 		glEnableVertexAttribArray(TRANSFORM_LOCATION + 1);
@@ -221,17 +219,32 @@ namespace Graphics {
 		glVertexAttribPointer(TRANSFORM_LOCATION + 2, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (GLvoid*)(2 * sizeof(glm::vec4)));
 		glEnableVertexAttribArray(TRANSFORM_LOCATION + 3);
 		glVertexAttribPointer(TRANSFORM_LOCATION + 3, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (GLvoid*)(3 * sizeof(glm::vec4)));
+
 		glVertexAttribDivisor(TRANSFORM_LOCATION, 1);
 		glVertexAttribDivisor(TRANSFORM_LOCATION + 1, 1);
 		glVertexAttribDivisor(TRANSFORM_LOCATION + 2, 1);
 		glVertexAttribDivisor(TRANSFORM_LOCATION + 3, 1);
 		glBindVertexArray(0);
 
+		glBindBuffer(GL_ARRAY_BUFFER, geometry->colorBuffer);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(vec3), &material->color, GL_DYNAMIC_DRAW);
+		glBindVertexArray(geometry->vertexArray);
+		glEnableVertexAttribArray(COLOR_LOCATION);
+		glVertexAttribPointer(COLOR_LOCATION, 3, GL_FLOAT, GL_FALSE, 0, 0);
+		glVertexAttribDivisor(COLOR_LOCATION, 1);
+		glBindVertexArray(0);
+
+		glBindBuffer(GL_ARRAY_BUFFER, geometry->emissionColorBuffer);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(vec3), &material->emmisiveColor, GL_DYNAMIC_DRAW);
+		glBindVertexArray(geometry->vertexArray);
+		glEnableVertexAttribArray(EMISSION_COLOR_LOCATION);
+		glVertexAttribPointer(EMISSION_COLOR_LOCATION, 3, GL_FLOAT, GL_FALSE, 0, 0);
+		glVertexAttribDivisor(EMISSION_COLOR_LOCATION, 1);
+		glBindVertexArray(0);
+
+
 		glBindVertexArray(geometry->vertexArray);
 
-
-		glUniform3f(COLOR_LOCATION, material->color.x, material->color.y, material->color.z);
-		glUniform3f(EMISSION_COLOR_LOCATION, material->emmisiveColor.x, material->emmisiveColor.y, material->emmisiveColor.z);
 		Viewport::update(id);
 		Light::update(id);
 
@@ -251,9 +264,6 @@ namespace Graphics {
 		glBindVertexArray(0);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glBindTexture(GL_TEXTURE_2D, 0);
-
-		// check for an report any OpenGL errors
-		CheckGLErrors();
 	}
 
 	void Render(MyGeometry *geometry, Material* material, mat4 transform)
@@ -335,11 +345,9 @@ namespace Graphics {
 		glVertexAttribPointer(EMISSION_COLOR_LOCATION, 3, GL_FLOAT, GL_FALSE, 0, 0);
 		glVertexAttribDivisor(EMISSION_COLOR_LOCATION, 1);
 		glBindVertexArray(0);
-		// unbind our buffers, resetting to default state
+
 		glBindVertexArray(geometry->vertexArray);
 
-		//	glUniform3f(COLOR_LOCATION, 1.0f, 1.0f, 1.0f);
-		//	glUniform3f(EMISSION_COLOR_LOCATION, 0.0f, 0.0f, 0.0f);
 		Viewport::update(id);
 		Light::update(id);
 
@@ -875,7 +883,8 @@ namespace Graphics {
 		}
 		tDrawCalls = 0;
 
-		CheckGLErrors();
+
+		if(CHECK_GL_ERRORS)	CheckGLErrors();
 
 		// vertical sync
 		glfwSwapInterval(VSYNC);
