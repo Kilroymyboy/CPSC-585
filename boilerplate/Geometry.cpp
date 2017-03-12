@@ -50,9 +50,6 @@ namespace Geometry {
 		nor.push_back(vec3(0.f, 1.f, 0.f));
 		nor.push_back(vec3(0.f, 1.f, 0.f));
 
-		for (vec3 v : pos)cout << v.x << "\t" << v.y << "\t" << v.z << endl;
-		for (vec3 v : nor)cout << v.x << "\t" << v.y << "\t" << v.z << endl;
-
 		Graphics::initGeometry(geometry);
 		Graphics::bufferGeometry(geometry, pos, nor);
 	}

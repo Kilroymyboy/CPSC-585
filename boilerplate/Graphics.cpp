@@ -295,7 +295,6 @@ namespace Graphics {
 		glBufferData(GL_ARRAY_BUFFER, sizeof(mat4)*geometry->transforms.size(), &geometry->transforms[0], GL_DYNAMIC_DRAW);
 
 		glBindVertexArray(geometry->vertexArray);
-
 		glEnableVertexAttribArray(TRANSFORM_LOCATION);
 		glVertexAttribPointer(TRANSFORM_LOCATION, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (GLvoid*)0);
 		glEnableVertexAttribArray(TRANSFORM_LOCATION + 1);
@@ -304,17 +303,37 @@ namespace Graphics {
 		glVertexAttribPointer(TRANSFORM_LOCATION + 2, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (GLvoid*)(2 * sizeof(glm::vec4)));
 		glEnableVertexAttribArray(TRANSFORM_LOCATION + 3);
 		glVertexAttribPointer(TRANSFORM_LOCATION + 3, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (GLvoid*)(3 * sizeof(glm::vec4)));
+
 		glVertexAttribDivisor(TRANSFORM_LOCATION, 1);
 		glVertexAttribDivisor(TRANSFORM_LOCATION + 1, 1);
 		glVertexAttribDivisor(TRANSFORM_LOCATION + 2, 1);
 		glVertexAttribDivisor(TRANSFORM_LOCATION + 3, 1);
-
-		// unbind our buffers, resetting to default state
 		glBindVertexArray(0);
+
+		vector<vec3> c, ec;
+		c.assign(geometry->transforms.size(), vec3(0));
+		ec.assign(geometry->transforms.size(), vec3(1));
+
+		glBindBuffer(GL_ARRAY_BUFFER, geometry->colorBuffer);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(vec3)*c.size(), &c[0], GL_DYNAMIC_DRAW);
+		glBindVertexArray(geometry->vertexArray);
+		glEnableVertexAttribArray(COLOR_LOCATION);
+		glVertexAttribPointer(COLOR_LOCATION, 3, GL_FLOAT, GL_FALSE, 0, 0);
+		glVertexAttribDivisor(COLOR_LOCATION, 1);
+		glBindVertexArray(0);
+
+		glBindBuffer(GL_ARRAY_BUFFER, geometry->emissionColorBuffer);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(vec3)*ec.size(), &ec[0], GL_DYNAMIC_DRAW);
+		glBindVertexArray(geometry->vertexArray);
+		glEnableVertexAttribArray(EMISSION_COLOR_LOCATION);
+		glVertexAttribPointer(EMISSION_COLOR_LOCATION, 3, GL_FLOAT, GL_FALSE, 0, 0);
+		glVertexAttribDivisor(EMISSION_COLOR_LOCATION, 1);
+		glBindVertexArray(0);
+		// unbind our buffers, resetting to default state
 		glBindVertexArray(geometry->vertexArray);
 
-		glUniform3f(COLOR_LOCATION, 1.0f, 1.0f, 1.0f);
-		glUniform3f(EMISSION_COLOR_LOCATION, 0.0f, 0.0f, 0.0f);
+	//	glUniform3f(COLOR_LOCATION, 1.0f, 1.0f, 1.0f);
+	//	glUniform3f(EMISSION_COLOR_LOCATION, 0.0f, 0.0f, 0.0f);
 		Viewport::update(id);
 		Light::update(id);
 
@@ -889,6 +908,8 @@ namespace Graphics {
 		glBindVertexArray(geometry->vertexArray);
 
 		glGenBuffers(1, &geometry->transformBuffer);
+		glGenBuffers(1, &geometry->colorBuffer);
+		glGenBuffers(1, &geometry->emissionColorBuffer);
 
 		// associate the position array with the vertex array object
 		glBindBuffer(GL_ARRAY_BUFFER, geometry->vertexBuffer);
@@ -980,7 +1001,7 @@ namespace Light {
 		0.0, 0.5, 0.0, 0.0,
 		0.0, 0.0, 0.5, 0.0,
 		0.5, 0.5, 0.5, 1.0
-		);
+	);
 
 	int SIZE;
 

@@ -16,8 +16,8 @@ layout(location = 2) in mat4 Transform;
 // 3
 // 4
 // 5
-layout(location = 6) uniform vec3 InstanceColor;
-layout(location = 7) uniform vec3 InstanceEmissionColor;
+layout(location = 6) in vec3 InstanceColor;
+layout(location = 7) in vec3 InstanceEmissionColor;
 
 layout(location = 8) uniform mat4 Projection;
 layout(location = 9) uniform mat4 View;

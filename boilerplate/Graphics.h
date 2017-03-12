@@ -100,6 +100,8 @@ namespace Graphics {
 		GLuint  vertexArray;
 		GLsizei elementCount;
 		GLuint  transformBuffer;
+		GLuint  colorBuffer;
+		GLuint  emissionColorBuffer;
 
 		std::vector<glm::mat4> transforms;
 		std::vector<Material> materials;
