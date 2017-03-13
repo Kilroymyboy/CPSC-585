@@ -8,6 +8,8 @@ namespace Resources {
 	extern Graphics::MyShader standardShader;
 	extern Graphics::MyGeometry gridLines;
 
+	extern Graphics::MyTexture gridTexture;
+
 	void init();
 
 	extern Graphics::Material defaultMaterial;

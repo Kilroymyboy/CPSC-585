@@ -8,6 +8,7 @@ namespace Resources {
 	Graphics::MyGeometry plane, cube, centeredCube, simplePlane;
 	Graphics::MyShader standardShader;
 	Graphics::MyGeometry gridLines;
+	Graphics::MyTexture gridTexture;
 
 	void init() {
 		Graphics::loadGeometry(&aventadorBody, "models/aventador_body.obj");
@@ -23,6 +24,8 @@ namespace Resources {
 		Geometry::initPlaneGeometry(&simplePlane, 7.5, 7.5);
 		Geometry::initGridLinesGeometry(&gridLines, 100, 100, 0.25, 500, 7.5);
 		Graphics::InitializeShaders(&standardShader, "vertex.glsl", "fragment.glsl");
+		if (!Graphics::InitializeTexture(&gridTexture, "images/grid.jpg", GL_TEXTURE_2D))
+			std::cout << "can not initialize texture images/grid.jpg" << std::endl;
 	}
 
 	Graphics::Material defaultMaterial(glm::vec3(1));

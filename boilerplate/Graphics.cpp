@@ -87,7 +87,7 @@ namespace Graphics {
 		glDeleteShader(shader->fragment);
 	}
 
-	bool InitializeTexture(MyTexture* texture, const char* filename, GLuint target = GL_TEXTURE_2D)
+	bool InitializeTexture(MyTexture* texture, const char* filename, GLuint target)
 	{
 		int numComponents;
 		stbi_set_flip_vertically_on_load(true);
