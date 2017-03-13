@@ -11,6 +11,7 @@
 
 // interpolated colour received from vertex stage
 in vec3 Normal;
+in vec2 TexCoord;
 in vec4 ShadowCoord;
 in vec3 Color;
 in vec3 EmissionColor;
@@ -25,6 +26,7 @@ layout(location = 13) uniform mat4 shadowMVP;
 layout(location = 14) uniform int softShadow;
 
 uniform sampler2D shadowMap;
+uniform sampler2D colorTexture;
 
 // first output is mapped to the framebuffer's colour index by default
 out vec4 FragmentColour;
@@ -33,7 +35,8 @@ void main(void)
 {
 	float cosTheta = dot(-LightDirection, Normal);
     FragmentColour = vec4(1, 1, 1, 0)*cosTheta;
-	FragmentColour.xyz=max(FragmentColour.xyz, vec3(0));
+	vec4 textureColor = texture(colorTexture, TexCoord);
+	FragmentColour.xyz=max(FragmentColour.xyz*textureColor.xyz, vec3(0));
     FragmentColour.xyz+=AmbientLight;
 
 	int hits=0;

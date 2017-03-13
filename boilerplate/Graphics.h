@@ -63,14 +63,6 @@ namespace Graphics {
 	void update();
 	void destroy();
 
-	struct Material {
-		glm::vec3 color;
-		glm::vec3 emmisiveColor;
-		Material() :color(glm::vec3(0)), emmisiveColor(glm::vec3(0)) {}
-		Material(glm::vec3 c) :color(c), emmisiveColor(glm::vec3(0)) {}
-		Material(glm::vec3 c, glm::vec3 e) :color(c), emmisiveColor(e) {}
-	};
-
 	struct MyShader
 	{
 		// OpenGL names for vertex and fragment shaders, shader program
@@ -95,6 +87,20 @@ namespace Graphics {
 		{}
 	};
 
+	struct Material {
+		glm::vec3 color;
+		glm::vec3 emmisiveColor;
+		MyTexture* texture;
+
+		Material() :color(glm::vec3(0)), emmisiveColor(glm::vec3(0)) {}
+		Material(glm::vec3 c) :color(c), emmisiveColor(glm::vec3(0)) {}
+		Material(glm::vec3 c, glm::vec3 e) :color(c), emmisiveColor(e) {}
+
+		Material(MyTexture* t) :color(glm::vec3(0)), emmisiveColor(glm::vec3(0)), texture(t) {}
+		Material(glm::vec3 c, MyTexture* t) :color(c), emmisiveColor(glm::vec3(0)), texture(t) {}
+		Material(glm::vec3 c, glm::vec3 e, MyTexture* t) :color(c), emmisiveColor(e), texture(t) {}
+	};
+
 	struct MyGeometry
 	{
 		// OpenGL names for array buffer objects, vertex array object
@@ -114,6 +120,7 @@ namespace Graphics {
 		MyGeometry() : vertexBuffer(0), normalBuffer(0), vertexArray(0), elementCount(0), transformBuffer(0)
 		{}
 	};
+
 
 	struct MyFrameBuffer {
 		GLuint fbo;

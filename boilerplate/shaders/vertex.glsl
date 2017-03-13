@@ -34,6 +34,7 @@ layout(location = 13) uniform mat4 shadowMVP;
 layout(location = 14) uniform int softShadow;
 
 out vec3 Normal;
+out vec2 TexCoord;
 out vec4 ShadowCoord;
 out vec3 Color;
 out vec3 EmissionColor;
@@ -42,6 +43,7 @@ void main()
 {
     gl_Position = Projection * View * Transform * vec4(VertexPosition, 1.0);
 	Normal=mat3(Transform)*VertexNormal;
+	TexCoord=VertexTexCoord;
 	ShadowCoord = shadowMVP * Transform * vec4(VertexPosition, 1.0);
 	Color=InstanceColor;
 	EmissionColor=InstanceEmissionColor;
