@@ -51,9 +51,9 @@ Aventador::Aventador(int id) {
 	if (aventadorId == 0) {
 		PhysicsManager::setContactFilter(actor, FilterGroup::eAventador0, FilterGroup::eAventador1 | FilterGroup::ePowerUp0);
 		actor->setName("front");
-		aventadorData.isAI = true;
-		aventadorData.force = 30;
-		dChangeTime = Time::time += dCoolDown;
+		//aventadorData.isAI = true;
+		//aventadorData.force = 30;
+		//dChangeTime = Time::time += dCoolDown;
 	}
 	else {
 		PhysicsManager::setContactFilter(actor, FilterGroup::eAventador1, FilterGroup::eAventador0 | FilterGroup::ePowerUp1);
@@ -193,6 +193,30 @@ void Aventador::updateFriction() {
 						PxVec3(sin(wheelA) * -aventadorData.force, 0, cos(wheelA) * -aventadorData.force),
 						Util::g2p(wheelPos[i] - vec3(0, aventadorData.dimensionHeight, 0)), PxForceMode::eFORCE);
 				}
+				if (aventadorId == 0){
+					float amount = controller1.RightTrigger();
+					PxRigidBodyExt::addLocalForceAtLocalPos(*actor,
+						PxVec3(sin(wheelA) * (aventadorData.force*amount), 0, cos(wheelA) * (aventadorData.force*amount)),
+						Util::g2p(wheelPos[i] - vec3(0, aventadorData.dimensionHeight, 0)), PxForceMode::eFORCE);
+				}
+				if (aventadorId == 1) {
+					float amount = controller2.RightTrigger();
+					PxRigidBodyExt::addLocalForceAtLocalPos(*actor,
+						PxVec3(sin(wheelA) * (aventadorData.force*amount), 0, cos(wheelA) * (aventadorData.force*amount)),
+						Util::g2p(wheelPos[i] - vec3(0, aventadorData.dimensionHeight, 0)), PxForceMode::eFORCE);
+				}
+				if (aventadorId == 0) {
+					float amount = controller1.LeftTrigger();
+					PxRigidBodyExt::addLocalForceAtLocalPos(*actor,
+						PxVec3(sin(wheelA) * (-aventadorData.force*amount), 0, cos(wheelA) * (-aventadorData.force*amount)),
+						Util::g2p(wheelPos[i] - vec3(0, aventadorData.dimensionHeight, 0)), PxForceMode::eFORCE);
+				}
+				if (aventadorId == 1) {
+					float amount = controller2.LeftTrigger();
+					PxRigidBodyExt::addLocalForceAtLocalPos(*actor,
+						PxVec3(sin(wheelA) * (-aventadorData.force*amount), 0, cos(wheelA) * (-aventadorData.force*amount)),
+						Util::g2p(wheelPos[i] - vec3(0, aventadorData.dimensionHeight, 0)), PxForceMode::eFORCE);
+				}
 			}
 
 			PxVec3 wspeed = PxRigidBodyExt::getVelocityAtPos(*actor, Util::g2p(transform*vec4(wheelPos[i], 1)));
@@ -238,6 +262,14 @@ void Aventador::updateSteering() {
 			|| Keyboard::keyDown(aventadorId ? GLFW_KEY_RIGHT : GLFW_KEY_D))) {
 			wheelAngle *= aventadorData.wheelReurnRate;
 		}
+		if (aventadorId == 0) {
+			float amount = -1*controller1.LeftStick_X();
+			wheelAngle += (amount*aventadorData.wheelTurnRate);
+		}
+		if (aventadorId == 1) {
+			float amount = -1*controller2.LeftStick_X();
+			wheelAngle += (amount*aventadorData.wheelTurnRate);
+		}
 	}
 	wheelAngle = min(max(wheelAngle, -aventadorData.maxWheelAngle), aventadorData.maxWheelAngle);
 	wheel[0].get()->facingAngle = wheelAngle;
@@ -257,6 +289,20 @@ void Aventador::updateDrift() {
 		tireHeat[2] += aventadorData.manualTireHeatIncrease*v.magnitude();
 		tireHeat[3] += aventadorData.manualTireHeatIncrease*v.magnitude();
 	}
+	if (aventadorId == 0) {
+		if (controller1.GetButtonPressed(1)) {
+			PxVec3 v = actor->getLinearVelocity();
+			tireHeat[2] += aventadorData.manualTireHeatIncrease*v.magnitude();
+			tireHeat[3] += aventadorData.manualTireHeatIncrease*v.magnitude();
+		}
+	}
+	if (aventadorId == 0) {
+		if (controller2.GetButtonPressed(1)) {
+			PxVec3 v = actor->getLinearVelocity();
+			tireHeat[2] += aventadorData.manualTireHeatIncrease*v.magnitude();
+			tireHeat[3] += aventadorData.manualTireHeatIncrease*v.magnitude();
+		}
+	}
 
 	if (Keyboard::keyDown(aventadorId ? GLFW_KEY_UP : GLFW_KEY_W))
 		for (int i = 0; i < tireHeat.size(); i++)tireHeat[i] *= aventadorData.tireHeatDecrease;
@@ -267,6 +313,16 @@ void Aventador::updateDrift() {
 void Aventador::updateBraking() {
 	if (Keyboard::keyDown(aventadorId ? GLFW_KEY_RIGHT_CONTROL : GLFW_KEY_LEFT_CONTROL)) {
 		brakeForce = min(brakeForce + aventadorData.brakeSpeed, aventadorData.maxBrakeForce);
+	}
+	if (aventadorId == 0) {
+		if (controller1.GetButtonPressed(1)) {
+			brakeForce = min(brakeForce + aventadorData.brakeSpeed, aventadorData.maxBrakeForce);
+		}
+	}
+	if (aventadorId == 1) {
+		if (controller2.GetButtonPressed(1)) {
+			brakeForce = min(brakeForce + aventadorData.brakeSpeed, aventadorData.maxBrakeForce);
+		}
 	}
 	else {
 		brakeForce = 0;

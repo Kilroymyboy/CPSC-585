@@ -8,13 +8,6 @@
 
 using namespace std;
 
-// create gamepad instance (controller no. 1)
-//Gamepad myGamepad = Gamepad(1);
-
-//below for multiple gamepads
-//Gamepad gamepad1 = Gamepad(1);
-//Gamepad gamepad2 = Gamepad(2);
-
 int main(int argc, char *argv[])
 {
 
@@ -34,8 +27,12 @@ int main(int argc, char *argv[])
 		Game::update();
 		Graphics::update();
 		
-		//myGamepad.Update(); // Update the gamepad
-		//myGamepad.GetState();
+		//need these 4 lines for controller update now that its global
+		controller1.Update();
+		controller2.Update();
+		controller1.GetState();
+		controller2.GetState();
+
 		PhysicsManager::update(1);
 
 		Keyboard::update();
