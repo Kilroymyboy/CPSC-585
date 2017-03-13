@@ -87,7 +87,7 @@ namespace Graphics {
 		glDeleteShader(shader->fragment);
 	}
 
-	bool InitializeTexture(MyTexture* texture, const char* filename, GLuint target)
+	bool InitializeTexture(MyTexture* texture, const char* filename, GLuint target, GLuint wrap, GLuint filter)
 	{
 		int numComponents;
 		stbi_set_flip_vertically_on_load(true);
@@ -117,12 +117,12 @@ namespace Graphics {
 				break;
 			};
 			glTexImage2D(texture->target, 0, format, texture->width, texture->height, 0, format, GL_UNSIGNED_BYTE, data);
-
+			glGenerateMipmap(target);
 			// Note: Only wrapping modes supported for GL_TEXTURE_RECTANGLE when defining
 			// GL_TEXTURE_WRAP are GL_CLAMP_TO_EDGE or GL_CLAMP_TO_BORDER
-			glTexParameteri(texture->target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-			glTexParameteri(texture->target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-			glTexParameteri(texture->target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTexParameteri(texture->target, GL_TEXTURE_WRAP_S, wrap);
+			glTexParameteri(texture->target, GL_TEXTURE_WRAP_T, wrap);
+			glTexParameteri(texture->target, GL_TEXTURE_MIN_FILTER, filter);
 			glTexParameteri(texture->target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 			// Clean up

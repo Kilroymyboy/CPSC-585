@@ -131,7 +131,8 @@ namespace Graphics {
 	bool InitializeShaders(MyShader *shader, const std::string vertex, const std::string fragment);
 	bool InitializeFrameBuffer(MyFrameBuffer* frameBuffer, glm::vec2 dimension, bool HDR);
 	bool InitializeShadowMap(MyFrameBuffer* frameBuffer, glm::vec2 dimension);
-	bool InitializeTexture(MyTexture* texture, const char* filename, GLuint target);
+	bool InitializeTexture(MyTexture* texture, const char* filename, GLuint target = GL_TEXTURE_2D,
+		GLuint wrap = GL_CLAMP_TO_EDGE, GLuint filter = GL_LINEAR);
 }
 
 namespace Viewport {

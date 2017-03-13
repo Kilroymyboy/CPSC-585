@@ -24,7 +24,7 @@ namespace Resources {
 		Geometry::initPlaneGeometry(&simplePlane, 7.5, 7.5);
 		Geometry::initGridLinesGeometry(&gridLines, 100, 100, 0.25, 500, 7.5);
 		Graphics::InitializeShaders(&standardShader, "vertex.glsl", "fragment.glsl");
-		if (!Graphics::InitializeTexture(&gridTexture, "images/grid.jpg", GL_TEXTURE_2D))
+		if (!Graphics::InitializeTexture(&gridTexture, "images/grid.jpg", GL_TEXTURE_2D, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR))
 			std::cout << "can not initialize texture images/grid.jpg" << std::endl;
 	}
 
