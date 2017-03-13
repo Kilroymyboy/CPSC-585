@@ -273,10 +273,6 @@ void Aventador::updateBraking() {
 	}
 }
 
-physx::PxRigidDynamic *const Aventador::getActor() {
-	return actor;
-}
-
 bool Aventador::hasPowerUp() {
 	return aventadorData.powerStatus;
 }

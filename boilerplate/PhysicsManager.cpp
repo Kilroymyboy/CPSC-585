@@ -201,8 +201,8 @@ void ContactBehaviourCallback::onContact(const PxContactPairHeader& pairHeader, 
 
 		if (cp.events & PxPairFlag::eNOTIFY_TOUCH_FOUND)
 		{
-			PxRigidActor* a0 = Game::aventador0->getActor();
-			PxRigidActor* a1 = Game::aventador1->getActor();
+			PxRigidActor* a0 = Game::aventador0->actor;
+			PxRigidActor* a1 = Game::aventador1->actor;
 			bool isAventador0 = pairHeader.actors[0] == a0 || pairHeader.actors[1] == a0;
 			bool isAventador1 = pairHeader.actors[0] == a1 || pairHeader.actors[1] == a1;
 			bool isPowerUp = pairHeader.actors[0]->getName() == "powerup" || pairHeader.actors[1]->getName() == "powerup";
@@ -291,7 +291,7 @@ void ContactModifyCallback::onContactModify(PxContactModifyPair* const pairs, Px
 		//increase the speed of the back car?
 		//doesn't work yet
 		const PxVec3 targetVelocity(0.f, 0.f, 100.f);
-		bool isBackAventator = pairs->actor[0] == Game::aventador1->getActor() || pairs->actor[1] == Game::aventador1->getActor();
+		bool isBackAventator = pairs->actor[0] == Game::aventador1->actor || pairs->actor[1] == Game::aventador1->actor;
 		if ((flags & ContactModFlags::eTARGET_VELOCITY)){
 			setTargetVelocity(pairs[i],targetVelocity);
 		}

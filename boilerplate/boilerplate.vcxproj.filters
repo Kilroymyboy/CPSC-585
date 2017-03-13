@@ -25,8 +25,8 @@
     <Filter Include="Source Files\Game">
       <UniqueIdentifier>{fb952c48-d908-4e85-9ca5-362e868ee9e7}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Geometry">
-      <UniqueIdentifier>{b126d77b-0daf-4de0-bf87-ac4dd23d342e}</UniqueIdentifier>
+    <Filter Include="Header Files\Game">
+      <UniqueIdentifier>{402b5cb3-bddb-4f38-b8a2-6b8b7baa137e}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -66,8 +66,6 @@
     <ClCompile Include="Entity.cpp">
       <Filter>Source Files\Game</Filter>
     </ClCompile>
-    <ClCompile Include="Geometry.cpp">
-      <Filter>Source Files\Geometry</Filter>
     <ClCompile Include="PowerUp.cpp">
       <Filter>Source Files\Game</Filter>
     </ClCompile>
@@ -106,8 +104,6 @@
     <ClInclude Include="Entity.h">
       <Filter>Header Files\Game</Filter>
     </ClInclude>
-    <ClInclude Include="Geometry.h">
-      <Filter>Header Files\Geometry</Filter>
     <ClInclude Include="PowerUp.h">
       <Filter>Header Files\Game</Filter>
     </ClInclude>
