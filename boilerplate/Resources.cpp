@@ -5,7 +5,7 @@
 
 namespace Resources {
 	Graphics::MyGeometry aventadorBody, aventadorBodyGlow, aventadorUnder, aventadorWheel, aventadorWheelGlow;
-	Graphics::MyGeometry plane, cube, centeredCube, simplePlane;
+	Graphics::MyGeometry plane, cube, centeredCube;
 	Graphics::MyShader standardShader;
 	Graphics::MyGeometry gridLines;
 	Graphics::MyTexture gridTexture;
@@ -21,8 +21,7 @@ namespace Resources {
 		Graphics::loadGeometry(&cube, "models/cube.obj");
 		Graphics::loadGeometry(&centeredCube, "models/cube_center.obj");
 
-		Geometry::initPlaneGeometry(&simplePlane, 7.5, 7.5);
-		Geometry::initPlaneGeometry(&gridLines, 10, 10);
+		Geometry::initPlaneGeometry(&gridLines, 100, 100, 20);
 		Graphics::InitializeShaders(&standardShader, "vertex.glsl", "fragment.glsl");
 		if (!Graphics::InitializeTexture(&gridTexture, "images/grid.jpg", GL_TEXTURE_2D, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR))
 			std::cout << "can not initialize texture images/grid.jpg" << std::endl;

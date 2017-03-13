@@ -354,6 +354,9 @@ namespace Graphics {
 		mat4 shadowMvp = Light::biasMatrix*Light::projection[id] * Light::transform[id];
 		glUniformMatrix4fv(SHADOW_MVP_LOCATION, 1, GL_FALSE, &shadowMvp[0][0]);
 
+		glUniform1i(glGetUniformLocation(Resources::standardShader.program, "shadowMap"), 0);
+		glUniform1i(glGetUniformLocation(Resources::standardShader.program, "colorTexture"), 1);
+
 		glActiveTexture(GL_TEXTURE0);
 		if (id == 0)glBindTexture(GL_TEXTURE_2D, shadowFbo.texture);
 		else glBindTexture(GL_TEXTURE_2D, shadowFbo1.texture);
@@ -529,7 +532,6 @@ namespace Graphics {
 		instancedGeometry.push_back(&Resources::aventadorWheel);
 		instancedGeometry.push_back(&Resources::aventadorWheelGlow);
 		instancedGeometry.push_back(&Resources::gridLines);
-		instancedGeometry.push_back(&Resources::simplePlane);
 	}
 
 	int init() {
@@ -903,11 +905,14 @@ namespace Graphics {
 		cout << "Goodbye!" << endl;
 	}
 
-	void bufferGeometry(MyGeometry* geometry, const vector<vec3>& pos, const vector<vec3>& nor) {
+	void bufferGeometry(MyGeometry* geometry, const vector<vec3>& pos, const vector<vec2>& texcoord, const vector<vec3>& nor) {
 		geometry->elementCount = pos.size();
 
 		glBindBuffer(GL_ARRAY_BUFFER, geometry->vertexBuffer);
 		glBufferData(GL_ARRAY_BUFFER, sizeof(vec3)*pos.size(), &pos[0], GL_STATIC_DRAW);
+		
+		glBindBuffer(GL_ARRAY_BUFFER, geometry->textureBuffer);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(vec2)*texcoord.size(), &texcoord[0], GL_STATIC_DRAW);
 
 		glBindBuffer(GL_ARRAY_BUFFER, geometry->normalBuffer);
 		glBufferData(GL_ARRAY_BUFFER, sizeof(vec3)*nor.size(), &nor[0], GL_STATIC_DRAW);
@@ -937,8 +942,8 @@ namespace Graphics {
 		glEnableVertexAttribArray(VERTEX_NORMAL_LOCATION);
 
 		glBindBuffer(GL_ARRAY_BUFFER, geometry->textureBuffer);
-	//	glVertexAttribPointer(VERTEX_TEXCOORD_LOCATION, 2, GL_FLOAT, GL_FALSE, 0, 0);
-	//	glEnableVertexAttribArray(VERTEX_TEXCOORD_LOCATION);
+		glVertexAttribPointer(VERTEX_TEXCOORD_LOCATION, 2, GL_FLOAT, GL_FALSE, 0, 0);
+		glEnableVertexAttribArray(VERTEX_TEXCOORD_LOCATION);
 
 		// unbind our buffers, resetting to default state
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -947,6 +952,7 @@ namespace Graphics {
 
 	void loadGeometry(MyGeometry* geometry, char* path) {
 		vector<vec3> vertices, normals, bufferVertices, bufferNormals;
+		vector<vec2> uvs, bufferUVs;
 		FILE * file = fopen(path, "r");
 		int asdf = 0;
 		while (1) {
@@ -963,6 +969,11 @@ namespace Graphics {
 				fscanf(file, "%f %f %f\n", &normal.x, &normal.y, &normal.z);
 				normals.push_back(normal);
 			}
+			else if (strcmp(lineHeader, "vt") == 0) {
+				vec2 uv;
+				fscanf(file, "%f %f\n", &uv.x, &uv.y);
+				uvs.push_back(uv);
+			}
 			else if (strcmp(lineHeader, "f") == 0) {
 				unsigned int vertexIndex[3], uvIndex[3], normalIndex[3];
 				int matches = fscanf(file, "%d/%d/%d %d/%d/%d %d/%d/%d\n", &vertexIndex[0], &uvIndex[0], &normalIndex[0], &vertexIndex[1], &uvIndex[1], &normalIndex[1], &vertexIndex[2], &uvIndex[2], &normalIndex[2]);
@@ -977,11 +988,15 @@ namespace Graphics {
 				bufferNormals.push_back(normals[tn.x]);
 				bufferNormals.push_back(normals[tn.y]);
 				bufferNormals.push_back(normals[tn.z]);
+				ivec3 tu(uvIndex[0] - 1, uvIndex[1] - 1, uvIndex[2] - 1);
+				bufferUVs.push_back(uvs[tu.x]);
+				bufferUVs.push_back(uvs[tu.y]);
+				bufferUVs.push_back(uvs[tu.z]);
 			}
 		}
 
 		initGeometry(geometry);
-		bufferGeometry(geometry, bufferVertices, bufferNormals);
+		bufferGeometry(geometry, bufferVertices, bufferUVs, bufferNormals);
 	}
 }
 

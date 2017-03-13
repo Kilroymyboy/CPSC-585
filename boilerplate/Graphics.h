@@ -131,7 +131,7 @@ namespace Graphics {
 	};
 
 
-	void bufferGeometry(MyGeometry* geometry, const std::vector<glm::vec3>& pos, const std::vector<glm::vec3>& nor);
+	void bufferGeometry(MyGeometry* geometry, const std::vector<glm::vec3>& pos, const std::vector<glm::vec2>& texcoord, const std::vector<glm::vec3>& nor);
 	void initGeometry(MyGeometry* geometry);
 	void loadGeometry(MyGeometry* geometry, char* path);
 	void Render(MyGeometry *geometry, Material* materal, glm::mat4 transform);
