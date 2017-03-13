@@ -11,8 +11,8 @@
 #extension GL_ARB_explicit_attrib_location : enable
 
 layout(location = 0) in vec3 VertexPosition;
-//layout(location = 1) uniform mat4 MVP;
-layout(location = 2) in mat4 Transform;
+
+layout(location = 3) in mat4 Transform;
 
 
 void main()
