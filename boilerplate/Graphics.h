@@ -117,7 +117,7 @@ namespace Graphics {
 		std::vector<Material*> materials;
 
 		// initialize object names to zero (OpenGL reserved value)
-		MyGeometry() : vertexBuffer(0), normalBuffer(0), vertexArray(0), elementCount(0), transformBuffer(0)
+		MyGeometry() : vertexBuffer(0), textureBuffer(0), normalBuffer(0), vertexArray(0), elementCount(0), transformBuffer(0)
 		{}
 	};
 

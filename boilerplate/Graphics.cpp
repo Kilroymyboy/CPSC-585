@@ -358,6 +358,9 @@ namespace Graphics {
 		if (id == 0)glBindTexture(GL_TEXTURE_2D, shadowFbo.texture);
 		else glBindTexture(GL_TEXTURE_2D, shadowFbo1.texture);
 
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, Resources::gridTexture.textureID);
+
 		tDrawCalls++;
 		glDrawArraysInstanced(GL_TRIANGLES, 0, geometry->elementCount, geometry->transforms.size());
 
@@ -913,19 +916,15 @@ namespace Graphics {
 
 	void initGeometry(MyGeometry* geometry) {
 		glGenBuffers(1, &geometry->vertexBuffer);
-		glBindBuffer(GL_ARRAY_BUFFER, geometry->vertexBuffer);
-
-		// create another one for storing our colours
 		glGenBuffers(1, &geometry->normalBuffer);
-		glBindBuffer(GL_ARRAY_BUFFER, geometry->normalBuffer);
+		glGenBuffers(1, &geometry->textureBuffer);
+		glGenBuffers(1, &geometry->transformBuffer);
+		glGenBuffers(1, &geometry->colorBuffer);
+		glGenBuffers(1, &geometry->emissionColorBuffer);
 
 		// create a vertex array object encapsulating all our vertex attributes
 		glGenVertexArrays(1, &geometry->vertexArray);
 		glBindVertexArray(geometry->vertexArray);
-
-		glGenBuffers(1, &geometry->transformBuffer);
-		glGenBuffers(1, &geometry->colorBuffer);
-		glGenBuffers(1, &geometry->emissionColorBuffer);
 
 		// associate the position array with the vertex array object
 		glBindBuffer(GL_ARRAY_BUFFER, geometry->vertexBuffer);
@@ -936,6 +935,10 @@ namespace Graphics {
 		glBindBuffer(GL_ARRAY_BUFFER, geometry->normalBuffer);
 		glVertexAttribPointer(VERTEX_NORMAL_LOCATION, 3, GL_FLOAT, GL_FALSE, 0, 0);
 		glEnableVertexAttribArray(VERTEX_NORMAL_LOCATION);
+
+		glBindBuffer(GL_ARRAY_BUFFER, geometry->textureBuffer);
+	//	glVertexAttribPointer(VERTEX_TEXCOORD_LOCATION, 2, GL_FLOAT, GL_FALSE, 0, 0);
+	//	glEnableVertexAttribArray(VERTEX_TEXCOORD_LOCATION);
 
 		// unbind our buffers, resetting to default state
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
