@@ -41,10 +41,10 @@ void PowerUp::update(mat4 parentTransform) {
 
 void PowerUp::render(mat4 parentTransform) {
 	if (powerId == 0) {
-		Graphics::Render(&Resources::centeredCube, &Resources::coralMaterial, transform);
+		Graphics::RenderInstanced(&Resources::centeredCube, &Resources::coralMaterial, transform);
 	}
 	else {
-		Graphics::Render(&Resources::centeredCube, &Resources::paleGreenMaterial, transform);
+		Graphics::RenderInstanced(&Resources::centeredCube, &Resources::paleGreenMaterial, transform);
 	}
 }
 

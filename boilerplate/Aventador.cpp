@@ -45,9 +45,8 @@ Aventador::Aventador(int id) {
 
 	actor = PhysicsManager::createDynamic(t, dimensions);
 	actor->setMass(5.5);
-	actor->setAngularDamping(0.8);
 	actor->setLinearDamping(0.5);
-	PhysicsManager::attachSimulationShape(actor, dimensions,200);
+	PhysicsManager::attachSimulationShape(actor, dimensions, 200);
 	if (aventadorId == 0) {
 		PhysicsManager::setContactFilter(actor, FilterGroup::eAventador0, FilterGroup::eAventador1 | FilterGroup::ePowerUp0);
 		actor->setName("front");
@@ -211,6 +210,8 @@ void Aventador::updateFriction() {
 }
 
 void Aventador::updateSteering() {
+	actor->setAngularDamping(actor->getAngularVelocity().y );
+	actor->addTorque(-actor->getAngularVelocity() * 20);
 
 	if (aventadorData.isAI) {
 		if (Time::time > dChangeTime) {

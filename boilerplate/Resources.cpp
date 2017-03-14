@@ -21,7 +21,7 @@ namespace Resources {
 		Graphics::loadGeometry(&cube, "models/cube.obj");
 		Graphics::loadGeometry(&centeredCube, "models/cube_center.obj");
 
-		Geometry::initPlaneGeometry(&gridLines, 1000, 1000, 150);
+		Geometry::initPlaneGeometry(&gridLines, 1000, 1000, 100);
 		Graphics::InitializeShaders(&standardShader, "vertex.glsl", "fragment.glsl");
 		if (!Graphics::InitializeTexture(&gridTexture, "images/grid.jpg", GL_TEXTURE_2D, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR))
 			std::cout << "can not initialize texture images/grid.jpg" << std::endl;
