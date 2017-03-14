@@ -182,102 +182,7 @@ namespace Graphics {
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 
-	// render to a framebuffer with an id
-	void RenderId(MyGeometry *geometry, Material* material, mat4 transform, int id) {
-		if (id == 0) {
-			glBindFramebuffer(GL_FRAMEBUFFER, defaultFbo.fbo);
-			glBindTexture(GL_TEXTURE_2D, defaultFbo.texture);
-		}
-		else {
-			glBindFramebuffer(GL_FRAMEBUFFER, defaultFbo1.fbo);
-			glBindTexture(GL_TEXTURE_2D, defaultFbo1.texture);
-		}
-
-		// enable gl depth test
-		glEnable(GL_DEPTH_TEST);
-		if (SPLIT_SCREEN) {
-			vec2 defaultFboDimension(WINDOW_WIDTH*MSAA / ((SPLIT_SCREEN && (!SPLIT_SCREEN_ORIENTATION)) ? 2 : 1),
-				WINDOW_HEIGHT*MSAA / ((SPLIT_SCREEN && SPLIT_SCREEN_ORIENTATION) ? 2 : 1));
-
-			glScissor(0, 0, defaultFboDimension.x, defaultFboDimension.y);
-			glViewport(0, 0, defaultFboDimension.x, defaultFboDimension.y);
-		}
-		else {
-			glScissor(0, 0, WINDOW_WIDTH*MSAA, WINDOW_HEIGHT*MSAA);
-			glViewport(0, 0, WINDOW_WIDTH*MSAA, WINDOW_HEIGHT*MSAA);
-		}
-
-		glBindBuffer(GL_ARRAY_BUFFER, geometry->transformBuffer);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(mat4), &transform, GL_DYNAMIC_DRAW);
-
-		glBindVertexArray(geometry->vertexArray);
-		glEnableVertexAttribArray(TRANSFORM_LOCATION);
-		glVertexAttribPointer(TRANSFORM_LOCATION, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (GLvoid*)0);
-		glEnableVertexAttribArray(TRANSFORM_LOCATION + 1);
-		glVertexAttribPointer(TRANSFORM_LOCATION + 1, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (GLvoid*)(sizeof(glm::vec4)));
-		glEnableVertexAttribArray(TRANSFORM_LOCATION + 2);
-		glVertexAttribPointer(TRANSFORM_LOCATION + 2, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (GLvoid*)(2 * sizeof(glm::vec4)));
-		glEnableVertexAttribArray(TRANSFORM_LOCATION + 3);
-		glVertexAttribPointer(TRANSFORM_LOCATION + 3, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (GLvoid*)(3 * sizeof(glm::vec4)));
-
-		glVertexAttribDivisor(TRANSFORM_LOCATION, 1);
-		glVertexAttribDivisor(TRANSFORM_LOCATION + 1, 1);
-		glVertexAttribDivisor(TRANSFORM_LOCATION + 2, 1);
-		glVertexAttribDivisor(TRANSFORM_LOCATION + 3, 1);
-		glBindVertexArray(0);
-
-		glBindBuffer(GL_ARRAY_BUFFER, geometry->colorBuffer);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(vec3), &material->color, GL_DYNAMIC_DRAW);
-		glBindVertexArray(geometry->vertexArray);
-		glEnableVertexAttribArray(COLOR_LOCATION);
-		glVertexAttribPointer(COLOR_LOCATION, 3, GL_FLOAT, GL_FALSE, 0, 0);
-		glVertexAttribDivisor(COLOR_LOCATION, 1);
-		glBindVertexArray(0);
-
-		glBindBuffer(GL_ARRAY_BUFFER, geometry->emissionColorBuffer);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(vec3), &material->emmisiveColor, GL_DYNAMIC_DRAW);
-		glBindVertexArray(geometry->vertexArray);
-		glEnableVertexAttribArray(EMISSION_COLOR_LOCATION);
-		glVertexAttribPointer(EMISSION_COLOR_LOCATION, 3, GL_FLOAT, GL_FALSE, 0, 0);
-		glVertexAttribDivisor(EMISSION_COLOR_LOCATION, 1);
-		glBindVertexArray(0);
-
-
-		glBindVertexArray(geometry->vertexArray);
-
-		Viewport::update(id);
-		Light::update(id);
-
-		//	glUniform1i(SOFT_SHADOW_LOCATION, SOFT_SHADOW);
-
-		mat4 shadowMvp = Light::biasMatrix*Light::projection[id] * Light::transform[id];
-		glUniformMatrix4fv(SHADOW_MVP_LOCATION, 1, GL_FALSE, &shadowMvp[0][0]);
-
-		glActiveTexture(GL_TEXTURE0);
-		if (id == 0)glBindTexture(GL_TEXTURE_2D, shadowFbo.texture);
-		else glBindTexture(GL_TEXTURE_2D, shadowFbo1.texture);
-
-		tDrawCalls++;
-		glDrawArraysInstanced(GL_TRIANGLES, 0, geometry->elementCount, 1);
-
-		// reset state to default (no shader or geometry bound)
-		glBindVertexArray(0);
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		glBindTexture(GL_TEXTURE_2D, 0);
-	}
-
-	void Render(MyGeometry *geometry, Material* material, mat4 transform)
-	{
-		RenderId(geometry, material, transform, 0);
-		if (SPLIT_SCREEN) RenderId(geometry, material, transform, 1);
-	}
-
-	void RenderInstanced(MyGeometry *geometry, Material* material, mat4 transform) {
-		geometry->transforms.push_back(transform);
-		geometry->materials.push_back(material);
-	}
-
-	void flushInstancedGeometryId(MyGeometry *geometry, int id) {
+	void _Render(MyGeometry* geometry, const vector<vec3>& c, const vector<vec3>& ec, GLuint texture, const vector<mat4>& transforms, int id) {
 		if (id == 0) {
 			glBindFramebuffer(GL_FRAMEBUFFER, defaultFbo.fbo);
 			glBindTexture(GL_TEXTURE_2D, defaultFbo.texture);
@@ -303,7 +208,7 @@ namespace Graphics {
 
 
 		glBindBuffer(GL_ARRAY_BUFFER, geometry->transformBuffer);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(mat4)*geometry->transforms.size(), &geometry->transforms[0], GL_DYNAMIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(mat4)*transforms.size(), &transforms[0], GL_DYNAMIC_DRAW);
 
 		glBindVertexArray(geometry->vertexArray);
 		glEnableVertexAttribArray(TRANSFORM_LOCATION);
@@ -320,15 +225,6 @@ namespace Graphics {
 		glVertexAttribDivisor(TRANSFORM_LOCATION + 2, 1);
 		glVertexAttribDivisor(TRANSFORM_LOCATION + 3, 1);
 		glBindVertexArray(0);
-
-		vector<vec3> c, ec;
-		c.resize(geometry->transforms.size());
-		ec.resize(geometry->transforms.size());
-
-		for (int i = 0; i < geometry->transforms.size(); i++) {
-			c[i] = geometry->materials[i]->color;
-			ec[i] = geometry->materials[i]->emmisiveColor;
-		}
 
 		glBindBuffer(GL_ARRAY_BUFFER, geometry->colorBuffer);
 		glBufferData(GL_ARRAY_BUFFER, sizeof(vec3)*c.size(), &c[0], GL_DYNAMIC_DRAW);
@@ -363,15 +259,49 @@ namespace Graphics {
 
 
 		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, geometry->materials[0]->texture);
+		glBindTexture(GL_TEXTURE_2D, texture);
 
 		tDrawCalls++;
-		glDrawArraysInstanced(GL_TRIANGLES, 0, geometry->elementCount, geometry->transforms.size());
+		glDrawArraysInstanced(GL_TRIANGLES, 0, geometry->elementCount, transforms.size());
 
 		// reset state to default (no shader or geometry bound)
 		glBindVertexArray(0);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glBindTexture(GL_TEXTURE_2D, 0);
+	}
+
+	// render to a framebuffer with an id
+	void RenderId(MyGeometry *geometry, Material* material, mat4 transform, int id) {
+		vector<vec3> c, ec;
+		c.push_back(material->color);
+		ec.push_back(material->emmisiveColor);
+		vector<mat4> t;
+		t.push_back(transform);
+		_Render(geometry, c, ec, material->texture, t, id);
+	}
+
+	void Render(MyGeometry *geometry, Material* material, mat4 transform)
+	{
+		RenderId(geometry, material, transform, 0);
+		if (SPLIT_SCREEN) RenderId(geometry, material, transform, 1);
+	}
+
+	void RenderInstanced(MyGeometry *geometry, Material* material, mat4 transform) {
+		geometry->transforms.push_back(transform);
+		geometry->materials.push_back(material);
+	}
+
+	void flushInstancedGeometryId(MyGeometry *geometry, int id) {
+		vector<vec3> c, ec;
+		c.resize(geometry->transforms.size());
+		ec.resize(geometry->transforms.size());
+
+		for (int i = 0; i < geometry->transforms.size(); i++) {
+			c[i] = geometry->materials[i]->color;
+			ec[i] = geometry->materials[i]->emmisiveColor;
+		}
+
+		_Render(geometry, c, ec, geometry->materials[0]->texture, geometry->transforms, id);
 	}
 
 	void flushInstancedGeometry(MyGeometry *geometry) {
