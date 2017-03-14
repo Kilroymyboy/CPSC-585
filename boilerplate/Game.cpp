@@ -22,7 +22,7 @@ namespace Game {
 		entities.push_back(aventador0);
 
 		entities.push_back(aventador1);
-	//	entities.push_back(shared_ptr<Path>(new Path(100,1,0)));	//the path that gets drawn under the car
+		entities.push_back(shared_ptr<Path>(new Path(100, aventador0)));	//the path that gets drawn under the car
 
 		//entities.push_back(unique_ptr<Cube>(new Cube));
 		//entities.push_back(unique_ptr<CenteredCube>(new CenteredCube(vec3(0, 3, 0))));
