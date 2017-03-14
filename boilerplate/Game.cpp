@@ -15,7 +15,7 @@ namespace Game {
 
 	shared_ptr<HUDobj> hud;
 
-	double spawnCoolDown = 5.0;
+	double spawnCoolDown = 1.0;
 	double powerUpSpawnTime = Time::time += spawnCoolDown;
 
 
@@ -25,9 +25,9 @@ namespace Game {
 
 		aventador1 = shared_ptr<Aventador>(new Aventador(1));
 		entities.push_back(aventador0);
-
+		entities.push_back(shared_ptr<Path>(new Path(100, 1, 0)));	//the path that gets drawn under the car
 		entities.push_back(aventador1);
-		entities.push_back(shared_ptr<Path>(new Path(100,1,0)));	//the path that gets drawn under the car
+
 
 		//entities.push_back(unique_ptr<Plane>(new Plane));
 	}
@@ -46,7 +46,7 @@ namespace Game {
 		//adding more power ups into the scene
 		if (Time::time > powerUpSpawnTime) {
 			powerUpSpawnTime += spawnCoolDown;
-			entities.push_back(shared_ptr<Entity>(new PowerUp()));
+			entities.push_back(shared_ptr<Entity>(new PowerUpManager()));
 		}
 
 	}
