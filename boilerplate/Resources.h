@@ -19,4 +19,6 @@ namespace Resources {
 
 	extern Graphics::Material coralMaterial;
 	extern Graphics::Material paleGreenMaterial;
+
+	extern Graphics::Material planeMaterial;
 }

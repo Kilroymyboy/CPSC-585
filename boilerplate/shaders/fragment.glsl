@@ -35,7 +35,9 @@ void main(void)
 {
 	float cosTheta = dot(-LightDirection, Normal);
     FragmentColour = vec4(1, 1, 1, 0)*cosTheta;
-	vec4 textureColor = texture(colorTexture, TexCoord);
+	vec4 textureColor=vec4(1,1,1,0);
+	// a bit hacky
+	if(textureSize(colorTexture, 0).x > 1) textureColor = texture(colorTexture, TexCoord);
 	FragmentColour.xyz=max(FragmentColour.xyz*textureColor.xyz, vec3(0));
     FragmentColour.xyz+=AmbientLight;
 

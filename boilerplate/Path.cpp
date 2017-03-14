@@ -19,7 +19,7 @@ Path::Path(int geometrySize, shared_ptr<Aventador> aventador) {
 	cooldown = 0.1;
 	nextGenTime = Time::time + cooldown;
 	for (int i = 0; i < (size + 1) * 6; i++) {
-		positions.push_back(vec3(0, 0, 0));
+		positions.push_back(vec3(0, 0.01, 0));
 		normals.push_back(vec3(0, 1, 0));
 		uvs.push_back(vec2(0, 0));
 	}
@@ -50,9 +50,9 @@ void Path::update(mat4 parentTransform) {
 	vec4 frw(aventador->wheelPos[0], 1);
 	vec4 flw(aventador->wheelPos[1], 1);
 	frw = aventador->transform*frw;
-	frw.y = 0.1;
+	frw.y = 0.01;
 	flw = aventador->transform*flw;
-	flw.y = 0.1;
+	flw.y = 0.01;
 	positions[positions.size() - 6] = positions[positions.size() - 12 + 2];
 	positions[positions.size() - 5] = vec3(frw);
 	positions[positions.size() - 4] = vec3(flw);

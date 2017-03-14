@@ -361,8 +361,9 @@ namespace Graphics {
 		if (id == 0)glBindTexture(GL_TEXTURE_2D, shadowFbo.texture);
 		else glBindTexture(GL_TEXTURE_2D, shadowFbo1.texture);
 
+
 		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, Resources::gridTexture.textureID);
+		glBindTexture(GL_TEXTURE_2D, geometry->materials[0]->texture);
 
 		tDrawCalls++;
 		glDrawArraysInstanced(GL_TRIANGLES, 0, geometry->elementCount, geometry->transforms.size());
@@ -863,8 +864,8 @@ namespace Graphics {
 			it->get()->render(mat4(1));
 		}
 		// flush instancedGeometry
-		for (auto it : instancedGeometry) {
-			flushInstancedGeometry(it);
+		for (int i = 0; i < instancedGeometry.size(); i++) {
+			flushInstancedGeometry(instancedGeometry[i]);
 		}
 		glUseProgram(0);
 
@@ -889,7 +890,7 @@ namespace Graphics {
 		tDrawCalls = 0;
 
 
-		if(CHECK_GL_ERRORS)	CheckGLErrors();
+		if (CHECK_GL_ERRORS)	CheckGLErrors();
 
 		// vertical sync
 		glfwSwapInterval(VSYNC);
@@ -910,7 +911,7 @@ namespace Graphics {
 
 		glBindBuffer(GL_ARRAY_BUFFER, geometry->vertexBuffer);
 		glBufferData(GL_ARRAY_BUFFER, sizeof(vec3)*pos.size(), &pos[0], GL_STATIC_DRAW);
-		
+
 		glBindBuffer(GL_ARRAY_BUFFER, geometry->textureBuffer);
 		glBufferData(GL_ARRAY_BUFFER, sizeof(vec2)*texcoord.size(), &texcoord[0], GL_STATIC_DRAW);
 

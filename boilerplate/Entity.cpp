@@ -15,7 +15,7 @@ void Plane::update(glm::mat4 parentTransform) {
 }
 
 void Plane::render(glm::mat4 parentTransform) {
-	Graphics::RenderInstanced(&Resources::gridLines, &Resources::defaultMaterial, parentTransform);
+	Graphics::RenderInstanced(&Resources::gridLines, &Resources::planeMaterial, parentTransform);
 }
 
 void Cube::update(glm::mat4 parentTransform) {

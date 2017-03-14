@@ -42,8 +42,8 @@
 #define VSYNC 1
 #define SHADOWMAP_SIZE 1600
 
-#define EFFECTS 0
-#define HDR_ENABLED 0
+#define EFFECTS 1
+#define HDR_ENABLED 1
 
 #define PRINT_DRAW_CALLS 0
 
@@ -90,15 +90,15 @@ namespace Graphics {
 	struct Material {
 		glm::vec3 color;
 		glm::vec3 emmisiveColor;
-		MyTexture* texture;
+		GLuint texture;
 
 		Material() :color(glm::vec3(0)), emmisiveColor(glm::vec3(0)) {}
 		Material(glm::vec3 c) :color(c), emmisiveColor(glm::vec3(0)) {}
 		Material(glm::vec3 c, glm::vec3 e) :color(c), emmisiveColor(e) {}
 
-		Material(MyTexture* t) :color(glm::vec3(0)), emmisiveColor(glm::vec3(0)), texture(t) {}
-		Material(glm::vec3 c, MyTexture* t) :color(c), emmisiveColor(glm::vec3(0)), texture(t) {}
-		Material(glm::vec3 c, glm::vec3 e, MyTexture* t) :color(c), emmisiveColor(e), texture(t) {}
+		Material(GLuint t) :color(glm::vec3(0)), emmisiveColor(glm::vec3(0)), texture(t) {}
+		Material(glm::vec3 c, GLuint t) :color(c), emmisiveColor(glm::vec3(0)), texture(t) {}
+		Material(glm::vec3 c, glm::vec3 e, GLuint t) :color(c), emmisiveColor(e), texture(t) {}
 	};
 
 	struct MyGeometry

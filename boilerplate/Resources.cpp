@@ -21,10 +21,12 @@ namespace Resources {
 		Graphics::loadGeometry(&cube, "models/cube.obj");
 		Graphics::loadGeometry(&centeredCube, "models/cube_center.obj");
 
-		Geometry::initPlaneGeometry(&gridLines, 1000, 1000, 300);
+		Geometry::initPlaneGeometry(&gridLines, 1000, 1000, 150);
 		Graphics::InitializeShaders(&standardShader, "vertex.glsl", "fragment.glsl");
 		if (!Graphics::InitializeTexture(&gridTexture, "images/grid.jpg", GL_TEXTURE_2D, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR))
 			std::cout << "can not initialize texture images/grid.jpg" << std::endl;
+
+		planeMaterial.texture = gridTexture.textureID;
 	}
 
 	Graphics::Material defaultMaterial(glm::vec3(1));
@@ -33,5 +35,6 @@ namespace Resources {
 	Graphics::Material pureBlackMaterial(glm::vec3(0));
 	Graphics::Material coralMaterial(glm::vec3(0), glm::vec3(1.0, 0.49, 0.31));
 	Graphics::Material paleGreenMaterial(glm::vec3(0), glm::vec3(0.49, 0.8, 0.49));
+	Graphics::Material planeMaterial(glm::vec3(1));
 
 }
