@@ -2,6 +2,7 @@
 #include "Game.h"
 #include "extensions\PxRigidBodyExt.h"
 
+
 namespace PhysicsManager {
 
 	enum Layer {
@@ -20,6 +21,8 @@ namespace PhysicsManager {
 	PxScene *mScene;
 	PxMaterial *mMaterial;
 	PxVisualDebuggerConnection* gConnection;
+	ContactBehaviourCallback gSimulationEventCallback;
+	ContactModifyCallback gContactModifyCallback;
 
 	void init()
 	{
@@ -47,7 +50,9 @@ namespace PhysicsManager {
 		PxSceneDesc sceneDesc(mPhysics->getTolerancesScale());
 		sceneDesc.gravity = PxVec3(0.0f, -9.8f, 0.0f);
 		sceneDesc.cpuDispatcher = PxDefaultCpuDispatcherCreate(2);
-		sceneDesc.filterShader = PxDefaultSimulationFilterShader;
+		sceneDesc.filterShader = contactFilterShader;
+		sceneDesc.simulationEventCallback = &gSimulationEventCallback;
+		sceneDesc.contactModifyCallback = &gContactModifyCallback;
 		sceneDesc.flags |= PxSceneFlag::eENABLE_ACTIVETRANSFORMS;
 		mScene = mPhysics->createScene(sceneDesc);
 
@@ -120,13 +125,176 @@ namespace PhysicsManager {
 		//actor = PxCreateDynamic(*PhysicsManager::mPhysics, t, geometry, *PhysicsManager::mPhysics->createMaterial(0.1f, 0.1f, 0.5f), PxReal(1.0f));
 		
 		dynamic->setAngularDamping(0.2f);
+
 		dynamic->setLinearVelocity(velocity);
 		mScene->addActor(*dynamic);
 		return dynamic;
 	}
 
+	void attachSimulationShape(PxRigidDynamic *actor, const PxVec3& dimensions, PxReal distance ) {
+		//exclusion means that the shape is not shared among objects
+		PxShape *shape = PxGetPhysics().createShape(PxBoxGeometry(dimensions), *mMaterial, true);
+		shape->setFlag(PxShapeFlag::eSIMULATION_SHAPE, true);
+		actor->attachShape(*shape);
+		shape->release();
+	}
+
+	void attachTriggerShape(PxRigidDynamic *actor, const PxVec3& dimensions) {
+		//exclusion means that the shape is not shared among objects
+		PxShape *shape = PxGetPhysics().createShape(PxBoxGeometry(dimensions), *mMaterial, true);
+		shape->setFlag(PxShapeFlag::eSIMULATION_SHAPE, false);
+		shape->setFlag(PxShapeFlag::eTRIGGER_SHAPE, true);
+		actor->attachShape(*shape);
+		shape->release();
+	}
+
+	//set up the filter flags
+	void setContactFilter(PxRigidActor *actor, PxU32 filterGroup, PxU32 filterMask) {
+		PxFilterData filterData;
+		filterData.word0 = filterGroup; //filter ID of the actor
+		filterData.word1 = filterMask; //filter ID that triggers a contact callback with the actor
+		
+		const PxU32 numShapes = actor->getNbShapes();
+		PxShape** shapes = (PxShape**)malloc(sizeof(PxShape*)*numShapes);
+		actor->getShapes(shapes, numShapes);
+		for (PxU32 i = 0; i < numShapes; i++)
+		{
+			PxShape* shape = shapes[i];
+			shape->setSimulationFilterData(filterData); //set up the filter data
+		}
+		free(shapes);
+	}
+
+	//Filter actors that contact each other
+	PxFilterFlags contactFilterShader(PxFilterObjectAttributes attributes0,
+		PxFilterData filterData0, PxFilterObjectAttributes attributes1,
+		PxFilterData filterData1, PxPairFlags& pairFlags,
+		const void * constantBlock, PxU32 constantBlockSize)
+	{
+		// Check to see if either actor is a trigger
+		if (PxFilterObjectIsTrigger(attributes0) ||
+			PxFilterObjectIsTrigger(attributes1))
+		{
+			// Signal that a trigger has been activated and exit
+			pairFlags = PxPairFlag::eTRIGGER_DEFAULT;
+			return PxFilterFlag::eDEFAULT;
+		}
+
+		// Generate a default contact report
+		pairFlags |= PxPairFlag::eCONTACT_DEFAULT;
+
+		//check if the filter group and mask match
+		if ((filterData0.word0 & filterData1.word1) && (filterData1.word0 & filterData0.word1))
+		{
+			pairFlags |= PxPairFlag::eNOTIFY_TOUCH_FOUND | PxPairFlag::eMODIFY_CONTACTS;
+		}
+
+		// Add the Continuous Collision Detection (CCD) flag, so that
+		// CCD is enabled, and return the default filter flags
+		pairFlags |= PxPairFlag::eCCD_LINEAR;
+		return PxFilterFlag::eDEFAULT;
+
+	}
+
 	void updateSelf(const PxRigidDynamic *actor)
 	{
 
+	}
+}
+
+/******************************************************************************************************************************/
+
+void ContactBehaviourCallback::onContact(const PxContactPairHeader& pairHeader, const PxContactPair* pairs, PxU32 nbPairs) {
+	for (PxU32 i = 0; i < nbPairs; i++)
+	{
+		const PxContactPair& cp = pairs[i];
+
+		if (cp.events & PxPairFlag::eNOTIFY_TOUCH_FOUND)
+		{
+			PxRigidActor* a0 = Game::aventador0->getActor();
+			PxRigidActor* a1 = Game::aventador1->getActor();
+			const char* name0 = "powerup0";
+			const char* name1 = "powerup1";
+			bool isAventador0 = pairHeader.actors[0] == a0 || pairHeader.actors[1] == a0;
+			bool isAventador1 = pairHeader.actors[0] == a1 || pairHeader.actors[1] == a1;
+			bool isPowerUp0 = pairHeader.actors[0]->getName() == name0 || pairHeader.actors[1]->getName() == name0;
+			bool isPowerUp1 = pairHeader.actors[0]->getName() == name1 || pairHeader.actors[1]->getName() == name1;
+			//bool isPowerUp = strcmp(pairHeader.actors[0]->getName(),"powerUp") || strcmp(pairHeader.actors[1]->getName(), "powerUp");
+
+
+			if (isAventador0 && isAventador1) {
+				std::cout << "Aventador made contact with another aventador\n";
+
+				Game::switchRole();
+
+				break;
+			}
+			else if (isPowerUp0 && isAventador0) {
+				//remove the power up from the scene
+				PxRigidActor* pickedUp = (pairHeader.actors[0]->getName() == name0) ? pairHeader.actors[0] : pairHeader.actors[1];
+				auto power = find_if(Game::entities.begin(), Game::entities.end(), [&](std::shared_ptr<Entity>toFind) {
+					PowerUp* power = static_cast<PowerUp*>(toFind.get());
+					return power->getActor() == pickedUp; });
+				if (power != Game::entities.end()) {
+					Game::entities.erase(power);
+				}
+				std::cout << "aventador0 contacted a power up\n";
+				//have aventador hold the power up. Holds one power up at a time
+				Aventador* a = Game::aventador0.get();
+				if (!a->hasPowerUp()) {
+					a->setPowerUpStatus(true);
+				}
+				break;
+			}
+			else if (isPowerUp1 && isAventador1) {
+				//remove the power up from the scene
+				PxRigidActor* pickedUp = (pairHeader.actors[0]->getName() == name1) ? pairHeader.actors[0] : pairHeader.actors[1];
+				auto power = find_if(Game::entities.begin(), Game::entities.end(), [&](std::shared_ptr<Entity>toFind) {
+					PowerUp* power = static_cast<PowerUp*>(toFind.get());
+					return power->getActor() == pickedUp; });
+				if (power != Game::entities.end()) {
+					Game::entities.erase(power);
+				}
+				std::cout << "aventador0 contacted a power up\n";
+				//have aventador hold the power up. Holds one power up at a time
+				Aventador* a = Game::aventador1.get();
+				if (!a->hasPowerUp()) {
+					a->setPowerUpStatus(true);
+				}
+				break;
+			}
+		}
+	}
+}
+
+static void ignoreContacts(PxContactModifyPair& pair) {
+	for (PxU32 i = 0; i < pair.contacts.size(); ++i) {
+		pair.contacts.ignore(i);
+	}
+}
+
+static void setTargetVelocity(PxContactModifyPair& pair, const PxVec3& targetVelocity) {
+	for (PxU32 i = 0; i < pair.contacts.size(); ++i)
+	{
+		pair.contacts.setTargetVelocity(i, targetVelocity);
+	}
+}
+
+void ContactModifyCallback::onContactModify(PxContactModifyPair* const pairs, PxU32 count) {
+
+	for (PxU32 i = 0; i < count; i++) {
+		PxU32 flags = static_cast<PxU32>(reinterpret_cast<size_t>(pairs[i].actor[0]->userData) | reinterpret_cast<size_t>(pairs[i].actor[0]->userData));
+
+		if (flags & ContactModFlags::eIGNORE_CONTACT) {
+			ignoreContacts(pairs[i]);
+		}
+
+		//increase the speed of the back car?
+		//doesn't work yet
+		const PxVec3 targetVelocity(0.f, 0.f, 100.f);
+		bool isBackAventator = pairs->actor[0] == Game::aventador1->getActor() || pairs->actor[1] == Game::aventador1->getActor();
+		if ((flags & ContactModFlags::eTARGET_VELOCITY)){
+			setTargetVelocity(pairs[i],targetVelocity);
+		}
 	}
 }

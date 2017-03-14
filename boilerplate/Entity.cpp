@@ -10,12 +10,17 @@ using namespace physx;
 
 
 void Plane::update(glm::mat4 parentTransform) {
-
+	for (int i = -5; i < 6; i++) {
+		for (int j = -5; j < 6; j++) {
+			mat4 t = translate(transform, vec3(i * 16, 0, j * 16));
+			Light::renderShadowMap(&Resources::plane, parentTransform*t);
+		}
+	}
 }
 
 void Plane::render(glm::mat4 parentTransform) {
-	for (int i = -8; i < 7; i++) {
-		for (int j = -8; j < 7; j++) {
+	for (int i = -3; i < 2; i++) {
+		for (int j = -3; j < 2; j++) {
 			mat4 t = translate(transform, vec3(i * 16, 0, j * 16));
 			Graphics::Render(&Resources::plane, &Resources::defaultMaterial, parentTransform*t);
 		}

@@ -9,6 +9,7 @@
 #include "Resources.h"
 #include "Entity.h"
 #include "Aventador.h"
+#include "PowerUp.h"
 
 #define PRINT_FPS 0
 
@@ -19,6 +20,7 @@ namespace Game {
 	extern std::shared_ptr<HUDobj> hud;
 	void init();
 	void update();
+	void switchRole();
 }
 
 namespace Time {
@@ -27,3 +29,4 @@ namespace Time {
 	void init();
 	void update();
 }
+

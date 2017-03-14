@@ -10,3 +10,21 @@ PxVec3 Rz = transform.q.getBasisVector2(); z vec for transform matrix
 eVELOCITY 
 eACCELERATION
 physx sway bar possibly look into
+
+
+Quick Descriptions:
+
+Damping: Resistance. An opposing force. Damping coefficient must be greater than 0
+	LinearDamping: resistance when moving forward
+	AngularDamping: resistance when turning
+Velocity: speed. Velocity is modified in accordance to gravity
+	LinearVelocity: straight forward
+	AngularVelocity: rate of change of angular displacement
+Torque: rotation on an axis
+Static friction: the amount of friction that is applied between surfaces that are not moving lateral to each-other
+Dynamic friction: the amount of friction applied between surfaces that are moving relative to each-other
+(Coefficient of) Restitution: speed after collision/speed before collision
+	-when restitution = 1, collide elastically. No change in kinetic energy after a collision.
+	-when restitution < 1, inelastic
+Mass Properties
+Density: used to compute the mass of the body (in PxRigidBodyExt::updateMassAndInertia). Must be greater than 0.

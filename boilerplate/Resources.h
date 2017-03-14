@@ -7,10 +7,6 @@ namespace Resources {
 	extern Graphics::MyGeometry plane, cube, centeredCube;
 	extern Graphics::MyShader standardShader;
 
-	extern Graphics::StandardShaderMaterial defaultMaterialObject;
-	extern Graphics::StandardShaderMaterial emmisiveMaterialObject;
-	extern Graphics::StandardShaderMaterial blackMaterialObject;
-
 	void init();
 
 	void nullMaterial();
@@ -20,6 +16,10 @@ namespace Resources {
 	void darkGreyMaterial();
 
 	void pureBlackMaterial();
+
+	void coralMaterial();
+
+	void paleGreenMaterial();
 
 	void emmisiveBlueMaterial();
 

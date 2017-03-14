@@ -42,10 +42,14 @@
 #define VSYNC 1
 #define SHADOWMAP_SIZE 1600
 
+
 #define EFFECTS 0
 #define HDR_ENABLED 0
 
 #define PRINT_DRAW_CALLS 0
+
+#define BLOOM_DOWNSAMPLE 2
+#define BLOOM_DOWNSAMPLE1 8
 
 namespace Graphics {
 	extern bool SPLIT_SCREEN;
@@ -59,16 +63,6 @@ namespace Graphics {
 	int shouldClose(); 
 	void update();
 	void destroy();
-
-
-	struct StandardShaderMaterial {
-		glm::vec3 Color;
-		glm::vec3 EmmisiveColor;
-		StandardShaderMaterial(glm::vec3 color)
-			: Color(color), EmmisiveColor(glm::vec3(0, 0, 0)) {}
-		StandardShaderMaterial(glm::vec3 color, glm::vec3 emmisiveColor)
-			: Color(color), EmmisiveColor(emmisiveColor) {}
-	};
 
 	struct MyShader
 	{
@@ -103,15 +97,9 @@ namespace Graphics {
 		GLuint  vertexArray;
 		GLsizei elementCount;
 
-		// used for instanced rendering
-		std::vector<glm::mat4> transforms;
-		std::vector<void(*)> materials;
-
 		// initialize object names to zero (OpenGL reserved value)
 		MyGeometry() : vertexBuffer(0), normalBuffer(0), vertexArray(0), elementCount(0)
 		{}
-
-		~MyGeometry() = default;
 	};
 
 	struct MyFrameBuffer {
@@ -124,8 +112,6 @@ namespace Graphics {
 
 	void loadGeometry(MyGeometry* geometry, char* path);
 	void Render(MyGeometry *geometry, void(*material)(), glm::mat4 transform);
-	void Render(MyGeometry *geometry, StandardShaderMaterial* material, glm::mat4 transform);
-	void RenderInstanced(MyGeometry *geometry, void(*material)(), glm::mat4 transform);
 	bool InitializeShaders(MyShader *shader, const std::string vertex, const std::string fragment);
 	bool InitializeFrameBuffer(MyFrameBuffer* frameBuffer, glm::vec2 dimension, bool HDR);
 	bool InitializeShadowMap(MyFrameBuffer* frameBuffer, glm::vec2 dimension);
@@ -137,7 +123,7 @@ namespace Viewport {
 	extern std::vector<glm::vec3> position, target;
 
 	void init(int);
-	void update(int);
+	void update(glm::mat4, int);
 }
 
 namespace Light {
