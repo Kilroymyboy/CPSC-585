@@ -139,6 +139,7 @@ namespace PhysicsManager {
 		shape->release();
 	}
 
+	//triggers at any kind of contact
 	void attachTriggerShape(PxRigidDynamic *actor, const PxVec3& dimensions) {
 		//exclusion means that the shape is not shared among objects
 		PxShape *shape = PxGetPhysics().createShape(PxBoxGeometry(dimensions), *mMaterial, true);
