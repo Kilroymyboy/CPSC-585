@@ -225,8 +225,8 @@ void ContactBehaviourCallback::onContact(const PxContactPairHeader& pairHeader, 
 
 			if (isAventador0 && isAventador1) {
 				std::cout << "Aventador made contact with another aventador\n";
-
-				Game::switchRole();
+				//Role swtiching is determined in Game.cpp
+				//Game::switchRole();
 
 				break;
 			}
@@ -234,7 +234,7 @@ void ContactBehaviourCallback::onContact(const PxContactPairHeader& pairHeader, 
 				//remove the power up from the scene
 				PxRigidActor* pickedUp = (pairHeader.actors[0]->getName() == name0) ? pairHeader.actors[0] : pairHeader.actors[1];
 				auto power = find_if(Game::entities.begin(), Game::entities.end(), [&](std::shared_ptr<Entity>toFind) {
-					PowerUp* power = static_cast<PowerUp*>(toFind.get());
+					PowerUpManager* power = static_cast<PowerUpManager*>(toFind.get());
 					return power->getActor() == pickedUp; });
 				if (power != Game::entities.end()) {
 					Game::entities.erase(power);
@@ -251,7 +251,7 @@ void ContactBehaviourCallback::onContact(const PxContactPairHeader& pairHeader, 
 				//remove the power up from the scene
 				PxRigidActor* pickedUp = (pairHeader.actors[0]->getName() == name1) ? pairHeader.actors[0] : pairHeader.actors[1];
 				auto power = find_if(Game::entities.begin(), Game::entities.end(), [&](std::shared_ptr<Entity>toFind) {
-					PowerUp* power = static_cast<PowerUp*>(toFind.get());
+					PowerUpManager* power = static_cast<PowerUpManager*>(toFind.get());
 					return power->getActor() == pickedUp; });
 				if (power != Game::entities.end()) {
 					Game::entities.erase(power);

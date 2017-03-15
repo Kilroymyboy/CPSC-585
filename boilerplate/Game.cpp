@@ -12,22 +12,30 @@ namespace Game {
 	list<shared_ptr<Entity> > entities;
 	shared_ptr<Aventador> aventador0;
 	shared_ptr<Aventador> aventador1;
-	double spawnCoolDown = 5.0;
+
+	shared_ptr<HUDobj> hud;
+
+	double spawnCoolDown = 3;
 	double powerUpSpawnTime = Time::time += spawnCoolDown;
+	double switchRange = 25.0;
+	bool inSwtichRange = false;
 
 	// we can customize this function as much as we want for now for debugging
 	void init() {
 		aventador0 = shared_ptr<Aventador>(new Aventador(0));
+
 		aventador1 = shared_ptr<Aventador>(new Aventador(1));
 		entities.push_back(aventador0);
-
+		entities.push_back(shared_ptr<Path>(new Path(100, 1, 0)));	//the path that gets drawn under the car
 		entities.push_back(aventador1);
-		entities.push_back(shared_ptr<Path>(new Path(100,1,0)));	//the path that gets drawn under the car
+
+
 		//entities.push_back(unique_ptr<Plane>(new Plane));
 	}
 
 	void update() {
 		glfwPollEvents();
+		double dist = getDist();
 
 		for (auto it = entities.begin(); it != entities.end(); it++) {
 			if (it->get()->alive) {
@@ -40,7 +48,17 @@ namespace Game {
 		//adding more power ups into the scene
 		if (Time::time > powerUpSpawnTime) {
 			powerUpSpawnTime += spawnCoolDown;
-			entities.push_back(shared_ptr<Entity>(new PowerUp()));
+			entities.push_back(shared_ptr<Entity>(new PowerUpManager()));
+		}
+		//check the distance between the aventators
+		if (dist < switchRange) {
+			aventador1->setForce(100);
+			inSwtichRange = true;
+		}
+		else if (dist > switchRange && inSwtichRange) { //change the speed/role only once
+			aventador1->setForce(45);
+			switchRole();	//change the roles of the aventators
+			inSwtichRange = !inSwtichRange;
 		}
 
 	}
@@ -48,6 +66,13 @@ namespace Game {
 	void switchRole() {
 		aventador0->changeRole();
 		aventador1->changeRole();
+		std::cout << "role switch\n";
+	}
+
+	double getDist() {
+		PxTransform pos0 = aventador0->getActor()->getGlobalPose();
+		PxTransform pos1 = aventador1->getActor()->getGlobalPose();
+		return sqrt(pow((pos0.p.x - pos1.p.x), 2) + pow((pos0.p.z - pos1.p.z), 2));
 	}
 }
 

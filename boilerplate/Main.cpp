@@ -5,11 +5,15 @@
 #include "Gamepad.h"
 #include "InputManager.h"
 #include "Main.h"
+#include "HUD.h"
+#include "Sound.h"
+
 
 using namespace std;
 
 // create gamepad instance (controller no. 1)
 Gamepad myGamepad = Gamepad(1);
+HUD *hud;
 
 // A function to obtain input, called each frame
 void GetGamepadInput()
@@ -61,17 +65,22 @@ int main(int argc, char *argv[])
 
 	//init physics as well
 	PhysicsManager::init();
-
+	hud = new HUD();
 	Light::init(2);
 	Viewport::init(2);
 	Resources::init();
 	Time::init();
 	Keyboard::init();
 	Game::init();
+	//Sound::init();
+	//Sound::playSound(1);
+	
+//	Sound::list_audio_devices(Sound::device);
 	while (!Graphics::shouldClose()) {
 		Time::update();
 		Game::update();
 		Graphics::update();
+		hud->update();
 		
 		//myGamepad.glfwJoystick();
 		myGamepad.Update(); // Update the gamepad

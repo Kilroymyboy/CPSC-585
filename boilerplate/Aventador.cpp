@@ -53,8 +53,8 @@ Aventador::Aventador(int id) {
 	if (aventadorId == 0) {
 		aventadorData.isFront = true;
 		//aventadorData.isAI = true;
-		aventadorData.force = 30;
-		aventadorData.wheelTurnRate = 0.5;
+		//aventadorData.force = 30;
+		//aventadorData.wheelTurnRate = 0.5;
 		dChangeTime = Time::time += dCoolDown;
 	}
 	else {
@@ -287,6 +287,10 @@ void Aventador::setPowerUpStatus(bool status) {
 
 void Aventador::changeRole() {
 	aventadorData.isFront = !aventadorData.isFront;
+}
+
+void Aventador::setForce(float newForce) {
+	aventadorData.force = newForce;
 }
 
 int Aventador::pseudoRand() {
