@@ -137,7 +137,9 @@
   <ItemGroup>
     <ClCompile Include="..\middleware\glad\src\glad.c" />
     <ClCompile Include="Aventador.cpp" />
+    <ClCompile Include="Behind.cpp" />
     <ClCompile Include="Entity.cpp" />
+    <ClCompile Include="Front.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="Gamepad.cpp" />
     <ClCompile Include="Graphics.cpp" />
@@ -151,8 +153,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Aventador.h" />
+    <ClInclude Include="Behind.h" />
     <ClInclude Include="FilterGroup.h" />
     <ClInclude Include="Entity.h" />
+    <ClInclude Include="Front.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="Graphics.h" />
     <ClInclude Include="Path.h" />

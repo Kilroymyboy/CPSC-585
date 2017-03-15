@@ -296,7 +296,7 @@ void Aventador::updateDrift() {
 			tireHeat[3] += aventadorData.manualTireHeatIncrease*v.magnitude();
 		}
 	}
-	if (aventadorId == 0) {
+	if (aventadorId == 1) {
 		if (controller2.GetButtonPressed(1)) {
 			PxVec3 v = actor->getLinearVelocity();
 			tireHeat[2] += aventadorData.manualTireHeatIncrease*v.magnitude();
