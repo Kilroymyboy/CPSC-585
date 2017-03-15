@@ -51,10 +51,11 @@ Aventador::Aventador(int id) {
 	PhysicsManager::setContactFilter(actor, FilterGroup::eAventador, FilterGroup::eAventador | FilterGroup::ePowerUp);
 	
 	if (aventadorId == 0) {
+		actor->setGlobalPose(PxTransform(0, 0, 20.0),true);
 		aventadorData.isFront = true;
 		//aventadorData.isAI = true;
-		//aventadorData.force = 30;
-		//aventadorData.wheelTurnRate = 0.5;
+		aventadorData.force = 30;
+		aventadorData.wheelTurnRate = 0.5;
 		dChangeTime = Time::time += dCoolDown;
 	}
 	else {

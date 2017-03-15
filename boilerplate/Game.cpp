@@ -17,7 +17,8 @@ namespace Game {
 
 	double spawnCoolDown = 3;
 	double powerUpSpawnTime = Time::time += spawnCoolDown;
-	double switchRange = 25.0;
+	float speedUp = 2.5;
+	double switchRange = 15.0;
 	bool inSwtichRange = false;
 
 	// we can customize this function as much as we want for now for debugging
@@ -52,13 +53,13 @@ namespace Game {
 		}
 		//check the distance between the aventators
 		if (dist < switchRange) {
-			aventador1->setForce(100);
+			PxRigidBodyExt::addLocalForceAtLocalPos(*aventador1->getActor(),
+				PxVec3(0, 0, speedUp), PxVec3(0, 0.45, 0), PxForceMode::eIMPULSE);
 			inSwtichRange = true;
 		}
-		else if (dist > switchRange && inSwtichRange) { //change the speed/role only once
-			aventador1->setForce(45);
+		else if (dist > switchRange && inSwtichRange) { //change the role only once
 			switchRole();	//change the roles of the aventators
-			inSwtichRange = !inSwtichRange;
+			inSwtichRange = false;
 		}
 
 	}
