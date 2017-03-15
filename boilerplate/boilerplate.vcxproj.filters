@@ -72,7 +72,7 @@
     <ClCompile Include="Front.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Behind.cpp">
+    <ClCompile Include="Back.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -119,7 +119,7 @@
     <ClInclude Include="Front.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Behind.h">
+    <ClInclude Include="Back.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
