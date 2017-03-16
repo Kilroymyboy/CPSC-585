@@ -7,6 +7,7 @@ class Path :public Entity {
 	Graphics::MyGeometry geometry;
 	std::vector<glm::vec3> positions;
 	std::vector<glm::vec3> normals;
+	Aventador *frontAventador;
 	int size;
 	double cooldown;
 	double nextGenTime;

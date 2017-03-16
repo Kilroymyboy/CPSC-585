@@ -17,14 +17,13 @@ namespace Game {
 
 	double spawnCoolDown = 3;
 	double powerUpSpawnTime = Time::time += spawnCoolDown;
-	float speedUp = 2.5;
+	float impulse = 500;
 	double switchRange = 15.0;
 	bool inSwtichRange = false;
 
 	// we can customize this function as much as we want for now for debugging
 	void init() {
 		aventador0 = shared_ptr<Aventador>(new Aventador(0));
-
 		aventador1 = shared_ptr<Aventador>(new Aventador(1));
 		entities.push_back(aventador0);
 		entities.push_back(shared_ptr<Path>(new Path(100, 1, 0)));	//the path that gets drawn under the car
@@ -52,13 +51,14 @@ namespace Game {
 			entities.push_back(shared_ptr<Entity>(new PowerUpManager()));
 		}
 		//check the distance between the aventators
-		if (dist < switchRange) {
+		if (dist < switchRange && !inSwtichRange) {
 			PxRigidBodyExt::addLocalForceAtLocalPos(*aventador1->getActor(),
-				PxVec3(0, 0, speedUp), PxVec3(0, 0.45, 0), PxForceMode::eIMPULSE);
+				PxVec3(0, 0, impulse), PxVec3(0, 0, 0), PxForceMode::eIMPULSE);
+			switchRole();
 			inSwtichRange = true;
 		}
-		else if (dist > switchRange && inSwtichRange) { //change the role only once
-			switchRole();	//change the roles of the aventators
+		else if (dist > switchRange && inSwtichRange) {	//to change the role only once
+			switchRole();
 			inSwtichRange = false;
 		}
 
@@ -74,6 +74,10 @@ namespace Game {
 		PxTransform pos0 = aventador0->getActor()->getGlobalPose();
 		PxTransform pos1 = aventador1->getActor()->getGlobalPose();
 		return sqrt(pow((pos0.p.x - pos1.p.x), 2) + pow((pos0.p.z - pos1.p.z), 2));
+	}
+
+	Aventador* getFront() {
+		return (aventador0->isFront()) ? aventador0.get() : aventador1.get();
 	}
 }
 

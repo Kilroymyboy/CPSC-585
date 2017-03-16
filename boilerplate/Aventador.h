@@ -93,7 +93,7 @@ public:
 	bool hasPowerUp();
 	void setPowerUpStatus(bool status);
 	void changeRole();
-	void Aventador::setForce(float newForce);
+	bool isFront();
 	Aventador(int);
 
 	int Aventador::pseudoRand();

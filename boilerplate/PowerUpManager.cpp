@@ -37,7 +37,6 @@ void PowerUpManager::update(mat4 parentTransform) {
 
 	// power up time out
 	if (Time::time > deleteTime) {
-		deleteTime += countDown;
 		alive = false;
 	}
 	

@@ -53,8 +53,8 @@ Aventador::Aventador(int id) {
 	if (aventadorId == 0) {
 		actor->setGlobalPose(PxTransform(0, 0, 20.0),true);
 		aventadorData.isFront = true;
-		//aventadorData.isAI = true;
-		aventadorData.force = 30;
+		aventadorData.isAI = true;
+		aventadorData.force = 20;
 		aventadorData.wheelTurnRate = 0.5;
 		dChangeTime = Time::time += dCoolDown;
 	}
@@ -196,7 +196,6 @@ void Aventador::updateFriction() {
 						Util::g2p(wheelPos[i] - vec3(0, aventadorData.dimensionHeight, 0)), PxForceMode::eFORCE);
 				}
 			}
-
 			PxVec3 wspeed = PxRigidBodyExt::getVelocityAtPos(*actor, Util::g2p(transform*vec4(wheelPos[i], 1)));
 			wspeed.y = 0;
 			vec3 forwardv = proj(Util::p2g(wspeed), wheeld); forwardv.y = 0;
@@ -229,7 +228,7 @@ void Aventador::updateSteering() {
 			}
 		}
 	}
-	else {
+	else { 
 		if (Keyboard::keyDown(aventadorId ? GLFW_KEY_LEFT : GLFW_KEY_A)) {
 			wheelAngle += aventadorData.wheelTurnRate;
 		}
@@ -290,8 +289,8 @@ void Aventador::changeRole() {
 	aventadorData.isFront = !aventadorData.isFront;
 }
 
-void Aventador::setForce(float newForce) {
-	aventadorData.force = newForce;
+bool Aventador::isFront() {
+	return aventadorData.isFront;
 }
 
 int Aventador::pseudoRand() {

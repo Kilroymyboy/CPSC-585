@@ -23,6 +23,7 @@ namespace Game {
 	void update();
 	void switchRole();
 	double getDist();
+	Aventador* getFront();
 }
 
 namespace Time {

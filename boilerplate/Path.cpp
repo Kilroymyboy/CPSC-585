@@ -77,6 +77,9 @@ void Path::genBuffer() {
 }
 
 void Path::update(mat4 parentTransform) {
+
+	frontAventador = Game::getFront();
+
 	if (Time::time > nextGenTime) {
 		nextGenTime += cooldown;
 
@@ -84,9 +87,9 @@ void Path::update(mat4 parentTransform) {
 		for (int i = 2; i < positions.size(); i++) {
 			v.push_back(positions[i]);
 		}
-		mat4 m = Game::aventador0.get()->transform;
-		vec3 pl = vec3(m*vec4(Game::aventador0.get()->wheelPos[wheel0] + displacements[wheel0], 1));
-		vec3 pr = vec3(m*vec4(Game::aventador0.get()->wheelPos[wheel1] + displacements[wheel1], 1));
+		mat4 m = frontAventador->transform;
+		vec3 pl = vec3(m*vec4(frontAventador->wheelPos[wheel0] + displacements[wheel0], 1));
+		vec3 pr = vec3(m*vec4(frontAventador->wheelPos[wheel1] + displacements[wheel1], 1));
 		pl.y = pr.y = 0;
 		v.push_back(pl);
 		v.push_back(pr);
@@ -96,9 +99,9 @@ void Path::update(mat4 parentTransform) {
 	{
 		positions.pop_back();
 		positions.pop_back();
-		mat4 m = Game::aventador0.get()->transform;
-		vec3 pl = vec3(m*vec4(Game::aventador0.get()->wheelPos[wheel0] + displacements[wheel0], 1));
-		vec3 pr = vec3(m*vec4(Game::aventador0.get()->wheelPos[wheel1] + displacements[wheel1], 1));
+		mat4 m = frontAventador->transform;
+		vec3 pl = vec3(m*vec4(frontAventador->wheelPos[wheel0] + displacements[wheel0], 1));
+		vec3 pr = vec3(m*vec4(frontAventador->wheelPos[wheel1] + displacements[wheel1], 1));
 		pl.y = pr.y = 0;
 		positions.push_back(pl);
 		positions.push_back(pr);

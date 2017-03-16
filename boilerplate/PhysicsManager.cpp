@@ -222,7 +222,6 @@ void ContactBehaviourCallback::onContact(const PxContactPairHeader& pairHeader, 
 			bool isPowerUp1 = pairHeader.actors[0]->getName() == name1 || pairHeader.actors[1]->getName() == name1;
 			//bool isPowerUp = strcmp(pairHeader.actors[0]->getName(),"powerUp") || strcmp(pairHeader.actors[1]->getName(), "powerUp");
 
-
 			if (isAventador0 && isAventador1) {
 				std::cout << "Aventador made contact with another aventador\n";
 				//Role swtiching is determined in Game.cpp
