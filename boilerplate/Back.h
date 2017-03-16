@@ -6,8 +6,7 @@
 
 //discusion
 /* 
-not sure which one we want to use a template, abstract or just make these separate rule classes for front and back and just have 
-the aventadors switch rule class depending on position
+Not sure if this front/back class is even needed and if it is, is it required to be an interface. For now it is an interface
 */
 class Back
 {
@@ -15,9 +14,9 @@ public:
 	Back();
 	~Back();
 
-	void gameRules();
-	bool gameLost();
-	void ai(bool isAi);
+	virtual void gameRules() = 0;
+	virtual bool gameLost() = 0;
+	virtual void ai(bool isAi) = 0;
 
 private:
 	float fuel = 1000;

@@ -10,9 +10,9 @@ public:
 	Front();
 	~Front();
 
-	void gameRules();
-	void gameOver();
-	void ai(bool isAi);
+	virtual void gameRules() = 0;
+	virtual void gameOver() = 0;
+	virtual void ai(bool isAi) = 0;
 
 private:
 	bool powerup;
