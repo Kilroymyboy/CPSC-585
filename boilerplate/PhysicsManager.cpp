@@ -220,13 +220,11 @@ void ContactBehaviourCallback::onContact(const PxContactPairHeader& pairHeader, 
 			bool isAventador1 = pairHeader.actors[0] == a1 || pairHeader.actors[1] == a1;
 			bool isPowerUp0 = pairHeader.actors[0]->getName() == name0 || pairHeader.actors[1]->getName() == name0;
 			bool isPowerUp1 = pairHeader.actors[0]->getName() == name1 || pairHeader.actors[1]->getName() == name1;
-			//bool isPowerUp = strcmp(pairHeader.actors[0]->getName(),"powerUp") || strcmp(pairHeader.actors[1]->getName(), "powerUp");
 
 			if (isAventador0 && isAventador1) {
 				std::cout << "Aventador made contact with another aventador\n";
 				//Role swtiching is determined in Game.cpp
 				//Game::switchRole();
-
 				break;
 			}
 			else if (isPowerUp0 && isAventador0) {
@@ -273,13 +271,6 @@ static void ignoreContacts(PxContactModifyPair& pair) {
 	}
 }
 
-static void setTargetVelocity(PxContactModifyPair& pair, const PxVec3& targetVelocity) {
-	for (PxU32 i = 0; i < pair.contacts.size(); ++i)
-	{
-		pair.contacts.setTargetVelocity(i, targetVelocity);
-	}
-}
-
 void ContactModifyCallback::onContactModify(PxContactModifyPair* const pairs, PxU32 count) {
 
 	for (PxU32 i = 0; i < count; i++) {
@@ -287,14 +278,6 @@ void ContactModifyCallback::onContactModify(PxContactModifyPair* const pairs, Px
 
 		if (flags & ContactModFlags::eIGNORE_CONTACT) {
 			ignoreContacts(pairs[i]);
-		}
-
-		//increase the speed of the back car?
-		//doesn't work yet
-		const PxVec3 targetVelocity(0.f, 0.f, 100.f);
-		bool isBackAventator = pairs->actor[0] == Game::aventador1->getActor() || pairs->actor[1] == Game::aventador1->getActor();
-		if ((flags & ContactModFlags::eTARGET_VELOCITY)){
-			setTargetVelocity(pairs[i],targetVelocity);
 		}
 	}
 }

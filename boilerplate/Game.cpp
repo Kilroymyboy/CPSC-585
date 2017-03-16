@@ -57,7 +57,8 @@ namespace Game {
 			switchRole();
 			inSwtichRange = true;
 		}
-		else if (dist > switchRange && inSwtichRange) {	//to change the role only once
+		//to change the role only once
+		else if (dist > switchRange && inSwtichRange) {
 			inSwtichRange = false;
 		}
 

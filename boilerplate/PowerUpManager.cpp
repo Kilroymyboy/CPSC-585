@@ -13,7 +13,6 @@ PowerUpManager::PowerUpManager() {
 	actor = PhysicsManager::createDynamic(t, dimensions);
 	actor->userData = (void*)ContactModFlags::eIGNORE_CONTACT;
 	//actor->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, true);
-	//PhysicsManager::attachTriggerShape(actor, dimensions);
 	PhysicsManager::attachSimulationShape(actor, dimensions, 0);
 	PhysicsManager::setContactFilter(actor, FilterGroup::ePowerUp, FilterGroup::eAventador);
 
