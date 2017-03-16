@@ -54,7 +54,7 @@ Aventador::Aventador(int id) {
 		actor->setGlobalPose(PxTransform(0, 0, 20.0),true);
 		aventadorData.isFront = true;
 		aventadorData.isAI = true;
-		aventadorData.force = 20;
+		aventadorData.force = 30;
 		aventadorData.wheelTurnRate = 0.5;
 		dChangeTime = Time::time += dCoolDown;
 	}
@@ -213,7 +213,7 @@ void Aventador::updateFriction() {
 
 void Aventador::updateSteering() {
 
-	if (aventadorData.isAI) {
+/*	if (aventadorData.isAI) {
 		if (Time::time > dChangeTime) {
 			dChangeTime += dCoolDown;
 			randDirection = pseudoRand() % 3;
@@ -228,7 +228,7 @@ void Aventador::updateSteering() {
 			}
 		}
 	}
-	else { 
+	else { */
 		if (Keyboard::keyDown(aventadorId ? GLFW_KEY_LEFT : GLFW_KEY_A)) {
 			wheelAngle += aventadorData.wheelTurnRate;
 		}
@@ -239,7 +239,7 @@ void Aventador::updateSteering() {
 			|| Keyboard::keyDown(aventadorId ? GLFW_KEY_RIGHT : GLFW_KEY_D))) {
 			wheelAngle *= aventadorData.wheelReurnRate;
 		}
-	}
+	//}
 	wheelAngle = min(max(wheelAngle, -aventadorData.maxWheelAngle), aventadorData.maxWheelAngle);
 	wheel[0].get()->facingAngle = wheelAngle;
 	wheel[1].get()->facingAngle = wheelAngle;

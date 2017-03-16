@@ -17,7 +17,7 @@ namespace Game {
 
 	double spawnCoolDown = 3;
 	double powerUpSpawnTime = Time::time += spawnCoolDown;
-	float impulse = 500;
+	float impulse = 300;
 	double switchRange = 15.0;
 	bool inSwtichRange = false;
 
@@ -52,13 +52,12 @@ namespace Game {
 		}
 		//check the distance between the aventators
 		if (dist < switchRange && !inSwtichRange) {
-			PxRigidBodyExt::addLocalForceAtLocalPos(*aventador1->getActor(),
+			PxRigidBodyExt::addLocalForceAtLocalPos(*getBack()->getActor(),
 				PxVec3(0, 0, impulse), PxVec3(0, 0, 0), PxForceMode::eIMPULSE);
 			switchRole();
 			inSwtichRange = true;
 		}
 		else if (dist > switchRange && inSwtichRange) {	//to change the role only once
-			switchRole();
 			inSwtichRange = false;
 		}
 
@@ -78,6 +77,10 @@ namespace Game {
 
 	Aventador* getFront() {
 		return (aventador0->isFront()) ? aventador0.get() : aventador1.get();
+	}
+
+	Aventador* getBack() {
+		return (aventador0->isFront()) ? aventador1.get() : aventador0.get();
 	}
 }
 
