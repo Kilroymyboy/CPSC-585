@@ -8,20 +8,15 @@ PowerUpManager::PowerUpManager() {
 	powerId = pseudoRand() % 2; //0 or 1;
 	deleteTime = Time::time += countDown+20;
 	PxVec3 dimensions(0.5f, 0.5f, 0.5f);
-
 	if (powerId == 0) {
-		direction = Game::aventador0->getActor()->getLinearVelocity().getNormalized();
 		t = PxTransform(Game::aventador0->getActor()->getGlobalPose());
 	}
 	else {
-		direction = Game::aventador1->getActor()->getLinearVelocity().getNormalized();
 		t = PxTransform(Game::aventador1->getActor()->getGlobalPose());
 	}
-
 	PxTransform r(getRandLocation(), PxQuat::createIdentity());
 	PxTransform d(direction, PxQuat::createIdentity());
 	t.operator*=(r);
-	t.operator*=(d);
 	actor = PhysicsManager::createDynamic(t, dimensions);
 	actor->userData = (void*)ContactModFlags::eIGNORE_CONTACT;
 	//actor->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, true);
