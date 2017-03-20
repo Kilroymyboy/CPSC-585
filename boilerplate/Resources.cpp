@@ -21,9 +21,9 @@ namespace Resources {
 		Graphics::loadGeometry(&cube, "models/cube.obj");
 		Graphics::loadGeometry(&centeredCube, "models/cube_center.obj");
 
-		Geometry::initPlaneGeometry(&gridLines, 1000, 1000, 100);
+		Geometry::initPlaneGeometry(&gridLines, 1000, 1000, 500);
 		Graphics::InitializeShaders(&standardShader, "vertex.glsl", "fragment.glsl");
-		if (!Graphics::InitializeTexture(&gridTexture, "images/grid.jpg", GL_TEXTURE_2D, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR))
+		if (!Graphics::InitializeTexture(&gridTexture, "images/grid1.png", GL_TEXTURE_2D, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR))
 			std::cout << "can not initialize texture images/grid.jpg" << std::endl;
 
 		planeMaterial.texture = gridTexture.textureID;
@@ -33,8 +33,8 @@ namespace Resources {
 	Graphics::Material darkGreyMaterial(glm::vec3(.15));
 	Graphics::Material emmisiveMaterial(glm::vec3(1), glm::vec3(1.7, 4.2, 11.2));
 	Graphics::Material pureBlackMaterial(glm::vec3(0));
-	Graphics::Material coralMaterial(glm::vec3(0), glm::vec3(1.0, 0.49, 0.31));
-	Graphics::Material paleGreenMaterial(glm::vec3(0), glm::vec3(0.49, 0.8, 0.49));
+	Graphics::Material coralMaterial(glm::vec3(1), glm::vec3(1.5, 0.75, 0.45));
+	Graphics::Material paleGreenMaterial(glm::vec3(1), glm::vec3(0.75, 1.2, 0.75));
 	Graphics::Material planeMaterial(glm::vec3(1));
 
 }
