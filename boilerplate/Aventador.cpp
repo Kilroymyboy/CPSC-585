@@ -213,8 +213,8 @@ void Aventador::updateFriction() {
 
 void Aventador::updateSteering() {
 
-/*	if (aventadorData.isAI) {
-		if (Time::time > dChangeTime) {
+	if (aventadorData.isAI) {
+/*		if (Time::time > dChangeTime) {
 			dChangeTime += dCoolDown;
 			randDirection = pseudoRand() % 3;
 			if (randDirection == 0) {
@@ -226,9 +226,9 @@ void Aventador::updateSteering() {
 			else if (randDirection == 2) {
 				wheelAngle *= aventadorData.wheelTurnRate;
 			}
-		}
+		}*/
 	}
-	else { */
+	else {
 		if (Keyboard::keyDown(aventadorId ? GLFW_KEY_LEFT : GLFW_KEY_A)) {
 			wheelAngle += aventadorData.wheelTurnRate;
 		}
@@ -239,7 +239,7 @@ void Aventador::updateSteering() {
 			|| Keyboard::keyDown(aventadorId ? GLFW_KEY_RIGHT : GLFW_KEY_D))) {
 			wheelAngle *= aventadorData.wheelReurnRate;
 		}
-	//}
+	}
 	wheelAngle = min(max(wheelAngle, -aventadorData.maxWheelAngle), aventadorData.maxWheelAngle);
 	wheel[0].get()->facingAngle = wheelAngle;
 	wheel[1].get()->facingAngle = wheelAngle;

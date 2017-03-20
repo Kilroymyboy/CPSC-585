@@ -19,12 +19,14 @@ namespace Game {
 	extern std::shared_ptr<Aventador> aventador0;
 	extern std::shared_ptr<Aventador> aventador1;
 	extern std::shared_ptr<HUDobj> hud;
+
 	void init();
 	void update();
 	void switchRole();
 	double getDist();
 	Aventador * getFront();
 	Aventador * getBack();
+	bool isOnPath();
 }
 
 namespace Time {

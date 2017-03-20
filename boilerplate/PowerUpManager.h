@@ -9,6 +9,8 @@ class PowerUpManager : public Entity {
 	physx::PxRigidDynamic *actor;
 	double countDown = 8.0;
 	double deleteTime;
+	PxVec3 direction;
+	PxTransform t;
 
 	int powerId;
 	int pseudoRand();

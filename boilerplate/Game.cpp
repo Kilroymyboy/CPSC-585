@@ -9,13 +9,14 @@ using namespace glm;
 using namespace physx;
 
 namespace Game {
-	list<shared_ptr<Entity> > entities;
+	list<shared_ptr<Entity>> entities;
 	shared_ptr<Aventador> aventador0;
 	shared_ptr<Aventador> aventador1;
+	shared_ptr<Path> path;
 
 	shared_ptr<HUDobj> hud;
 
-	double spawnCoolDown = 3;
+	double spawnCoolDown = 1;
 	double powerUpSpawnTime = Time::time += spawnCoolDown;
 	float impulse = 300;
 	double switchRange = 15.0;
@@ -25,10 +26,10 @@ namespace Game {
 	void init() {
 		aventador0 = shared_ptr<Aventador>(new Aventador(0));
 		aventador1 = shared_ptr<Aventador>(new Aventador(1));
+		path = shared_ptr<Path>(new Path(100, 1, 0));
 		entities.push_back(aventador0);
-		entities.push_back(shared_ptr<Path>(new Path(100, 1, 0)));	//the path that gets drawn under the car
+		entities.push_back(path);	//the path that gets drawn under the car
 		entities.push_back(aventador1);
-
 
 		//entities.push_back(unique_ptr<Plane>(new Plane));
 	}
@@ -44,6 +45,16 @@ namespace Game {
 			else {
 				it = entities.erase(it);
 			}
+		}
+		//if the back aventator is not on the path
+		if (!isOnPath()) {
+			//reduce fuel/hp on aventador
+			//std::cout << "back aventador is not on the path\n";
+
+		}
+		else {
+			// fuel/hp is full
+			std::cout << "back aventador is on the path\n";
 		}
 		//adding more power ups into the scene
 		if (Time::time > powerUpSpawnTime) {
@@ -82,6 +93,17 @@ namespace Game {
 
 	Aventador* getBack() {
 		return (aventador0->isFront()) ? aventador1.get() : aventador0.get();
+	}
+
+	bool isOnPath() {
+		std::vector<glm::vec3> backWheels = getBack()->wheelPos;
+		std::vector<glm::vec3> pathPos = path->getPathPoints();
+		for (std::vector<glm::vec3>::iterator it = backWheels.begin(); it != backWheels.end(); ++it) {
+			if (std::find(pathPos.begin(), pathPos.end(), *it) != pathPos.end()) {
+				return true;
+			}
+		}
+		return false;
 	}
 }
 
