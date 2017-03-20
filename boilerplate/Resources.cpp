@@ -27,14 +27,14 @@ namespace Resources {
 			std::cout << "can not initialize texture images/grid.jpg" << std::endl;
 
 		planeMaterial.texture = gridTexture.textureID;
+		planeMaterial.useEmissive = glm::vec3(12.1/2.5,7.1/2.5,19.4/2.5);
 	}
 
 	Graphics::Material defaultMaterial(glm::vec3(1));
 	Graphics::Material darkGreyMaterial(glm::vec3(.15));
-	Graphics::Material emmisiveMaterial(glm::vec3(1), glm::vec3(1.7, 4.2, 11.2));
+	Graphics::Material emmisiveMaterial(glm::vec3(1), glm::vec3(1.8, 4.8, 12.6));
 	Graphics::Material pureBlackMaterial(glm::vec3(0));
 	Graphics::Material coralMaterial(glm::vec3(1), glm::vec3(1.5, 0.75, 0.45));
 	Graphics::Material paleGreenMaterial(glm::vec3(1), glm::vec3(0.75, 1.2, 0.75));
 	Graphics::Material planeMaterial(glm::vec3(1));
-
 }

@@ -34,6 +34,7 @@
 #define AMBIENT_LOCATION 12
 #define SHADOW_MVP_LOCATION 13
 #define SOFT_SHADOW_LOCATION 14
+#define EMISSIVE_TEXTURE_LOCATION 15
 
 #define WINDOW_WIDTH 1280
 #define WINDOW_HEIGHT 720
@@ -91,6 +92,7 @@ namespace Graphics {
 		glm::vec3 color;
 		glm::vec3 emmisiveColor;
 		GLuint texture;
+		glm::vec3 useEmissive;
 
 		Material() :color(glm::vec3(0)), emmisiveColor(glm::vec3(0)) {}
 		Material(glm::vec3 c) :color(c), emmisiveColor(glm::vec3(0)) {}

@@ -182,7 +182,7 @@ namespace Graphics {
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 
-	void _Render(MyGeometry* geometry, const vector<vec3>& c, const vector<vec3>& ec, GLuint texture, const vector<mat4>& transforms, int id) {
+	void _Render(MyGeometry* geometry, const vector<vec3>& c, const vector<vec3>& ec, GLuint texture, vec3 emissiveTexture, const vector<mat4>& transforms, int id) {
 		if (id == 0) {
 			glBindFramebuffer(GL_FRAMEBUFFER, defaultFbo.fbo);
 			glBindTexture(GL_TEXTURE_2D, defaultFbo.texture);
@@ -253,10 +253,11 @@ namespace Graphics {
 		glUniform1i(glGetUniformLocation(Resources::standardShader.program, "shadowMap"), 0);
 		glUniform1i(glGetUniformLocation(Resources::standardShader.program, "colorTexture"), 1);
 
+		glUniform3f(EMISSIVE_TEXTURE_LOCATION, emissiveTexture.x, emissiveTexture.y, emissiveTexture.z);
+
 		glActiveTexture(GL_TEXTURE0);
 		if (id == 0)glBindTexture(GL_TEXTURE_2D, shadowFbo.texture);
 		else glBindTexture(GL_TEXTURE_2D, shadowFbo1.texture);
-
 
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, texture);
@@ -277,7 +278,7 @@ namespace Graphics {
 		ec.push_back(material->emmisiveColor);
 		vector<mat4> t;
 		t.push_back(transform);
-		_Render(geometry, c, ec, material->texture, t, id);
+		_Render(geometry, c, ec, material->texture, material->useEmissive, t, id);
 	}
 
 	void Render(MyGeometry *geometry, Material* material, mat4 transform)
@@ -301,7 +302,7 @@ namespace Graphics {
 			ec[i] = geometry->materials[i]->emmisiveColor;
 		}
 
-		_Render(geometry, c, ec, geometry->materials[0]->texture, geometry->transforms, id);
+		_Render(geometry, c, ec, geometry->materials[0]->texture, geometry->materials[0]->useEmissive, geometry->transforms, id);
 	}
 
 	void flushInstancedGeometry(MyGeometry *geometry) {
@@ -1109,7 +1110,7 @@ namespace Light {
 }
 
 namespace Effects {
-	float sigma = 8;
-	int blurSize = 24;
+	float sigma = 10;
+	int blurSize = 32;
 	float splitscreenLineThickness = 2.0f / WINDOW_WIDTH;
 }

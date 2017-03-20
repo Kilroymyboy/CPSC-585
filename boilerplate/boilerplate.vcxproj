@@ -148,6 +148,7 @@
     <ClCompile Include="PhysicsManager.cpp" />
     <ClCompile Include="PowerUp.cpp" />
     <ClCompile Include="Resources.cpp" />
+    <ClCompile Include="Skybox.cpp" />
     <ClCompile Include="Util.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -164,6 +165,7 @@
     <ClInclude Include="Gamepad.h" />
     <ClInclude Include="InputManager.h" />
     <ClInclude Include="Main.h" />
+    <ClInclude Include="Skybox.h" />
     <ClInclude Include="Util.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
