@@ -35,25 +35,25 @@ Skybox::Skybox(float size) {
 	positions[3] = vec3(-size, -size, size);
 	positions[4] = vec3(size, -size, size);
 	positions[5] = vec3(size, size, size);
-	initFace(0, "images/nebula_nz.jpg");
+	initFace(0, "images/nebula_nz.png");
 
 	// left
 	for (int i = 0; i < 6; i++) {
 		positions[i] = vec3(rotate(mat4(1), (float)(PI / 2), vec3(0, 1, 0))*vec4(positions[i], 1));
 	}
-	initFace(1, "images/nebula_nx.jpg");
+	initFace(1, "images/nebula_nx.png");
 
 	// front
 	for (int i = 0; i < 6; i++) {
 		positions[i] = vec3(rotate(mat4(1), (float)(PI / 2), vec3(0, 1, 0))*vec4(positions[i], 1));
 	}
-	initFace(2, "images/nebula_pz.jpg");
+	initFace(2, "images/nebula_pz.png");
 
 	// right
 	for (int i = 0; i < 6; i++) {
 		positions[i] = vec3(rotate(mat4(1), (float)(PI / 2), vec3(0, 1, 0))*vec4(positions[i], 1));
 	}
-	initFace(3, "images/nebula_px.jpg");
+	initFace(3, "images/nebula_px.png");
 }
 
 void Skybox::update(glm::mat4 parentTransform) {
