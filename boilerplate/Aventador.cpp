@@ -55,7 +55,6 @@ Aventador::Aventador(int id) {
 		aventadorData.isFront = true;
 		aventadorData.isAI = true;
 		aventadorData.force = 30;
-		aventadorData.wheelTurnRate = 0.5;
 		dChangeTime = Time::time += dCoolDown;
 	}
 	else {
@@ -64,6 +63,7 @@ Aventador::Aventador(int id) {
 
 	//Setting contact modification flags
 	actor->userData = (void*)(ContactModFlags::eIGNORE_CONTACT);
+
 }
 
 void Aventador::update(glm::mat4 parentTransform) {
@@ -212,9 +212,8 @@ void Aventador::updateFriction() {
 }
 
 void Aventador::updateSteering() {
-
 	if (aventadorData.isAI) {
-/*		if (Time::time > dChangeTime) {
+		if (Time::time > dChangeTime) {
 			dChangeTime += dCoolDown;
 			randDirection = pseudoRand() % 3;
 			if (randDirection == 0) {
@@ -226,7 +225,7 @@ void Aventador::updateSteering() {
 			else if (randDirection == 2) {
 				wheelAngle *= aventadorData.wheelTurnRate;
 			}
-		}*/
+		}
 	}
 	else {
 		if (Keyboard::keyDown(aventadorId ? GLFW_KEY_LEFT : GLFW_KEY_A)) {

@@ -47,15 +47,16 @@ namespace Game {
 			}
 		}
 		//if the back aventator is not on the path
-		if (!isOnPath()) {
+		std::cout << getBack()->getActor()->getGlobalPose().p.x << ", " << getBack()->getActor()->getGlobalPose().p.y << "\n";
+		if (!cnPointPolyTest(getBack()->getActor()->getGlobalPose().p.x, getBack()->getActor()->getGlobalPose().p.y, path->getPathPoints(), path->getPathPoints().size())) {
 			//reduce fuel/hp on aventador
-			//std::cout << "back aventador is not on the path\n";
-
+			std::cout << "back aventador is not on the path\n";
 		}
 		else {
 			// fuel/hp is full
 			std::cout << "back aventador is on the path\n";
 		}
+				
 		//adding more power ups into the scene
 		if (Time::time > powerUpSpawnTime) {
 			powerUpSpawnTime += spawnCoolDown;
@@ -68,11 +69,9 @@ namespace Game {
 			switchRole();
 			inSwtichRange = true;
 		}
-		//to change the role only once
 		else if (dist > switchRange && inSwtichRange) {
 			inSwtichRange = false;
 		}
-
 	}
 
 	void switchRole() {
@@ -95,15 +94,19 @@ namespace Game {
 		return (aventador0->isFront()) ? aventador1.get() : aventador0.get();
 	}
 
-	bool isOnPath() {
-		std::vector<glm::vec3> backWheels = getBack()->wheelPos;
-		std::vector<glm::vec3> pathPos = path->getPathPoints();
-		for (std::vector<glm::vec3>::iterator it = backWheels.begin(); it != backWheels.end(); ++it) {
-			if (std::find(pathPos.begin(), pathPos.end(), *it) != pathPos.end()) {
-				return true;
+	int cnPointPolyTest(float x, float y, std::vector<glm::vec3> V, int n) {
+		int    cn = 0;    // the  crossing number counter
+						  // loop through all edges of the polygon
+		for (int i = 0; i<n-1; i++) {    // edge from V[i]  to V[i+1]
+			if (((V[i].y <= y) && (V[i + 1].y > y))     // an upward crossing
+				|| ((V[i].y > y) && (V[i + 1].y <= y))) { // a downward crossing
+															  // compute  the actual edge-ray intersect x-coordinate
+				float vt = (float)(y - V[i].y) / (V[i + 1].y - V[i].y);
+				if (x <  V[i].x + vt * (V[i + 1].x - V[i].x)) // P.x < intersect
+					++cn;   // a valid crossing of y=P.y right of P.x
 			}
 		}
-		return false;
+		return (cn & 1);    // 0 if even (out), and 1 if  odd (in)
 	}
 }
 

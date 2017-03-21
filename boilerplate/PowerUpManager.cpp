@@ -6,16 +6,17 @@ using namespace physx;
 
 PowerUpManager::PowerUpManager() {
 	powerId = pseudoRand() % 2; //0 or 1;
-	deleteTime = Time::time += countDown+20;
+	deleteTime = Time::time += countDown+15;
 	PxVec3 dimensions(0.5f, 0.5f, 0.5f);
+	
 	if (powerId == 0) {
 		t = PxTransform(Game::aventador0->getActor()->getGlobalPose());
 	}
 	else {
 		t = PxTransform(Game::aventador1->getActor()->getGlobalPose());
 	}
+
 	PxTransform r(getRandLocation(), PxQuat::createIdentity());
-	PxTransform d(direction, PxQuat::createIdentity());
 	t.operator*=(r);
 	actor = PhysicsManager::createDynamic(t, dimensions);
 	actor->userData = (void*)ContactModFlags::eIGNORE_CONTACT;

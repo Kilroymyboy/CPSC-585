@@ -78,7 +78,7 @@ class Aventador : public Entity {
 	float brakeForce;
 	std::vector<float> tireHeat;
 
-	double dCoolDown = 0.25;
+	double dCoolDown = 2;
 	double dChangeTime;
 	int randDirection;
 

@@ -107,6 +107,9 @@ void Path::update(mat4 parentTransform) {
 		positions.push_back(pr);
 	}
 
+	currentpts = positions;
+	currentpts.push_back(currentpts[0]);
+
 	genBuffer();
 
 	Light::renderShadowMap(&geometry, parentTransform*transform);
@@ -117,5 +120,5 @@ void Path::render(mat4 parentTransform) {
 }
 
 std::vector<glm::vec3> Path::getPathPoints() {
-	return positions;
+	return currentpts;
 }
