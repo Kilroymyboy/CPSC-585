@@ -14,13 +14,13 @@ public:
 	Back();
 	~Back();
 
-	virtual void gameRules() = 0;
 	virtual bool gameLost() = 0;
 	virtual void ai(bool isAi) = 0;
 
 private:
 	float fuel = 1000;
-	bool powerup;
+	bool powerup = false;
+	bool lost = false;
 	bool onPath;
 	int powerupIndex;
 };

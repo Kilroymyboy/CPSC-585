@@ -34,6 +34,9 @@ public:
 
 	bool powerStatus = false;
 	bool isAI = false;
+	
+	bool hasLost = false;
+	float fuel = 1000;
 };
 
 class AventadorWheel :public Entity {
