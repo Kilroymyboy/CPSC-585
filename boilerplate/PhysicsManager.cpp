@@ -233,7 +233,7 @@ void ContactBehaviourCallback::onContact(const PxContactPairHeader& pairHeader, 
 				//remove the power up from the scene
 				PxRigidActor* pickedUp = (pairHeader.actors[0]->getName() == name0) ? pairHeader.actors[0] : pairHeader.actors[1];
 				auto power = find_if(Game::entities.begin(), Game::entities.end(), [&](std::shared_ptr<Entity>toFind) {
-					PowerUpManager* power = static_cast<PowerUpManager*>(toFind.get());
+					PowerUp* power = static_cast<PowerUp*>(toFind.get());
 					return power->getActor() == pickedUp; });
 				if (power != Game::entities.end()) {
 					Game::entities.erase(power);
@@ -250,7 +250,7 @@ void ContactBehaviourCallback::onContact(const PxContactPairHeader& pairHeader, 
 				//remove the power up from the scene
 				PxRigidActor* pickedUp = (pairHeader.actors[0]->getName() == name1) ? pairHeader.actors[0] : pairHeader.actors[1];
 				auto power = find_if(Game::entities.begin(), Game::entities.end(), [&](std::shared_ptr<Entity>toFind) {
-					PowerUpManager* power = static_cast<PowerUpManager*>(toFind.get());
+					PowerUp* power = static_cast<PowerUp*>(toFind.get());
 					return power->getActor() == pickedUp; });
 				if (power != Game::entities.end()) {
 					Game::entities.erase(power);

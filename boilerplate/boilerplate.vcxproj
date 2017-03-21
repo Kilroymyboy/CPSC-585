@@ -147,6 +147,7 @@
     <ClCompile Include="Path.cpp" />
     <ClCompile Include="PhysicsManager.cpp" />
     <ClCompile Include="PowerUp.cpp" />
+    <ClCompile Include="PowerUpList.cpp" />
     <ClCompile Include="Resources.cpp" />
     <ClCompile Include="Sound.cpp" />
     <ClCompile Include="Util.cpp" />
@@ -161,6 +162,7 @@
     <ClInclude Include="Path.h" />
     <ClInclude Include="PhysicsManager.h" />
     <ClInclude Include="PowerUp.h" />
+    <ClInclude Include="PowerUpList.h" />
     <ClInclude Include="Resources.h" />
     <ClInclude Include="Gamepad.h" />
     <ClInclude Include="InputManager.h" />

@@ -87,6 +87,9 @@
     <ClCompile Include="PowerUp.cpp">
       <Filter>Source Files\Powerups</Filter>
     </ClCompile>
+    <ClCompile Include="PowerUpList.cpp">
+      <Filter>Source Files\Powerups</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Graphics.h">
@@ -132,6 +135,9 @@
       <Filter>Header Files\Physics</Filter>
     </ClInclude>
     <ClInclude Include="PowerUp.h">
+      <Filter>Header Files\Powerups</Filter>
+    </ClInclude>
+    <ClInclude Include="PowerUpList.h">
       <Filter>Header Files\Powerups</Filter>
     </ClInclude>
   </ItemGroup>

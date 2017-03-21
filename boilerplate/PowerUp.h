@@ -19,4 +19,5 @@ public:
 	void render(glm::mat4 parentTransform)override;
 	physx::PxRigidDynamic *const getActor();
 	PxVec3 getRandLocation();
+	virtual void use();
 };
