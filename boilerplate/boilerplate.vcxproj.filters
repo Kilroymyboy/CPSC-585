@@ -84,7 +84,7 @@
     <ClCompile Include="Sound.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="PowerUpManager.cpp">
+    <ClCompile Include="PowerUp.cpp">
       <Filter>Source Files\Powerups</Filter>
     </ClCompile>
   </ItemGroup>
@@ -131,7 +131,7 @@
     <ClInclude Include="FilterGroup.h">
       <Filter>Header Files\Physics</Filter>
     </ClInclude>
-    <ClInclude Include="PowerUpManager.h">
+    <ClInclude Include="PowerUp.h">
       <Filter>Header Files\Powerups</Filter>
     </ClInclude>
   </ItemGroup>

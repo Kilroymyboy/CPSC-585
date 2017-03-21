@@ -1,10 +1,10 @@
-#include "PowerUpManager.h"
+#include "PowerUp.h"
 #include "Game.h"
 using namespace std;
 using namespace glm;
 using namespace physx;
 
-PowerUpManager::PowerUpManager() {
+PowerUp::PowerUp() {
 	powerId = pseudoRand() % 2; //0 or 1;
 	deleteTime = Time::time += countDown+20; //allows at most 6 power ups at a time
 
@@ -25,7 +25,7 @@ PowerUpManager::PowerUpManager() {
 	}
 }
 
-void PowerUpManager::update(mat4 parentTransform) {
+void PowerUp::update(mat4 parentTransform) {
 
 	mat4 m = glm::translate(mat4(1), vec3(actor->getGlobalPose().p.x, actor->getGlobalPose().p.y, actor->getGlobalPose().p.z));
 	PxReal a; PxVec3 b;
@@ -43,7 +43,7 @@ void PowerUpManager::update(mat4 parentTransform) {
 	
 }
 
-void PowerUpManager::render(mat4 parentTransform) {
+void PowerUp::render(mat4 parentTransform) {
 	if (powerId == 0) {
 		Graphics::Render(&Resources::centeredCube, &Resources::coralMaterial, transform);
 	}
@@ -52,11 +52,11 @@ void PowerUpManager::render(mat4 parentTransform) {
 	}
 }
 
-physx::PxRigidDynamic *const PowerUpManager::getActor() {
+physx::PxRigidDynamic *const PowerUp::getActor() {
 	return actor;
 }
 
-PxVec3 PowerUpManager::getRandLocation() {
+PxVec3 PowerUp::getRandLocation() {
 	float x, y, z;
 	x = (float)(pseudoRand() %200) - 10; //random number between -10 to 9
 	y = 1.0f;
@@ -65,7 +65,7 @@ PxVec3 PowerUpManager::getRandLocation() {
 	return PxVec3(x, y, z);
 }
 
-int PowerUpManager::pseudoRand() {
+int PowerUp::pseudoRand() {
 	// our initial starting seed is 5323
 	static unsigned int seed = 5323;
 	seed = (8253729 * seed + 2396403);

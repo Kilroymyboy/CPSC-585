@@ -146,7 +146,7 @@
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Path.cpp" />
     <ClCompile Include="PhysicsManager.cpp" />
-    <ClCompile Include="PowerUpManager.cpp" />
+    <ClCompile Include="PowerUp.cpp" />
     <ClCompile Include="Resources.cpp" />
     <ClCompile Include="Sound.cpp" />
     <ClCompile Include="Util.cpp" />
@@ -160,7 +160,7 @@
     <ClInclude Include="HUD.h" />
     <ClInclude Include="Path.h" />
     <ClInclude Include="PhysicsManager.h" />
-    <ClInclude Include="PowerUpManager.h" />
+    <ClInclude Include="PowerUp.h" />
     <ClInclude Include="Resources.h" />
     <ClInclude Include="Gamepad.h" />
     <ClInclude Include="InputManager.h" />
