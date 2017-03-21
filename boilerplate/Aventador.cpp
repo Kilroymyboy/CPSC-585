@@ -119,7 +119,7 @@ void Aventador::renderShadowMap(glm::mat4 parentTransform) {
 }
 
 void Aventador::render(glm::mat4 parentTransform) {
-	Graphics::RenderInstanced(&Resources::aventadorBody, &Resources::defaultMaterial, tempTransform);
+	Graphics::RenderInstanced(&Resources::aventadorBody, &Resources::darkGreyMaterial, tempTransform);
 	Graphics::RenderInstanced(&Resources::aventadorBodyGlow, &Resources::emmisiveMaterial, tempTransform);
 	Graphics::RenderInstanced(&Resources::aventadorUnder, &Resources::pureBlackMaterial, tempTransform);
 
@@ -302,6 +302,6 @@ void AventadorWheel::renderShadowMap(glm::mat4 parentTransform) {
 }
 
 void AventadorWheel::render(glm::mat4 parentTransform) {
-	Graphics::RenderInstanced(&Resources::aventadorWheel, &Resources::defaultMaterial, parentTransform*tempTransform);
+	Graphics::RenderInstanced(&Resources::aventadorWheel, &Resources::darkGreyMaterial, parentTransform*tempTransform);
 	Graphics::RenderInstanced(&Resources::aventadorWheelGlow, &Resources::emmisiveMaterial, parentTransform*tempTransform);
 }

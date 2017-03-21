@@ -464,6 +464,7 @@ namespace Graphics {
 		instancedGeometry.push_back(&Resources::aventadorWheel);
 		instancedGeometry.push_back(&Resources::aventadorWheelGlow);
 		instancedGeometry.push_back(&Resources::gridLines);
+		instancedGeometry.push_back(&Resources::centeredCube);
 	}
 
 	int init() {

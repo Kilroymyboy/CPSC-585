@@ -13,6 +13,7 @@
 
 
 #define PRINT_FPS 0
+#define PRINT_ENTITIES 1
 
 namespace Game {
 	extern std::list<std::shared_ptr<Entity> > entities;

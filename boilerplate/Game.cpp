@@ -42,6 +42,11 @@ namespace Game {
 				it = entities.erase(it);
 			}
 		}
+
+		if (PRINT_ENTITIES) {
+			cout << entities.size() << endl;
+		}
+
 		//adding more power ups into the scene
 		if (Time::time > powerUpSpawnTime) {
 			powerUpSpawnTime += spawnCoolDown;
