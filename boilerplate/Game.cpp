@@ -47,8 +47,7 @@ namespace Game {
 			}
 		}
 		//if the back aventator is not on the path
-		std::cout << getBack()->getActor()->getGlobalPose().p.x << ", " << getBack()->getActor()->getGlobalPose().p.y << "\n";
-		if (!cnPointPolyTest(getBack()->getActor()->getGlobalPose().p.x, getBack()->getActor()->getGlobalPose().p.y, path->getPathPoints(), path->getPathPoints().size())) {
+		if (!cnPointPolyTest(getBack()->getActor()->getGlobalPose().p.x, getBack()->getActor()->getGlobalPose().p.z, path->getPathPoints(), path->getPathPoints().size())) {
 			//reduce fuel/hp on aventador
 			std::cout << "back aventador is not on the path\n";
 		}
@@ -94,16 +93,16 @@ namespace Game {
 		return (aventador0->isFront()) ? aventador1.get() : aventador0.get();
 	}
 
-	int cnPointPolyTest(float x, float y, std::vector<glm::vec3> V, int n) {
+	bool cnPointPolyTest(float x, float y, std::vector<glm::vec3> V, int n) {
 		int    cn = 0;    // the  crossing number counter
 						  // loop through all edges of the polygon
 		for (int i = 0; i<n-1; i++) {    // edge from V[i]  to V[i+1]
-			if (((V[i].y <= y) && (V[i + 1].y > y))     // an upward crossing
-				|| ((V[i].y > y) && (V[i + 1].y <= y))) { // a downward crossing
+			if (((V[i].z <= y) && (V[i + 1].z > y))     // an upward crossing
+				|| ((V[i].z > y) && (V[i + 1].z <= y))) { // a downward crossing
 															  // compute  the actual edge-ray intersect x-coordinate
-				float vt = (float)(y - V[i].y) / (V[i + 1].y - V[i].y);
-				if (x <  V[i].x + vt * (V[i + 1].x - V[i].x)) // P.x < intersect
-					++cn;   // a valid crossing of y=P.y right of P.x
+				float vt = (float)(y - V[i].z) / (V[i + 1].z - V[i].z);
+				if (x <  V[i].x + vt * (V[i + 1].x - V[i].x)) // x < intersect
+					++cn;   // a valid crossing of y=y right of x
 			}
 		}
 		return (cn & 1);    // 0 if even (out), and 1 if  odd (in)

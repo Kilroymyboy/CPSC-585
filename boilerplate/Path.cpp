@@ -108,7 +108,7 @@ void Path::update(mat4 parentTransform) {
 	}
 
 	currentpts = positions;
-	currentpts.push_back(currentpts[0]);
+	//currentpts.push_back(currentpts[0]);
 
 	genBuffer();
 

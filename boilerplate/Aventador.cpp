@@ -53,7 +53,7 @@ Aventador::Aventador(int id) {
 	if (aventadorId == 0) {
 		actor->setGlobalPose(PxTransform(0, 0, 20.0),true);
 		aventadorData.isFront = true;
-		aventadorData.isAI = true;
+		//aventadorData.isAI = true;
 		aventadorData.force = 30;
 		dChangeTime = Time::time += dCoolDown;
 	}
