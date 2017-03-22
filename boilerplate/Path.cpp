@@ -71,6 +71,10 @@ void Path::genBuffer() {
 		b.push_back(positions[i + 2]);
 		b.push_back(positions[i + 3]);
 	}
+
+	currentpts = b;
+	//currentpts.push_back(b[0]);
+
 	glBindBuffer(GL_ARRAY_BUFFER, geometry.vertexBuffer);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vec3)*b.size(), &b[0], GL_STATIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -107,7 +111,6 @@ void Path::update(mat4 parentTransform) {
 		positions.push_back(pr);
 	}
 
-	currentpts = positions;
 	//currentpts.push_back(currentpts[0]);
 
 	genBuffer();

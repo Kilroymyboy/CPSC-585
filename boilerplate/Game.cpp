@@ -47,7 +47,9 @@ namespace Game {
 			}
 		}
 		//if the back aventator is not on the path
-		if (!cnPointPolyTest(getBack()->getActor()->getGlobalPose().p.x, getBack()->getActor()->getGlobalPose().p.z, path->getPathPoints(), path->getPathPoints().size())) {
+		//if (!cnPointPolyTest(getBack()->getActor()->getGlobalPose().p.x, getBack()->getActor()->getGlobalPose().p.z, path->getPathPoints(), path->getPathPoints().size())) {
+		int wn = wnPointPolyTest(getBack()->getActor()->getGlobalPose().p.x, getBack()->getActor()->getGlobalPose().p.z, path->getPathPoints(), path->getPathPoints().size());
+		if (wn == 0){
 			//reduce fuel/hp on aventador
 			std::cout << "back aventador is not on the path\n";
 		}
@@ -107,6 +109,42 @@ namespace Game {
 		}
 		return (cn & 1);    // 0 if even (out), and 1 if  odd (in)
 	}
+
+	inline int isLeft(vec3 P0, vec3 P1, float x, float y)
+	{
+		return ((P1.x - P0.x) * (y - P0.z) - (x - P0.x) * (P1.z - P0.z));
+	}
+
+	int wnPointPolyTest(float x, float y, vector<glm::vec3> V, int n)
+	{
+		int    wn = 0;    // the  winding number counter
+
+						  // loop through all edges of the polygon
+		for (int i = 0; i<n-1; i++) {   // edge from V[i] to  V[i+1]
+			if (V[i].z <= y) {          // start y <= P.y
+				if (V[i + 1].z  > y)      // an upward crossing
+				{
+					int l = isLeft(V[i], V[i + 1], x, y);
+					if (l > 0)  // P left of  edge
+						++wn;            // have  a valid up intersect
+					else if (l == 0) // boundary
+						return 0;
+				}
+			}
+			else {                        // start y > P.y (no test needed)
+				if (V[i + 1].z <= y)     // a downward crossing
+				{
+					int l = isLeft(V[i], V[i + 1], x, y);
+					if (l < 0)  // P right of  edge
+						--wn;            // have  a valid down intersect
+					else if (l == 0)
+						return 0;
+				}
+			}
+		}
+		return wn;
+	}
+
 }
 
 namespace Time {

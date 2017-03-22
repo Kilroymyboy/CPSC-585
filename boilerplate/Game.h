@@ -27,6 +27,7 @@ namespace Game {
 	Aventador * getFront();
 	Aventador * getBack();
 	bool cnPointPolyTest(float x, float y, std::vector<glm::vec3> V, int n);
+	int wnPointPolyTest(float x, float y, std::vector<glm::vec3> V, int n);
 }
 
 namespace Time {
