@@ -1,4 +1,6 @@
 #include "Path.h"
+#include "Game.h"
+
 
 using namespace std;
 using namespace glm;
@@ -70,4 +72,33 @@ void Path::update(mat4 parentTransform) {
 
 void Path::render(mat4 parentTransform) {
 	Graphics::Render(&geometry, &Resources::defaultMaterial, parentTransform*transform);
+}
+
+float sign(float pointX, float pointY, float pos1X, float pos1Y, float pos2X, float pos2Y)
+{
+	return (pointX - pos2X) * (pos1Y - pos2Y) - (pos1X - pos2X) * (pointY - pos2Y);
+}
+
+bool Path::pointInPath(float x, float y) {
+
+	float P1_x, P1_y, P2_x, P2_y, P3_x, P3_y;
+	bool b1, b2, b3;
+
+	for (int i = 0; i < positions.size() - 1; i += 3) {
+		P1_x = positions[i].x;
+		P1_y = positions[i].z;
+		P2_x = positions[i + 1].x;
+		P2_y = positions[i + 1].z;
+		P3_x = positions[i + 2].x;
+		P3_y = positions[i + 2].z;
+
+		b1 = sign(x, y, P1_x, P1_y, P2_x, P2_y) < 0.0f;
+		b2 = sign(x, y, P2_x, P2_y, P3_x, P3_y) < 0.0f;
+		b3 = sign(x, y, P3_x, P3_y, P1_x, P1_y) < 0.0f;
+
+		if ((b1 == b2) && (b2 == b3)) {
+			return true;
+		}
+	}
+	return false;
 }

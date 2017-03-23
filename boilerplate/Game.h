@@ -9,8 +9,10 @@
 #include "Util.h"
 #include "Resources.h"
 #include "Entity.h"
+#include "Path.h"
 #include "Aventador.h"
 #include "PowerUp.h"
+
 
 #define PRINT_FPS 0
 #define PRINT_ENTITIES 0
@@ -19,6 +21,7 @@ namespace Game {
 	extern std::list<std::shared_ptr<Entity> > entities;
 	extern std::shared_ptr<Aventador> aventador0;
 	extern std::shared_ptr<Aventador> aventador1;
+	extern std::shared_ptr<Path> path;
 	extern std::shared_ptr<HUDobj> hud;
 
 	void init();
@@ -27,8 +30,7 @@ namespace Game {
 	double getDist();
 	Aventador * getFront();
 	Aventador * getBack();
-	bool cnPointPolyTest(float x, float y, std::vector<glm::vec3> V, int n);
-	int wnPointPolyTest(float x, float y, std::vector<glm::vec3> V, int n);
+	//Path * getPath();
 }
 
 namespace Time {

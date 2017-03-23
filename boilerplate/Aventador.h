@@ -32,6 +32,8 @@ public:
 	float tireHeatFastDecrease = 0.1;
 	float manualTireHeatIncrease = 0.15;
 
+	int fuel;
+
 	bool powerStatus = false;
 	bool isAI = false;
 	bool isFront;
@@ -67,6 +69,7 @@ class Aventador : public Entity {
 	void updateTopSpeed();
 	void updateDrift();
 	void updateBraking();
+	void updateFuel();
 
 	void updateLightCamera();
 
@@ -75,6 +78,8 @@ class Aventador : public Entity {
 	float wheelAngle;
 	float brakeForce;
 	std::vector<float> tireHeat;
+
+	int tankSize = 1000;
 
 	double dCoolDown = 2;
 	double dChangeTime;

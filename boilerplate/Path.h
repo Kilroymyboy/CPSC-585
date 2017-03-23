@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Graphics.h"
-#include "Game.h"
+#include "Aventador.h"
 
 class Path :public Entity {
 	Graphics::MyGeometry geometry;
@@ -22,5 +22,7 @@ public:
 	void render(glm::mat4 parentTransform)override;
 
 	Path(int geometrySize);
+	
+	bool pointInPath(float x, float y);
 
 };

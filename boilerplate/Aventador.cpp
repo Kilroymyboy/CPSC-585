@@ -8,6 +8,7 @@ using namespace physx;
 
 Aventador::Aventador(int id) {
 	aventadorId = id;
+	aventadorData.fuel = tankSize;
 
 	wheel.resize(4);
 	wheelPos.resize(4);
@@ -53,7 +54,7 @@ Aventador::Aventador(int id) {
 	if (aventadorId == 0) {
 		actor->setGlobalPose(PxTransform(0, 0, 20.0),true);
 		aventadorData.isFront = true;
-		aventadorData.isAI = true;
+		//aventadorData.isAI = true;
 		aventadorData.force = 30;
 		dChangeTime = Time::time += dCoolDown;
 	}
@@ -83,6 +84,8 @@ void Aventador::update(glm::mat4 parentTransform) {
 	updateTopSpeed();
 	updateDrift();
 	updateBraking();
+	if (!aventadorData.isFront)
+		updateFuel();
 
 	updateLightCamera();
 
@@ -212,7 +215,7 @@ void Aventador::updateFriction() {
 }
 
 void Aventador::updateSteering() {
-	actor->setAngularDamping(actor->getAngularVelocity().y );
+	//actor->setAngularDamping(actor->getAngularVelocity().y );	//invalid parameter : RigidDynamic::setAngularDamping: The angular damping must be nonnegative!
 	actor->addTorque(-actor->getAngularVelocity() * 20);
 
 	if (aventadorData.isAI) {
@@ -276,6 +279,22 @@ void Aventador::updateBraking() {
 	}
 }
 
+void Aventador::updateFuel() {
+	bool onPath = Game::path->pointInPath(actor->getGlobalPose().p.x, actor->getGlobalPose().p.z);
+	if (!onPath) {
+		std::cout << "is not on path\n";
+		aventadorData.fuel--;
+		std::cout << "fuel: " << aventadorData.fuel << "\n";
+	}
+	else {
+		std::cout << "is on path\n";
+		if (aventadorData.fuel < tankSize) {
+			aventadorData.fuel++;
+			std::cout << "fuel: " << aventadorData.fuel << "\n";
+		}
+	}
+}
+
 bool Aventador::hasPowerUp() {
 	return aventadorData.powerStatus;
 }
@@ -285,6 +304,7 @@ void Aventador::setPowerUpStatus(bool status) {
 
 void Aventador::changeRole() {
 	aventadorData.isFront = !aventadorData.isFront;
+	aventadorData.fuel = tankSize;
 }
 
 bool Aventador::isFront() {

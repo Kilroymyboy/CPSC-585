@@ -94,54 +94,8 @@ namespace Game {
 		return (aventador0->isFront()) ? aventador1.get() : aventador0.get();
 	}
 
-	bool cnPointPolyTest(float x, float y, std::vector<glm::vec3> V, int n) {
-		int    cn = 0;    // the  crossing number counter
-						  // loop through all edges of the polygon
-		for (int i = 0; i<n-1; i++) {    // edge from V[i]  to V[i+1]
-			if (((V[i].z <= y) && (V[i + 1].z > y))     // an upward crossing
-				|| ((V[i].z > y) && (V[i + 1].z <= y))) { // a downward crossing
-															  // compute  the actual edge-ray intersect x-coordinate
-				float vt = (float)(y - V[i].z) / (V[i + 1].z - V[i].z);
-				if (x <  V[i].x + vt * (V[i + 1].x - V[i].x)) // x < intersect
-					++cn;   // a valid crossing of y=y right of x
-			}
-		}
-		return (cn & 1);    // 0 if even (out), and 1 if  odd (in)
-	}
-
-	inline int isLeft(vec3 P0, vec3 P1, float x, float y)
-	{
-		return ((P1.x - P0.x) * (y - P0.z) - (x - P0.x) * (P1.z - P0.z));
-	}
-
-	int wnPointPolyTest(float x, float y, vector<glm::vec3> V, int n)
-	{
-		int    wn = 0;    // the  winding number counter
-
-						  // loop through all edges of the polygon
-		for (int i = 0; i<n-1; i++) {   // edge from V[i] to  V[i+1]
-			if (V[i].z <= y) {          // start y <= P.y
-				if (V[i + 1].z  > y)      // an upward crossing
-				{
-					int l = isLeft(V[i], V[i + 1], x, y);
-					if (l > 0)  // P left of  edge
-						++wn;            // have  a valid up intersect
-					else if (l == 0) // boundary
-						return 0;
-				}
-			}
-			else {                        // start y > P.y (no test needed)
-				if (V[i + 1].z <= y)     // a downward crossing
-				{
-					int l = isLeft(V[i], V[i + 1], x, y);
-					if (l < 0)  // P right of  edge
-						--wn;            // have  a valid down intersect
-					else if (l == 0)
-						return 0;
-				}
-			}
-		}
-		return wn;
+	Path* getPath() {
+		return path.get();
 	}
 
 }
