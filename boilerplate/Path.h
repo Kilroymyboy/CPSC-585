@@ -13,7 +13,7 @@ class Path :public Entity {
 	int size;
 	double cooldown;
 	double nextGenTime;
-	std::shared_ptr<Aventador> aventador;
+	Aventador* aventador;
 
 	// generate the geometry again
 	void generate();
@@ -21,6 +21,6 @@ public:
 	void update(glm::mat4 parentTransform)override;
 	void render(glm::mat4 parentTransform)override;
 
-	Path(int geometrySize, std::shared_ptr<Aventador> aventador);
+	Path(int geometrySize);
 
 };

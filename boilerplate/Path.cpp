@@ -13,9 +13,9 @@ const std::vector<glm::vec3> displacements{
 	glm::vec3(-thickness,0,-thickness)
 };
 
-Path::Path(int geometrySize, shared_ptr<Aventador> aventador) {
+Path::Path(int geometrySize) {
 	size = geometrySize;
-	this->aventador = aventador;
+	this->aventador = Game::getFront();
 	cooldown = 0.1;
 	nextGenTime = Time::time + cooldown;
 	for (int i = 0; i < (size + 1) * 6; i++) {
@@ -47,6 +47,9 @@ void Path::update(mat4 parentTransform) {
 	if (Time::time > nextGenTime) {
 		generate();
 	}
+
+	aventador = Game::getFront();
+
 	vec4 frw(aventador->wheelPos[0], 1);
 	vec4 flw(aventador->wheelPos[1], 1);
 	frw = aventador->transform*frw;
