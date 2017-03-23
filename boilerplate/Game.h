@@ -10,7 +10,7 @@
 #include "Resources.h"
 #include "Entity.h"
 #include "Aventador.h"
-#include "PowerUpManager.h"
+#include "PowerUp.h"
 
 #define PRINT_FPS 0
 #define PRINT_ENTITIES 0

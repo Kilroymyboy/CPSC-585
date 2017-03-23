@@ -25,7 +25,7 @@ layout(location = 12) uniform vec3 AmbientLight;
 layout(location = 13) uniform mat4 shadowMVP;
 layout(location = 14) uniform int softShadow;
 
-//layout(location = 15) uniform vec3 useEmissiveTexture;
+layout(location = 15) uniform vec3 useEmissiveTexture;
 
 uniform sampler2D shadowMap;
 uniform sampler2D colorTexture;
@@ -55,5 +55,5 @@ void main(void)
 		if(texture(shadowMap, ShadowCoord.xy+vec2(j/1600.1,i/1600.9)).x >= ShadowCoord.z - bias)
 			hits++;
 	FragmentColour.xyz*=Color*hits/maxHits;
-	FragmentColour.xyz+=EmissionColor/*+useEmissiveTexture*textureColor.xyz*/;
+	FragmentColour.xyz+=EmissionColor+useEmissiveTexture*textureColor.xyz;
 }
