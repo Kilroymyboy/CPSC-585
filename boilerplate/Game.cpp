@@ -46,7 +46,7 @@ namespace Game {
 		//adding more power ups into the scene
 		if (Time::time > powerUpSpawnTime) {
 			powerUpSpawnTime += spawnCoolDown;
-			entities.push_back(shared_ptr<Entity>(new PowerUpManager()));
+			entities.push_back(shared_ptr<Entity>(new PowerUp()));
 		}
 
 	}
