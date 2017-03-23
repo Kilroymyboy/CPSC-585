@@ -6,7 +6,7 @@
 #include "InputManager.h"
 #include "Main.h"
 #include "HUD.h"
-#include "Sound.h"
+//#include "Sound.h"
 
 
 using namespace std;
@@ -72,8 +72,8 @@ int main(int argc, char *argv[])
 	Time::init();
 	Keyboard::init();
 	Game::init();
-	Sound::init();
-	Sound::playSound(1);
+	//Sound::init();
+	//Sound::playSound(1);
 	
 //	Sound::list_audio_devices(Sound::device);
 	while (!Graphics::shouldClose()) {
