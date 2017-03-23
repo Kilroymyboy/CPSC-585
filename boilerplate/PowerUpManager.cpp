@@ -10,10 +10,10 @@ PowerUpManager::PowerUpManager() {
 	PxVec3 dimensions(0.5f, 0.5f, 0.5f);
 	
 	if (powerId == 0) {
-		t = PxTransform(Game::aventador0->getActor()->getGlobalPose());
+		t = PxTransform(Game::aventador0->actor->getGlobalPose());
 	}
 	else {
-		t = PxTransform(Game::aventador1->getActor()->getGlobalPose());
+		t = PxTransform(Game::aventador1->actor->getGlobalPose());
 	}
 
 	PxTransform r(getRandLocation(), PxQuat::createIdentity());
@@ -51,10 +51,10 @@ void PowerUpManager::update(mat4 parentTransform) {
 
 void PowerUpManager::render(mat4 parentTransform) {
 	if (powerId == 0) {
-		Graphics::Render(&Resources::centeredCube, &Resources::coralMaterial, transform);
+		Graphics::RenderInstanced(&Resources::centeredCube, &Resources::coralMaterial, transform);
 	}
 	else {
-		Graphics::Render(&Resources::centeredCube, &Resources::paleGreenMaterial, transform);
+		Graphics::RenderInstanced(&Resources::centeredCube, &Resources::paleGreenMaterial, transform);
 	}
 }
 

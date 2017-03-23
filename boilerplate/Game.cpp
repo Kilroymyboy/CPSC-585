@@ -3,6 +3,7 @@
 #include "InputManager.h"
 #include "Aventador.h"
 #include "Path.h"
+#include "Skybox.h"
 
 using namespace std;
 using namespace glm;
@@ -16,7 +17,7 @@ namespace Game {
 
 	shared_ptr<HUDobj> hud;
 
-	double spawnCoolDown = 1;
+	double spawnCoolDown = 2;
 	double powerUpSpawnTime = Time::time += spawnCoolDown;
 	float impulse = 300;
 	double switchRange = 15.0;
@@ -26,12 +27,18 @@ namespace Game {
 	void init() {
 		aventador0 = shared_ptr<Aventador>(new Aventador(0));
 		aventador1 = shared_ptr<Aventador>(new Aventador(1));
-		path = shared_ptr<Path>(new Path(100, 1, 0));
+		path = shared_ptr<Path>(new Path(100, aventador0));
 		entities.push_back(aventador0);
-		entities.push_back(path);	//the path that gets drawn under the car
 		entities.push_back(aventador1);
+		entities.push_back(path);	//the path that gets drawn under the car
 
-		//entities.push_back(unique_ptr<Plane>(new Plane));
+	//	entities.push_back(shared_ptr<Path>(new Path(100, aventador0)));	//the path that gets drawn under the car
+
+		//entities.push_back(unique_ptr<Cube>(new Cube));
+		//entities.push_back(unique_ptr<CenteredCube>(new CenteredCube(vec3(0, 3, 0))));
+	//	entities.push_back(unique_ptr<Plane>(new Plane));
+	//	entities.push_back(unique_ptr<Skybox>(new Skybox(1000)));
+
 	}
 
 	void update() {
@@ -46,18 +53,10 @@ namespace Game {
 				it = entities.erase(it);
 			}
 		}
-		//if the back aventator is not on the path
-		//if (!cnPointPolyTest(getBack()->getActor()->getGlobalPose().p.x, getBack()->getActor()->getGlobalPose().p.z, path->getPathPoints(), path->getPathPoints().size())) {
-		int wn = wnPointPolyTest(getBack()->getActor()->getGlobalPose().p.x, getBack()->getActor()->getGlobalPose().p.z, path->getPathPoints(), path->getPathPoints().size());
-		if (wn == 0){
-			//reduce fuel/hp on aventador
-			std::cout << "back aventador is not on the path\n";
+		if (PRINT_ENTITIES) {
+			cout << entities.size() << endl;
 		}
-		else {
-			// fuel/hp is full
-			std::cout << "back aventador is on the path\n";
-		}
-				
+
 		//adding more power ups into the scene
 		if (Time::time > powerUpSpawnTime) {
 			powerUpSpawnTime += spawnCoolDown;
@@ -65,7 +64,7 @@ namespace Game {
 		}
 		//check the distance between the aventators
 		if (dist < switchRange && !inSwtichRange) {
-			PxRigidBodyExt::addLocalForceAtLocalPos(*getBack()->getActor(),
+			PxRigidBodyExt::addLocalForceAtLocalPos(*getBack()->actor,
 				PxVec3(0, 0, impulse), PxVec3(0, 0, 0), PxForceMode::eIMPULSE);
 			switchRole();
 			inSwtichRange = true;
@@ -82,8 +81,8 @@ namespace Game {
 	}
 
 	double getDist() {
-		PxTransform pos0 = aventador0->getActor()->getGlobalPose();
-		PxTransform pos1 = aventador1->getActor()->getGlobalPose();
+		PxTransform pos0 = aventador0->actor->getGlobalPose();
+		PxTransform pos1 = aventador1->actor->getGlobalPose();
 		return sqrt(pow((pos0.p.x - pos1.p.x), 2) + pow((pos0.p.z - pos1.p.z), 2));
 	}
 

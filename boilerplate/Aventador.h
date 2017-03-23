@@ -27,7 +27,7 @@ public:
 	float brakeSpeed = 0.8;
 	float maxBrakeForce = 60;
 
-	std::vector<float> tireHeatIncrease{ 0.006f,0.006f,0.02f,0.02f };
+	std::vector<float> tireHeatIncrease{ 0.00f,0.00f,0.0f,0.0f };
 	float tireHeatDecrease = 0.45;
 	float tireHeatFastDecrease = 0.1;
 	float manualTireHeatIncrease = 0.15;
@@ -52,8 +52,6 @@ public:
 
 class Aventador : public Entity {
 	int aventadorId;
-
-	physx::PxRigidDynamic *actor;
 
 	glm::mat4 tempTransform;
 	glm::mat3 inverseRotation;
@@ -83,13 +81,13 @@ class Aventador : public Entity {
 	int randDirection;
 
 public:
+	physx::PxRigidDynamic *actor;
 	// 0: front right, 1: front left, 2: rear left, 3: rear right
 	std::vector<std::unique_ptr<AventadorWheel> > wheel;
 	std::vector<glm::vec3> wheelPos;
 	void update(glm::mat4 parentTransform)override;
 	void renderShadowMap(glm::mat4 parentTransform)override;
 	void render(glm::mat4 parentTransform)override;
-	physx::PxRigidDynamic *const getActor();
 	bool hasPowerUp();
 	void setPowerUpStatus(bool status);
 	void changeRole();

@@ -13,115 +13,58 @@ const std::vector<glm::vec3> displacements{
 	glm::vec3(-thickness,0,-thickness)
 };
 
-void initPathGeometry(Graphics::MyGeometry* geometry, int size) {
-	vector<vec3> normals;
-	for (int i = 0; i < 6 * (size + 1); i++)
-		normals.push_back(vec3(0, 1, 0));
-
-	geometry->elementCount = 6 * (size + 1);
-
-	glGenBuffers(1, &geometry->vertexBuffer);
-
-	// create another one for storing our colours
-	glGenBuffers(1, &geometry->normalBuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, geometry->normalBuffer);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vec3)*normals.size(), &normals[0], GL_STATIC_DRAW);
-
-	// create a vertex array object encapsulating all our vertex attributes
-	glGenVertexArrays(1, &geometry->vertexArray);
-	glBindVertexArray(geometry->vertexArray);
-
-	// associate the position array with the vertex array object
-	glBindBuffer(GL_ARRAY_BUFFER, geometry->vertexBuffer);
-	glVertexAttribPointer(VERTEX_POSITION_LOCATION, 3, GL_FLOAT, GL_FALSE, 0, 0);
-	glEnableVertexAttribArray(VERTEX_POSITION_LOCATION);
-
-	// assocaite the colour array with the vertex array object
-	glBindBuffer(GL_ARRAY_BUFFER, geometry->normalBuffer);
-	glVertexAttribPointer(VERTEX_NORMAL_LOCATION, 3, GL_FLOAT, GL_FALSE, 0, 0);
-	glEnableVertexAttribArray(VERTEX_NORMAL_LOCATION);
-
-	// unbind our buffers, resetting to default state
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
-}
-
-Path::Path(int geometrySize, int wheel0, int wheel1) {
+Path::Path(int geometrySize, shared_ptr<Aventador> aventador) {
 	size = geometrySize;
-	initPathGeometry(&geometry, size);
-	this->wheel0 = wheel0;
-	this->wheel1 = wheel1;
+	this->aventador = aventador;
 	cooldown = 0.1;
 	nextGenTime = Time::time + cooldown;
-	for (int i = 0; i < (size + 1) * 2; i++) {
-		positions.push_back(vec3(0, 0, 0));
+	for (int i = 0; i < (size + 1) * 6; i++) {
+		positions.push_back(vec3(0, 0.01, 0));
+		normals.push_back(vec3(0, 1, 0));
+		uvs.push_back(vec2(0, 0));
 	}
-	genBuffer();
-}
-
-void Path::genBuffer() {
-
-	vector<vec3> b;
-	for (int i = 0; i < positions.size() - 3; i += 2) {
-		b.push_back(positions[i]);
-		b.push_back(positions[i + 1]);
-		b.push_back(positions[i + 2]);
-
-		b.push_back(positions[i + 1]);
-		b.push_back(positions[i + 2]);
-		b.push_back(positions[i + 3]);
-	}
-
-	currentpts = b;
-	//currentpts.push_back(b[0]);
+	Graphics::initGeometry(&geometry);
+	geometry.elementCount = positions.size();
 
 	glBindBuffer(GL_ARRAY_BUFFER, geometry.vertexBuffer);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vec3)*b.size(), &b[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vec3)*positions.size(), &positions[0], GL_DYNAMIC_DRAW);
+
+	glBindBuffer(GL_ARRAY_BUFFER, geometry.textureBuffer);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vec2)*uvs.size(), &uvs[0], GL_STATIC_DRAW);
+
+	glBindBuffer(GL_ARRAY_BUFFER, geometry.normalBuffer);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vec3)*normals.size(), &normals[0], GL_STATIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
+}
+
+void Path::generate() {
+	for (int i = 0; i < positions.size() - 6; i ++) {
+		positions[i] = positions[i + 6];
+	}
 }
 
 void Path::update(mat4 parentTransform) {
-
-	frontAventador = Game::getFront();
-
 	if (Time::time > nextGenTime) {
-		nextGenTime += cooldown;
-
-		vector<vec3> v;
-		for (int i = 2; i < positions.size(); i++) {
-			v.push_back(positions[i]);
-		}
-		mat4 m = frontAventador->transform;
-		vec3 pl = vec3(m*vec4(frontAventador->wheelPos[wheel0] + displacements[wheel0], 1));
-		vec3 pr = vec3(m*vec4(frontAventador->wheelPos[wheel1] + displacements[wheel1], 1));
-		pl.y = pr.y = 0;
-		v.push_back(pl);
-		v.push_back(pr);
-		positions = v;
+		generate();
 	}
+	vec4 frw(aventador->wheelPos[0], 1);
+	vec4 flw(aventador->wheelPos[1], 1);
+	frw = aventador->transform*frw;
+	frw.y = 0.01;
+	flw = aventador->transform*flw;
+	flw.y = 0.01;
+	positions[positions.size() - 6] = positions[positions.size() - 12 + 2];
+	positions[positions.size() - 5] = vec3(frw);
+	positions[positions.size() - 4] = vec3(flw);
+	positions[positions.size() - 3] = positions[positions.size() - 12 + 2];
+	positions[positions.size() - 2] = positions[positions.size() - 12 + 1];
+	positions[positions.size() - 1] = vec3(frw);
 
-	{
-		positions.pop_back();
-		positions.pop_back();
-		mat4 m = frontAventador->transform;
-		vec3 pl = vec3(m*vec4(frontAventador->wheelPos[wheel0] + displacements[wheel0], 1));
-		vec3 pr = vec3(m*vec4(frontAventador->wheelPos[wheel1] + displacements[wheel1], 1));
-		pl.y = pr.y = 0;
-		positions.push_back(pl);
-		positions.push_back(pr);
-	}
-
-	//currentpts.push_back(currentpts[0]);
-
-	genBuffer();
-
-	Light::renderShadowMap(&geometry, parentTransform*transform);
+	glBindBuffer(GL_ARRAY_BUFFER, geometry.vertexBuffer);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vec3)*positions.size(), &positions[0], GL_DYNAMIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 void Path::render(mat4 parentTransform) {
-	Graphics::Render(&geometry, &Resources::emmisiveMaterial, parentTransform*transform);
-}
-
-std::vector<glm::vec3> Path::getPathPoints() {
-	return currentpts;
+	Graphics::Render(&geometry, &Resources::defaultMaterial, parentTransform*transform);
 }

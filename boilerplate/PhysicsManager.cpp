@@ -105,16 +105,6 @@ namespace PhysicsManager {
 
 		PxU32 numTransforms;
 		const PxActiveTransform *transforms = mScene->getActiveTransforms(numTransforms);
-
-
-		//for (PxU32 i = 0; i < numTransforms; ++i)
-		//{
-		//	glm::mat4 rotMatrix = glm::translate(glm::mat4(1), glm::vec3(transforms->actor2World.p.x, transforms->actor2World.p.y, transforms->actor2World.p.z));
-		//	PxReal a; PxVec3 b; transforms->actor2World.q.toRadiansAndUnitAxis(a, b); rotMatrix = glm::rotate(rotMatrix, (float)a, glm::vec3(b.x, b.y, b.z));
-		//	Game::entities[0]->transform = rotMatrix;
-		//}
-
-		// glm::mat4_cast(glm::quat(transforms->actor2World.q.x, transforms->actor2World.q.y, transforms->actor2World.q.z, transforms->actor2World.q.w));
 	}
 
 
@@ -212,10 +202,11 @@ void ContactBehaviourCallback::onContact(const PxContactPairHeader& pairHeader, 
 
 		if (cp.events & PxPairFlag::eNOTIFY_TOUCH_FOUND)
 		{
-			PxRigidActor* a0 = Game::aventador0->getActor();
-			PxRigidActor* a1 = Game::aventador1->getActor();
+			PxRigidActor* a0 = Game::aventador0->actor;
+			PxRigidActor* a1 = Game::aventador1->actor;
 			const char* name0 = "powerup0";
 			const char* name1 = "powerup1";
+
 			bool isAventador0 = pairHeader.actors[0] == a0 || pairHeader.actors[1] == a0;
 			bool isAventador1 = pairHeader.actors[0] == a1 || pairHeader.actors[1] == a1;
 			bool isPowerUp0 = pairHeader.actors[0]->getName() == name0 || pairHeader.actors[1]->getName() == name0;

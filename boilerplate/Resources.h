@@ -6,22 +6,19 @@ namespace Resources {
 	extern Graphics::MyGeometry aventadorBody, aventadorBodyGlow, aventadorUnder, aventadorWheel, aventadorWheelGlow;
 	extern Graphics::MyGeometry plane, cube, centeredCube;
 	extern Graphics::MyShader standardShader;
+	extern Graphics::MyGeometry gridLines;
+
+	extern Graphics::MyTexture gridTexture;
 
 	void init();
 
-	void nullMaterial();
+	extern Graphics::Material defaultMaterial;
+	extern Graphics::Material darkGreyMaterial;
+	extern Graphics::Material emmisiveMaterial;
+	extern Graphics::Material pureBlackMaterial;
 
-	void defaultMaterial();
+	extern Graphics::Material coralMaterial;
+	extern Graphics::Material paleGreenMaterial;
 
-	void darkGreyMaterial();
-
-	void pureBlackMaterial();
-
-	void coralMaterial();
-
-	void paleGreenMaterial();
-
-	void emmisiveBlueMaterial();
-
-	void emmisiveMaterial();
+	extern Graphics::Material planeMaterial;
 }
