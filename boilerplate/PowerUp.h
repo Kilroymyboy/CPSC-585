@@ -12,7 +12,7 @@ class PowerUp : public Entity {
 	PxVec3 direction;
 	PxTransform t;
 
-	int powerId;
+//	int powerId;
 	int pseudoRand();
 
 public:
@@ -21,4 +21,6 @@ public:
 	void render(glm::mat4 parentTransform)override;
 	physx::PxRigidDynamic *const getActor();
 	PxVec3 getRandLocation();
+
+	int powerId;
 };

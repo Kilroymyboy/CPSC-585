@@ -213,40 +213,49 @@ void ContactBehaviourCallback::onContact(const PxContactPairHeader& pairHeader, 
 			bool isPowerUp1 = pairHeader.actors[0]->getName() == name1 || pairHeader.actors[1]->getName() == name1;
 
 			if (isAventador0 && isAventador1) {
-				std::cout << "Aventador made contact with another aventador\n";
 				//Role swtiching is determined in Game.cpp
 				//Game::switchRole();
 				break;
 			}
 			else if (isPowerUp0 && isAventador0) {
+				Aventador* a = Game::aventador0.get();
 				//remove the power up from the scene
 				PxRigidActor* pickedUp = (pairHeader.actors[0]->getName() == name0) ? pairHeader.actors[0] : pairHeader.actors[1];
 				auto power = find_if(Game::entities.begin(), Game::entities.end(), [&](std::shared_ptr<Entity>toFind) {
 					PowerUp* power = static_cast<PowerUp*>(toFind.get());
 					return power->getActor() == pickedUp; });
 				if (power != Game::entities.end()) {
-					Game::entities.erase(power);
+					if (a->isFront()) {
+						static_cast<PowerUp*>(power->get())->powerId = 1;
+						static_cast<PowerUp*>(power->get())->getActor()->setName(name1);
+					}
+					else {
+						Game::entities.erase(power);
+					}
 				}
-				std::cout << "aventador0 contacted a power up\n";
 				//have aventador hold the power up. Holds one power up at a time
-				Aventador* a = Game::aventador0.get();
 				if (!a->hasPowerUp()) {
 					a->setPowerUpStatus(true);
 				}
 				break;
 			}
 			else if (isPowerUp1 && isAventador1) {
+				Aventador* a = Game::aventador1.get();
 				//remove the power up from the scene
 				PxRigidActor* pickedUp = (pairHeader.actors[0]->getName() == name1) ? pairHeader.actors[0] : pairHeader.actors[1];
 				auto power = find_if(Game::entities.begin(), Game::entities.end(), [&](std::shared_ptr<Entity>toFind) {
 					PowerUp* power = static_cast<PowerUp*>(toFind.get());
 					return power->getActor() == pickedUp; });
 				if (power != Game::entities.end()) {
-					Game::entities.erase(power);
+					if (a->isFront()) {
+						static_cast<PowerUp*>(power->get())->powerId = 0;
+						static_cast<PowerUp*>(power->get())->getActor()->setName(name0);
+					}
+					else {
+						Game::entities.erase(power);
+					}
 				}
-				std::cout << "aventador0 contacted a power up\n";
 				//have aventador hold the power up. Holds one power up at a time
-				Aventador* a = Game::aventador1.get();
 				if (!a->hasPowerUp()) {
 					a->setPowerUpStatus(true);
 				}

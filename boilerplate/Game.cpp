@@ -53,6 +53,7 @@ namespace Game {
 				it = entities.erase(it);
 			}
 		}
+
 		if (PRINT_ENTITIES) {
 			cout << entities.size() << endl;
 		}
