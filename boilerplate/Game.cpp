@@ -36,8 +36,8 @@ namespace Game {
 
 		//entities.push_back(unique_ptr<Cube>(new Cube));
 		//entities.push_back(unique_ptr<CenteredCube>(new CenteredCube(vec3(0, 3, 0))));
-	//	entities.push_back(unique_ptr<Plane>(new Plane));
-	//	entities.push_back(unique_ptr<Skybox>(new Skybox(1000)));
+		entities.push_back(unique_ptr<Plane>(new Plane));
+		entities.push_back(unique_ptr<Skybox>(new Skybox(1000)));
 
 	}
 

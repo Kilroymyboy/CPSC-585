@@ -33,6 +33,7 @@ public:
 	float manualTireHeatIncrease = 0.15;
 
 	int fuel;
+	int tankSize = 500;
 
 	bool powerStatus = false;
 	bool isAI = false;
@@ -78,8 +79,6 @@ class Aventador : public Entity {
 	float wheelAngle;
 	float brakeForce;
 	std::vector<float> tireHeat;
-
-	int tankSize = 1000;
 
 	double dCoolDown = 2;
 	double dChangeTime;

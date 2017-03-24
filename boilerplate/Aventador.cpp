@@ -8,7 +8,7 @@ using namespace physx;
 
 Aventador::Aventador(int id) {
 	aventadorId = id;
-	aventadorData.fuel = tankSize;
+	aventadorData.fuel = aventadorData.tankSize;
 
 	wheel.resize(4);
 	wheelPos.resize(4);
@@ -285,10 +285,16 @@ void Aventador::updateFuel() {
 		std::cout << "is not on path\n";
 		aventadorData.fuel--;
 		std::cout << "fuel: " << aventadorData.fuel << "\n";
+		if (aventadorData.fuel == 0) {
+			PxRigidBodyExt::addLocalForceAtLocalPos(*actor,
+				PxVec3(100,50,0), PxVec3(-0.5, 0, 0), PxForceMode::eIMPULSE);
+			PxRigidBodyExt::addLocalForceAtLocalPos(*actor,
+				PxVec3(0, -20, 0), PxVec3(0.5, 1, 0), PxForceMode::eIMPULSE);
+		}
 	}
 	else {
 		std::cout << "is on path\n";
-		if (aventadorData.fuel < tankSize) {
+		if (aventadorData.fuel < aventadorData.tankSize) {
 			aventadorData.fuel++;
 			std::cout << "fuel: " << aventadorData.fuel << "\n";
 		}
@@ -304,7 +310,7 @@ void Aventador::setPowerUpStatus(bool status) {
 
 void Aventador::changeRole() {
 	aventadorData.isFront = !aventadorData.isFront;
-	aventadorData.fuel = tankSize;
+	aventadorData.fuel = aventadorData.tankSize;
 }
 
 bool Aventador::isFront() {

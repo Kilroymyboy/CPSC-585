@@ -64,7 +64,7 @@ physx::PxRigidDynamic *const PowerUp::getActor() {
 
 PxVec3 PowerUp::getRandLocation() {
 	float x, y, z;
-	x = (float)(pseudoRand() %20) - 10;
+	x = (float)(pseudoRand() %30) - 15;
 	y = 2.0f;
 	z = (float)(pseudoRand() %50) + 100;	
 	return PxVec3(x, y, z);

@@ -225,9 +225,9 @@ void ContactBehaviourCallback::onContact(const PxContactPairHeader& pairHeader, 
 					PowerUp* power = static_cast<PowerUp*>(toFind.get());
 					return power->getActor() == pickedUp; });
 				if (power != Game::entities.end()) {
-					if (a->isFront()) {
+					if (a->isFront()) { //change powerUp to the other type
 						static_cast<PowerUp*>(power->get())->powerId = 1;
-						static_cast<PowerUp*>(power->get())->getActor()->setName(name1);
+						pickedUp->setName(name1);	//may cause some issues
 					}
 					else {
 						Game::entities.erase(power);
@@ -247,9 +247,9 @@ void ContactBehaviourCallback::onContact(const PxContactPairHeader& pairHeader, 
 					PowerUp* power = static_cast<PowerUp*>(toFind.get());
 					return power->getActor() == pickedUp; });
 				if (power != Game::entities.end()) {
-					if (a->isFront()) {
+					if (a->isFront()) { //change powerUp to the other type
 						static_cast<PowerUp*>(power->get())->powerId = 0;
-						static_cast<PowerUp*>(power->get())->getActor()->setName(name0);
+						pickedUp->setName(name0);	//may cause some issues
 					}
 					else {
 						Game::entities.erase(power);
