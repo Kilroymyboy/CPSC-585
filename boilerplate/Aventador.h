@@ -34,9 +34,11 @@ public:
 
 	bool powerStatus = false;
 	bool isAI = false;
-	
 	bool hasLost = false;
 	float fuel = 1000;
+
+	bool isFront;
+
 };
 
 class AventadorWheel :public Entity {
@@ -94,6 +96,7 @@ public:
 	physx::PxRigidDynamic *const getActor();
 	bool hasPowerUp();
 	void setPowerUpStatus(bool status);
+	void changeRole();
 	Aventador(int);
 
 	int Aventador::pseudoRand();

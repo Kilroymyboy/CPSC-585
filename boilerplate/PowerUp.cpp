@@ -1,30 +1,27 @@
 #include "PowerUp.h"
+#include "Game.h"
 using namespace std;
 using namespace glm;
 using namespace physx;
 
 PowerUp::PowerUp() {
 	powerId = pseudoRand() % 2; //0 or 1;
+	deleteTime = Time::time += countDown+20; //allows at most 6 power ups at a time
+
 	PxTransform t(getRandLocation(), PxQuat::createIdentity());
 	PxVec3 dimensions(0.5f, 0.5f, 0.5f);
 	actor = PhysicsManager::createDynamic(t, dimensions);
-	actor->setName("powerup");
-
-	/*
-		note:	eIGNORE_CONACT causes the cubes to fall through the infinite ground plane
-					-eDISABLE_GRAVITY is a work around for this
-				This flag does not have the same effect for a aventators for some reason
-					-possibly because of the wheels?
-	*/
 	actor->userData = (void*)ContactModFlags::eIGNORE_CONTACT;
-	actor->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, true);
+	//actor->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, true);
 	//PhysicsManager::attachTriggerShape(actor, dimensions);
 	PhysicsManager::attachSimulationShape(actor, dimensions, 0);
+	PhysicsManager::setContactFilter(actor, FilterGroup::ePowerUp, FilterGroup::eAventador);
+
 	if (powerId == 0) {
-		PhysicsManager::setContactFilter(actor, FilterGroup::ePowerUp0, FilterGroup::eAventador0);
+		actor->setName("powerup0");
 	}
 	else {
-		PhysicsManager::setContactFilter(actor, FilterGroup::ePowerUp1, FilterGroup::eAventador1);
+		actor->setName("powerup1");
 	}
 }
 
@@ -37,6 +34,13 @@ void PowerUp::update(mat4 parentTransform) {
 	transform = m;
 
 	Light::renderShadowMap(&Resources::centeredCube, transform);
+
+	// power up time out
+	if (Time::time > deleteTime) {
+		deleteTime += countDown;
+		alive = false;
+	}
+	
 }
 
 void PowerUp::render(mat4 parentTransform) {
@@ -54,11 +58,16 @@ physx::PxRigidDynamic *const PowerUp::getActor() {
 
 PxVec3 PowerUp::getRandLocation() {
 	float x, y, z;
-	x = (float)(pseudoRand() %20) - 10; //random number between -10 to 9
+	x = (float)(pseudoRand() %200) - 10; //random number between -10 to 9
 	y = 1.0f;
-	z = (float)(pseudoRand() %20);
+	z = (float)(pseudoRand() %200);
 	
 	return PxVec3(x, y, z);
+}
+
+void PowerUp::use()
+{
+	printf("POWERUP ERROR\n");
 }
 
 int PowerUp::pseudoRand() {

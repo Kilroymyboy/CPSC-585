@@ -28,6 +28,18 @@
     <Filter Include="Header Files\Game">
       <UniqueIdentifier>{402b5cb3-bddb-4f38-b8a2-6b8b7baa137e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\HUD">
+      <UniqueIdentifier>{007f9021-1dd4-4f7b-93fc-a96c09493a0d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\HUD">
+      <UniqueIdentifier>{e200ce20-15cb-4191-b8b6-ce54e1d6dfa8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Powerups">
+      <UniqueIdentifier>{7cb8d9da-3376-4d4d-a1f3-d88ff9d7e06d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Powerups">
+      <UniqueIdentifier>{6daa10ce-4b8c-4ef7-86ca-e56b7eaeaf44}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\middleware\glad\src\glad.c">
@@ -66,8 +78,17 @@
     <ClCompile Include="Entity.cpp">
       <Filter>Source Files\Game</Filter>
     </ClCompile>
+    <ClCompile Include="HUD.cpp">
+      <Filter>Source Files\HUD</Filter>
+    </ClCompile>
+    <ClCompile Include="Sound.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="PowerUp.cpp">
-      <Filter>Source Files\Game</Filter>
+      <Filter>Source Files\Powerups</Filter>
+    </ClCompile>
+    <ClCompile Include="PowerUpList.cpp">
+      <Filter>Source Files\Powerups</Filter>
     </ClCompile>
     <ClCompile Include="Front.cpp">
       <Filter>Source Files</Filter>
@@ -110,8 +131,11 @@
     <ClInclude Include="Entity.h">
       <Filter>Header Files\Game</Filter>
     </ClInclude>
-    <ClInclude Include="PowerUp.h">
-      <Filter>Header Files\Game</Filter>
+    <ClInclude Include="HUD.h">
+      <Filter>Header Files\HUD</Filter>
+    </ClInclude>
+    <ClInclude Include="Sound.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="FilterGroup.h">
       <Filter>Header Files\Physics</Filter>
@@ -121,6 +145,12 @@
     </ClInclude>
     <ClInclude Include="Back.h">
       <Filter>Header Files</Filter>
+	</ClInclude>
+    <ClInclude Include="PowerUp.h">
+      <Filter>Header Files\Powerups</Filter>
+    </ClInclude>
+    <ClInclude Include="PowerUpList.h">
+      <Filter>Header Files\Powerups</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

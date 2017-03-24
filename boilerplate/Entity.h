@@ -19,6 +19,12 @@ public:
 	void render(glm::mat4 parentTransform)override;
 };
 
+class HUDobj :public Entity {
+public:
+	void update(glm::mat4 parentTransform)override;
+	void render(glm::mat4 parentTransform)override;
+};
+
 class Cube :public Entity {
 public:
 	void update(glm::mat4 parentTransform)override;

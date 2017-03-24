@@ -143,12 +143,15 @@
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="Gamepad.cpp" />
     <ClCompile Include="Graphics.cpp" />
+    <ClCompile Include="HUD.cpp" />
     <ClCompile Include="InputManager.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Path.cpp" />
     <ClCompile Include="PhysicsManager.cpp" />
     <ClCompile Include="PowerUp.cpp" />
+    <ClCompile Include="PowerUpList.cpp" />
     <ClCompile Include="Resources.cpp" />
+    <ClCompile Include="Sound.cpp" />
     <ClCompile Include="Util.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -159,13 +162,16 @@
     <ClInclude Include="Front.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="Graphics.h" />
+    <ClInclude Include="HUD.h" />
     <ClInclude Include="Path.h" />
     <ClInclude Include="PhysicsManager.h" />
     <ClInclude Include="PowerUp.h" />
+    <ClInclude Include="PowerUpList.h" />
     <ClInclude Include="Resources.h" />
     <ClInclude Include="Gamepad.h" />
     <ClInclude Include="InputManager.h" />
     <ClInclude Include="Main.h" />
+    <ClInclude Include="Sound.h" />
     <ClInclude Include="Util.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
