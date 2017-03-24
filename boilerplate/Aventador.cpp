@@ -290,12 +290,13 @@ void Aventador::updateFuel() {
 				PxVec3(100,50,0), PxVec3(-0.5, 0, 0), PxForceMode::eIMPULSE);
 			PxRigidBodyExt::addLocalForceAtLocalPos(*actor,
 				PxVec3(0, -20, 0), PxVec3(0.5, 1, 0), PxForceMode::eIMPULSE);
+			//game over flag
 		}
 	}
 	else {
 		std::cout << "is on path\n";
 		if (aventadorData.fuel < aventadorData.tankSize) {
-			aventadorData.fuel++;
+			aventadorData.fuel += 5;
 			std::cout << "fuel: " << aventadorData.fuel << "\n";
 		}
 	}

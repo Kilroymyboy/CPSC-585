@@ -33,7 +33,7 @@ public:
 	float manualTireHeatIncrease = 0.15;
 
 	int fuel;
-	int tankSize = 500;
+	int tankSize = 400;
 
 	bool powerStatus = false;
 	bool isAI = false;
