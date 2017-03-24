@@ -90,12 +90,6 @@
     <ClCompile Include="PowerUpList.cpp">
       <Filter>Source Files\Powerups</Filter>
     </ClCompile>
-    <ClCompile Include="Front.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Back.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Graphics.h">
@@ -140,12 +134,6 @@
     <ClInclude Include="FilterGroup.h">
       <Filter>Header Files\Physics</Filter>
     </ClInclude>
-    <ClInclude Include="Front.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Back.h">
-      <Filter>Header Files</Filter>
-	</ClInclude>
     <ClInclude Include="PowerUp.h">
       <Filter>Header Files\Powerups</Filter>
     </ClInclude>
