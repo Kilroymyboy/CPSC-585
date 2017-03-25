@@ -2,6 +2,8 @@
 #include "PhysicsManager.h"
 #include "Game.h"
 
+using namespace glm;
+
 namespace AiManager {
 
 	double dCoolDown = 2;
@@ -29,9 +31,11 @@ namespace AiManager {
 			}
 		}
 
-		//if back
+		if (!isFront) {
+			vec2 pointLeft = vec2(globalPos.p.x, globalPos.p.z);
 
-		
+		}
+
 	}
 
 }

@@ -74,27 +74,28 @@ void Path::render(mat4 parentTransform) {
 	Graphics::Render(&geometry, &Resources::defaultMaterial, parentTransform*transform);
 }
 
-float sign(float pointX, float pointY, float pos1X, float pos1Y, float pos2X, float pos2Y)
-{
-	return (pointX - pos2X) * (pos1Y - pos2Y) - (pos1X - pos2X) * (pointY - pos2Y);
+float sign(vec2 point1, vec2 point2, vec2 point3) {
+	return (point1.x - point3.x) * (point2.y - point3.y) - (point2.x - point3.x) * (point1.y - point3.y);
 }
 
 bool Path::pointInPath(float x, float y) {
 
-	float P1_x, P1_y, P2_x, P2_y, P3_x, P3_y;
+	vec2 check, p1, p2, p3;
 	bool b1, b2, b3;
 
-	for (int i = 0; i < positions.size() - 1; i += 3) {
-		P1_x = positions[i].x;
-		P1_y = positions[i].z;
-		P2_x = positions[i + 1].x;
-		P2_y = positions[i + 1].z;
-		P3_x = positions[i + 2].x;
-		P3_y = positions[i + 2].z;
+	check = vec2(x, y);
 
-		b1 = sign(x, y, P1_x, P1_y, P2_x, P2_y) < 0.0f;
-		b2 = sign(x, y, P2_x, P2_y, P3_x, P3_y) < 0.0f;
-		b3 = sign(x, y, P3_x, P3_y, P1_x, P1_y) < 0.0f;
+	for (int i = 0; i < positions.size() - 1; i += 3) {
+		p1.x = positions[i].x;
+		p1.y = positions[i].z;
+		p2.x = positions[i + 1].x;
+		p2.y = positions[i + 1].z;
+		p3.x = positions[i + 2].x;
+		p3.y = positions[i + 2].z;
+
+		b1 = sign(check, p1, p2) < 0.0f;
+		b2 = sign(check, p2, p3) < 0.0f;
+		b3 = sign(check, p3, p1) < 0.0f;
 
 		if ((b1 == b2) && (b2 == b3)) {
 			return true;
