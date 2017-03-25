@@ -272,14 +272,27 @@ void Aventador::updateSteering() {
 			|| Keyboard::keyDown(aventadorId ? GLFW_KEY_RIGHT : GLFW_KEY_D))) {
 			wheelAngle *= aventadorData.wheelReurnRate;
 		}
-		if (aventadorId == 0) {
-			float amount = -1*controller1.LeftStick_X();
-			wheelAngle += (amount*aventadorData.wheelTurnRate);
-		}
 		if (aventadorId == 1) {
-			float amount = -1*controller2.LeftStick_X();
-			wheelAngle += (amount*aventadorData.wheelTurnRate);
+			float amount = -1 * controller2.LeftStick_X();
+			cout << "PLAYER 2 AMOUNT " << amount << endl;
+			if ((amount > 0.25) || (amount < -0.25)) {
+				wheelAngle = +(amount*aventadorData.wheelTurnRate);
+			}
+			else {
+				wheelAngle *= aventadorData.wheelReurnRate;
+			}
 		}
+		if (aventadorId == 0) {
+			float amount = -1 * controller1.LeftStick_X();
+			cout << "PLAYER 1 AMOUNT " << amount << endl;
+			if((amount > 0.25)||(amount < -0.25)){
+				wheelAngle =+ (amount*aventadorData.wheelTurnRate);
+			}
+			else {
+				wheelAngle *= aventadorData.wheelReurnRate;
+			}
+		}
+
 	}
 	wheelAngle = min(max(wheelAngle, -aventadorData.maxWheelAngle), aventadorData.maxWheelAngle);
 	wheel[0].get()->facingAngle = wheelAngle;
@@ -328,10 +341,16 @@ void Aventador::updateBraking() {
 		if (controller1.GetButtonPressed(1)) {
 			brakeForce = min(brakeForce + aventadorData.brakeSpeed, aventadorData.maxBrakeForce);
 		}
+		else {
+			brakeForce = 0;
+		}
 	}
 	if (aventadorId == 1) {
 		if (controller2.GetButtonPressed(1)) {
 			brakeForce = min(brakeForce + aventadorData.brakeSpeed, aventadorData.maxBrakeForce);
+		}
+		else {
+			brakeForce = 0;
 		}
 	}
 	else {
