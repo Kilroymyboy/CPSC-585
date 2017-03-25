@@ -16,6 +16,8 @@ public:
 	float damperForce = 12;
 	float maxWheelAngle = PI / 5;
 	float dimensionHeight = 0.45;
+	float dimensionWidth = 1;
+	float dimensionLength = 2.5;
 	float maxWheelDist = 0.46;
 	float wheelTurnRate = 0.01;
 	float wheelReurnRate = 0.85;

@@ -42,7 +42,7 @@ Aventador::Aventador(int id) {
 
 
 	PxTransform t(PxVec3(0, 5, 0), PxQuat::createIdentity());
-	PxVec3 dimensions(1, aventadorData.dimensionHeight, 2.5);
+	PxVec3 dimensions(aventadorData.dimensionWidth, aventadorData.dimensionHeight, aventadorData.dimensionLength);
 
 	actor = PhysicsManager::createDynamic(t, dimensions);
 	actor->setMass(5.5);
@@ -84,10 +84,9 @@ void Aventador::update(glm::mat4 parentTransform) {
 	updateTopSpeed();
 	updateDrift();
 	updateBraking();
-	/*
 	if (!aventadorData.isFront)
 		updateFuel();
-		*/
+		
 
 	updateLightCamera();
 
@@ -221,7 +220,7 @@ void Aventador::updateSteering() {
 	actor->addTorque(-actor->getAngularVelocity() * 20);
 
 	if (aventadorData.isAI) {
-		AiManager::aiSteering(wheelAngle, aventadorData.wheelTurnRate);
+		AiManager::aiSteering(wheelAngle, aventadorData.isFront, actor->getGlobalPose());
 		/*
 		if (Time::time > dChangeTime) {
 			dChangeTime += dCoolDown;

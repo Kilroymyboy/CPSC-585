@@ -113,7 +113,7 @@ namespace PhysicsManager {
 		PxBoxGeometry geometry(dimensions);
 		PxRigidDynamic* dynamic = PxCreateDynamic(*mPhysics, t, geometry, *mMaterial, 1.0f);
 		//actor = PxCreateDynamic(*PhysicsManager::mPhysics, t, geometry, *PhysicsManager::mPhysics->createMaterial(0.1f, 0.1f, 0.5f), PxReal(1.0f));
-		
+
 		dynamic->setAngularDamping(0.2f);
 
 		dynamic->setLinearVelocity(velocity);
