@@ -16,10 +16,10 @@ public:
 	float maxWheelAngle = PI / 5;
 	float dimensionHeight = 0.45;
 	float maxWheelDist = 0.46;
-	float wheelTurnRate = 0.5;
+	float wheelTurnRate = 0.25;
 	float wheelReurnRate = 0.85;
 
-	float force = 30;
+	float force = 45;
 	float wheelSideFriction = 6.25;
 	float wheelSideMaxFriction = 25;
 	float topSpeedFriction = 0.8;
