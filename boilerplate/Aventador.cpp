@@ -54,9 +54,9 @@ Aventador::Aventador(int id) {
 	if (aventadorId == 0) {
 		actor->setGlobalPose(PxTransform(0, 0, 20.0),true);
 		aventadorData.isFront = true;
-		//aventadorData.isAI = true;
+		aventadorData.isAI = true;
 		aventadorData.force = 30;
-		dChangeTime = Time::time += dCoolDown;
+		//dChangeTime = Time::time += dCoolDown;
 	}
 	else {
 		aventadorData.isFront = false;
@@ -84,8 +84,10 @@ void Aventador::update(glm::mat4 parentTransform) {
 	updateTopSpeed();
 	updateDrift();
 	updateBraking();
+	/*
 	if (!aventadorData.isFront)
 		updateFuel();
+		*/
 
 	updateLightCamera();
 
@@ -219,6 +221,8 @@ void Aventador::updateSteering() {
 	actor->addTorque(-actor->getAngularVelocity() * 20);
 
 	if (aventadorData.isAI) {
+		AiManager::aiSteering(wheelAngle, aventadorData.wheelTurnRate);
+		/*
 		if (Time::time > dChangeTime) {
 			dChangeTime += dCoolDown;
 			randDirection = pseudoRand() % 3;
@@ -232,6 +236,7 @@ void Aventador::updateSteering() {
 				wheelAngle *= aventadorData.wheelTurnRate;
 			}
 		}
+		*/
 	}
 	else {
 		if (Keyboard::keyDown(aventadorId ? GLFW_KEY_LEFT : GLFW_KEY_A)) {
@@ -284,22 +289,22 @@ void Aventador::updateFuel() {
 	if (!onPath) {
 		std::cout << "is not on path\n";
 		aventadorData.fuel--;
-		std::cout << "fuel: " << aventadorData.fuel << "\n";
 		if (aventadorData.fuel == 0) {
 			PxRigidBodyExt::addLocalForceAtLocalPos(*actor,
-				PxVec3(100,50,0), PxVec3(-0.5, 0, 0), PxForceMode::eIMPULSE);
+				PxVec3(100, 50, 0), PxVec3(-0.5, 0, 0), PxForceMode::eIMPULSE);
 			PxRigidBodyExt::addLocalForceAtLocalPos(*actor,
 				PxVec3(0, -20, 0), PxVec3(0.5, 1, 0), PxForceMode::eIMPULSE);
 			//game over flag
+			Game::setGameOverFlag(true);
 		}
 	}
 	else {
 		std::cout << "is on path\n";
 		if (aventadorData.fuel < aventadorData.tankSize) {
 			aventadorData.fuel += 5;
-			std::cout << "fuel: " << aventadorData.fuel << "\n";
 		}
 	}
+	std::cout << "fuel: " << aventadorData.fuel << "\n";
 }
 
 bool Aventador::hasPowerUp() {

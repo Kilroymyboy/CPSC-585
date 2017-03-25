@@ -23,6 +23,7 @@ namespace Game {
 	extern std::shared_ptr<Aventador> aventador1;
 	extern std::shared_ptr<Path> path;
 	extern std::shared_ptr<HUDobj> hud;
+	extern bool isGameOver;
 
 	void init();
 	void update();
@@ -30,7 +31,8 @@ namespace Game {
 	double getDist();
 	Aventador * getFront();
 	Aventador * getBack();
-	//Path * getPath();
+	void setGameOverFlag(bool flag);
+	
 }
 
 namespace Time {

@@ -5,6 +5,7 @@
 #include "InputManager.h"
 #include "Graphics.h"
 #include "FilterGroup.h"
+#include "AiManager.h"
 #include <vector>
 #include <list>
 #include <memory>
@@ -80,9 +81,9 @@ class Aventador : public Entity {
 	float brakeForce;
 	std::vector<float> tireHeat;
 
-	double dCoolDown = 2;
-	double dChangeTime;
-	int randDirection;
+	//double dCoolDown = 2;
+	//double dChangeTime;
+	//int randDirection;
 
 public:
 	physx::PxRigidDynamic *actor;

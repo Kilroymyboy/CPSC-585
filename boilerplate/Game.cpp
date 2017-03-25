@@ -22,6 +22,7 @@ namespace Game {
 	float impulse = 300;
 	double switchRange = 15.0;
 	bool inSwtichRange = false;
+	bool isGameOver = false;
 
 	// we can customize this function as much as we want for now for debugging
 	void init() {
@@ -95,8 +96,8 @@ namespace Game {
 		return (aventador0->isFront()) ? aventador1.get() : aventador0.get();
 	}
 
-	Path* getPath() {
-		return path.get();
+	void setGameOverFlag(bool flag) {
+		isGameOver = flag;
 	}
 
 }
