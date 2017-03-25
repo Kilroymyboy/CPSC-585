@@ -33,7 +33,6 @@ namespace Game {
 
 	void update() {
 		glfwPollEvents();
-
 		for (auto it = entities.begin(); it != entities.end(); it++) {
 			if (it->get()->alive) {
 				it->get()->update(mat4(1));
@@ -48,11 +47,27 @@ namespace Game {
 			entities.push_back(shared_ptr<Entity>(new PowerUp()));
 		}
 
+		//This is where a restart function would go
+		//currently doing something wrong as restarting must not actually delete as the program slows down after each restart
+		if ((controller1.GetButtonPressed(13))||(Keyboard::keyPressed(GLFW_KEY_Q))) {
+			entities.clear();
+			init();
+		}
+
 	}
 
 	void switchRole() {
 		aventador0->changeRole();
 		aventador1->changeRole();
+	}
+
+	void switchStates() {
+		entities.clear();
+	}
+
+	void startScreen() {
+		//initialization of whatever we want in here for now just a print statement
+		cout << "In Start Screen" << endl;
 	}
 }
 

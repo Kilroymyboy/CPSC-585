@@ -1,5 +1,6 @@
 #pragma once
 
+#include <iostream>
 #include <vector>
 #include <list>
 #include <memory>
@@ -21,6 +22,7 @@ namespace Game {
 	void init();
 	void update();
 	void switchRole();
+	void startScreen();
 }
 
 namespace Time {
