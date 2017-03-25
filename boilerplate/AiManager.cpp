@@ -31,14 +31,7 @@ namespace AiManager {
 
 		//if back
 
-
-
-/*
-		PxRigidDynamic *blockFront;
-		PxRigidDynamic *blockFrontLeft;
-		PxRigidDynamic *blockFrontRight;
-		createActorDetectors(blockFrontLeft, blockFront, blockFrontRight, globalPos);
-*/
+		
 	}
 
 }

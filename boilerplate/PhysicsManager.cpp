@@ -111,12 +111,21 @@ namespace PhysicsManager {
 	PxRigidDynamic* createDynamic(const PxTransform& t, const PxVec3& dimensions, const PxVec3& velocity)
 	{
 		PxBoxGeometry geometry(dimensions);
+
 		PxRigidDynamic* dynamic = PxCreateDynamic(*mPhysics, t, geometry, *mMaterial, 1.0f);
-		//actor = PxCreateDynamic(*PhysicsManager::mPhysics, t, geometry, *PhysicsManager::mPhysics->createMaterial(0.1f, 0.1f, 0.5f), PxReal(1.0f));
 
 		dynamic->setAngularDamping(0.2f);
 
 		dynamic->setLinearVelocity(velocity);
+		mScene->addActor(*dynamic);
+		return dynamic;
+	}
+
+	PxRigidDynamic* createDynamic2(const PxTransform& t, const PxVec3& dimensions)
+	{
+		PxBoxGeometry geometry(dimensions);
+		PxRigidDynamic* dynamic = PxCreateDynamic(*mPhysics, t, geometry, *mMaterial, 1.0f);
+
 		mScene->addActor(*dynamic);
 		return dynamic;
 	}

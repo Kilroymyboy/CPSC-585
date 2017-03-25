@@ -10,17 +10,16 @@ PowerUp::PowerUp() {
 	PxVec3 dimensions(0.5f, 0.5f, 0.5f);
 	
 	if (powerId == 0) {
-		t = PxTransform(Game::aventador0->actor->getGlobalPose());
+		PxTransform t(Game::aventador0->actor->getGlobalPose());
 	}
 	else {
-		t = PxTransform(Game::aventador1->actor->getGlobalPose());
+		PxTransform t(Game::aventador1->actor->getGlobalPose());
 	}
 
 	PxTransform r(getRandLocation(), PxQuat::createIdentity());
 	t.operator*=(r);
 	actor = PhysicsManager::createDynamic(t, dimensions);
 	actor->userData = (void*)ContactModFlags::eIGNORE_CONTACT;
-	//actor->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, true);
 	PhysicsManager::attachSimulationShape(actor, dimensions, 0);
 	PhysicsManager::setContactFilter(actor, FilterGroup::ePowerUp, FilterGroup::eAventador);
 
