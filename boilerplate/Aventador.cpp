@@ -52,14 +52,15 @@ Aventador::Aventador(int id) {
 	PhysicsManager::setContactFilter(actor, FilterGroup::eAventador, FilterGroup::eAventador | FilterGroup::ePowerUp);
 
 	if (aventadorId == 0) {
-		actor->setGlobalPose(PxTransform(0, 0, 20.0),true);
-		aventadorData.isFront = true;
-		aventadorData.isAI = true;
-		aventadorData.force = 30;
-		//dChangeTime = Time::time += dCoolDown;
+		actor->setGlobalPose(PxTransform(0, 0, -10.0),true);
+		//aventadorData.isFront = true;
+		//aventadorData.isAI = true;
+		aventadorData.force = 20;
+		AiManager::aiInit(aventadorData.isAI, aventadorData.isFront);
 	}
 	else {
 		aventadorData.isFront = false;
+		aventadorData.isFront = true;
 	}
 
 	//Setting contact modification flags
@@ -84,9 +85,10 @@ void Aventador::update(glm::mat4 parentTransform) {
 	updateTopSpeed();
 	updateDrift();
 	updateBraking();
+	/* commented out for testing
 	if (!aventadorData.isFront)
 		updateFuel();
-		
+	*/
 
 	updateLightCamera();
 
@@ -221,21 +223,6 @@ void Aventador::updateSteering() {
 
 	if (aventadorData.isAI) {
 		AiManager::aiSteering(wheelAngle, aventadorData.isFront, actor->getGlobalPose());
-		/*
-		if (Time::time > dChangeTime) {
-			dChangeTime += dCoolDown;
-			randDirection = pseudoRand() % 3;
-			if (randDirection == 0) {
-				wheelAngle += aventadorData.wheelTurnRate;
-			}
-			else if (randDirection == 1) {
-				wheelAngle -= aventadorData.wheelTurnRate;
-			}
-			else if (randDirection == 2) {
-				wheelAngle *= aventadorData.wheelTurnRate;
-			}
-		}
-		*/
 	}
 	else {
 		if (Keyboard::keyDown(aventadorId ? GLFW_KEY_LEFT : GLFW_KEY_A)) {
@@ -320,13 +307,6 @@ void Aventador::changeRole() {
 
 bool Aventador::isFront() {
 	return aventadorData.isFront;
-}
-
-int Aventador::pseudoRand() {
-	// our initial starting seed is 5323
-	static unsigned int seed = 5323;
-	seed = (8253729 * seed + 2396403);
-	return seed;
 }
 
 void AventadorWheel::update(glm::mat4 parentTransform) {

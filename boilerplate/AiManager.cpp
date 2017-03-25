@@ -11,29 +11,52 @@ namespace AiManager {
 
 	void aiInit(bool &setIsAi, bool &setIsFront) {
 		setIsAi = true;
-		setIsFront = true;
+		//setIsFront = true;
+		setIsFront = false;
 	}
 
 	void aiSteering(float &wheelAngle, bool isFront, PxTransform globalPos) {
 
-		if (Time::time > dChangeTime) {
-			dChangeTime += dCoolDown;
-			float turnRate = rand() % 3;
-			int randDirection = rand() % 3;
-			if (randDirection == 0) {
-				wheelAngle += turnRate;
-			}
-			else if (randDirection == 1) {
-				wheelAngle -= turnRate;
-			}
-			else if (randDirection == 2) {
-				wheelAngle *= turnRate;
+		float turnRate = rand() % 3;
+		if (isFront) {
+			if (Time::time > dChangeTime) {
+				dChangeTime += dCoolDown;
+				int randDirection = rand() % 3;
+				if (randDirection == 0) {
+					wheelAngle += turnRate;
+				}
+				else if (randDirection == 1) {
+					wheelAngle -= turnRate;
+				}
+				else if (randDirection == 2) {
+					wheelAngle *= turnRate;
+				}
 			}
 		}
 
 		if (!isFront) {
-			vec2 pointLeft = vec2(globalPos.p.x, globalPos.p.z);
-
+			//left when x increases
+			for (float i = 1; i < 2; i+= 0.5) {
+				float yCoordAhead = globalPos.p.z + i;
+				if (Game::path->pointInPath(globalPos.p.x, yCoordAhead)) {
+					wheelAngle *= 50;
+					exit;
+				}
+				for (float j = 1; j < 2; j += 0.5) {
+					float xCoordLeft = globalPos.p.x + j;
+					float xCoordRight = globalPos.p.x - j;
+					vec2 pointLeft = vec2(xCoordLeft, yCoordAhead);
+					vec2 pointRight = vec2(xCoordRight, yCoordAhead);
+					if (Game::path->pointInPath(pointLeft.x, pointLeft.y)) {
+						wheelAngle += 50;
+						exit;
+					}
+					else if (Game::path->pointInPath(pointRight.x, pointRight.y)) {
+						wheelAngle -= 50;
+						exit;
+					}
+				}
+			}
 		}
 
 	}

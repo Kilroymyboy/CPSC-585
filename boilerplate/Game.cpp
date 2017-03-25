@@ -65,6 +65,7 @@ namespace Game {
 			entities.push_back(shared_ptr<Entity>(new PowerUp()));
 		}
 		//check the distance between the aventators
+		/*
 		if (dist < switchRange && !inSwtichRange) {
 			PxRigidBodyExt::addLocalForceAtLocalPos(*getBack()->actor,
 				PxVec3(0, 0, impulse), PxVec3(0, 0, 0), PxForceMode::eIMPULSE);
@@ -74,6 +75,7 @@ namespace Game {
 		else if (dist > switchRange && inSwtichRange) {
 			inSwtichRange = false;
 		}
+		*/
 	}
 
 	void switchRole() {

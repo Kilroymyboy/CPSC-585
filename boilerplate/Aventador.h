@@ -83,10 +83,6 @@ class Aventador : public Entity {
 	float brakeForce;
 	std::vector<float> tireHeat;
 
-	//double dCoolDown = 2;
-	//double dChangeTime;
-	//int randDirection;
-
 public:
 	physx::PxRigidDynamic *actor;
 	// 0: front right, 1: front left, 2: rear left, 3: rear right
@@ -100,6 +96,4 @@ public:
 	void changeRole();
 	bool isFront();
 	Aventador(int);
-
-	int Aventador::pseudoRand();
 };
