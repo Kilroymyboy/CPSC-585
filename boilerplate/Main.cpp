@@ -34,10 +34,11 @@ int main(int argc, char *argv[])
 //	Sound::list_audio_devices(Sound::device);
 	while (!Graphics::shouldClose()) {
 		
-		while (startScreen == true) {
+		/*while (startScreen == true) {
 			
 			Graphics::update();
 
+			Keyboard::update();
 			controller1.Update();
 			controller2.Update();
 			controller1.GetState();
@@ -47,7 +48,7 @@ int main(int argc, char *argv[])
 				startScreen = false;
 			}
 
-		}
+		}*/
 		Time::update();
 		Game::update();
 		Graphics::update();

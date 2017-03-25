@@ -274,7 +274,6 @@ void Aventador::updateSteering() {
 		}
 		if (aventadorId == 1) {
 			float amount = -1 * controller2.LeftStick_X();
-			cout << "PLAYER 2 AMOUNT " << amount << endl;
 			if ((amount > 0.25) || (amount < -0.25)) {
 				wheelAngle = +(amount*aventadorData.wheelTurnRate);
 			}
@@ -284,7 +283,6 @@ void Aventador::updateSteering() {
 		}
 		if (aventadorId == 0) {
 			float amount = -1 * controller1.LeftStick_X();
-			cout << "PLAYER 1 AMOUNT " << amount << endl;
 			if((amount > 0.25)||(amount < -0.25)){
 				wheelAngle =+ (amount*aventadorData.wheelTurnRate);
 			}
