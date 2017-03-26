@@ -12,7 +12,7 @@
 using namespace std;
 
 HUD *hud;
-bool pause = false;
+static int mode = 0;
 
 int main(int argc, char *argv[])
 {
@@ -27,39 +27,41 @@ int main(int argc, char *argv[])
 	Resources::init();
 	Time::init();
 	Keyboard::init();
-	//Game::startScreen();
-	Game::init();
+	Game::startScreen();
+	//Game::init();
 	//Sound::init();
 	//Sound::playSound(1);
 	
 //	Sound::list_audio_devices(Sound::device);
 	while (!Graphics::shouldClose()) {
 		
-		//pauses the game while holding down start not ideal
-		if ((controller1.GetButtonPressed(12)) || (pause == false)) {
-			pause = true;
-			cout << "game shoudl be paused" << pause << endl;
-		}
-		else if ((controller1.GetButtonPressed(0)) || (pause == true)) {
-			pause = false;
-			cout << "Game isn't paused " << pause << endl;
-		}
-		if (pause == false) {
-			cout << "game loop" << endl;
+		if (mode == 0) {
+			cout << "In start screen" << endl;
+			Game::startScreen();
 			Time::update();
 			Game::update();
 			Graphics::update();
-		
+			mode = Game::startScreen();
+		}
+		else if (mode == 1) {
+			Time::update();
+			Game::update();
+			Graphics::update();
+
 			hud->update();
 			PhysicsManager::update(1);
+			cout << "In game Loop" << endl;
 		}
-			//need these 4 lines for controller update now that its global
-			controller1.Update();
-			controller2.Update();
-			controller1.GetState();
-			controller2.GetState();
 	
-			Keyboard::update();
+		hud->update();
+		PhysicsManager::update(1);
+		//need these 4 lines for controller update now that its global
+		controller1.Update();
+		controller2.Update();
+		controller1.GetState();
+		controller2.GetState();
+	
+		Keyboard::update();
 
 	}
 	PhysicsManager::destroy();

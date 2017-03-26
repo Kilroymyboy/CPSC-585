@@ -20,9 +20,10 @@ namespace Game {
 	extern std::shared_ptr<Aventador> aventador1;
 	extern std::shared_ptr<HUDobj> hud;
 	void init();
-	void update();
+	int update();
 	void switchRole();
-	void startScreen();
+	int startScreen();
+	void endScreen();
 }
 
 namespace Time {

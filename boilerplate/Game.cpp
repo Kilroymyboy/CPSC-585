@@ -31,7 +31,7 @@ namespace Game {
 		//entities.push_back(unique_ptr<Plane>(new Plane));
 	}
 
-	void update() {
+	int update() {
 		glfwPollEvents();
 		for (auto it = entities.begin(); it != entities.end(); it++) {
 			if (it->get()->alive) {
@@ -53,6 +53,9 @@ namespace Game {
 			entities.clear();
 			init();
 		}
+		else if (controller1.GetButtonPressed(12)) {
+			return 2;
+		}
 	}
 
 	void switchRole() {
@@ -60,14 +63,26 @@ namespace Game {
 		aventador1->changeRole();
 	}
 
-	void switchStates() {
-		entities.clear();
+	//this is it's own game loop so this would generate the start screen objects or place an image
+	int startScreen() {
+		//initialization of whatever we want in here for now just a print statement
+		//currently can only go to the main game loop because of how i set up loops in the main file
+		controller1.Update();
+		controller2.Update();
+		controller1.GetState();
+		controller2.GetState();
+		cout << "In Start Screen" << endl;
+		if ((controller1.GetButtonPressed(12)) || (Keyboard::keyPressed(GLFW_KEY_ENTER))) {
+			cout << "ENTERED GAME LOOP" << endl;
+			entities.clear();
+			init();
+			return 1;
+		}
 	}
 
-	void startScreen() {
-		//initialization of whatever we want in here for now just a print statement
+	//same as start screen but just after the race is over
+	void endScreen() {
 		entities.clear();
-		cout << "In Start Screen" << endl;
 	}
 }
 
