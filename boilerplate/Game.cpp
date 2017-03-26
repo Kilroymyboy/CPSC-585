@@ -49,11 +49,10 @@ namespace Game {
 
 		//This is where a restart function would go
 		//currently doing something wrong as restarting must not actually delete as the program slows down after each restart
-		if ((controller1.GetButtonPressed(13))||(Keyboard::keyPressed(GLFW_KEY_Q))) {
+		if ((controller1.GetButtonPressed(13)) || (Keyboard::keyPressed(GLFW_KEY_Q))) {
 			entities.clear();
 			init();
 		}
-
 	}
 
 	void switchRole() {
@@ -67,6 +66,7 @@ namespace Game {
 
 	void startScreen() {
 		//initialization of whatever we want in here for now just a print statement
+		entities.clear();
 		cout << "In Start Screen" << endl;
 	}
 }
