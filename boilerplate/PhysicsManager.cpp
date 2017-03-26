@@ -238,6 +238,9 @@ void ContactBehaviourCallback::onContact(const PxContactPairHeader& pairHeader, 
 							break;
 						}
 						else {
+							//ERROR: appears that the memory is still accessible after erase
+							//workaround: change the name of the power up so that it cannot be contacted after erase has been called
+							pickedUp->setName("erased");
 							itr = Game::entities.erase(itr);
 							break;
 						}
@@ -250,7 +253,7 @@ void ContactBehaviourCallback::onContact(const PxContactPairHeader& pairHeader, 
 				break;
 			}
 			else if (isPowerUp1 && isAventador1) {
-				std::cout << "picked up power up\n";
+				std::cout << "picked up powerup\n";
 				Aventador* a = Game::aventador1.get();
 				//remove the power up from the scene
 				PxRigidActor* pickedUp = (pairHeader.actors[0]->getName() == name1) ? pairHeader.actors[0] : pairHeader.actors[1];
@@ -262,6 +265,9 @@ void ContactBehaviourCallback::onContact(const PxContactPairHeader& pairHeader, 
 							break;
 						}
 						else {
+							//ERROR: appears that the memory is still accessible after erase
+							//workaround: change the name of the power up so that it cannot be contacted after erase has been called
+							pickedUp->setName("erased");
 							itr = Game::entities.erase(itr);
 							break;
 						}

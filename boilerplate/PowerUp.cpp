@@ -44,6 +44,7 @@ void PowerUp::update(mat4 parentTransform) {
 	// power up time out
 	if (Time::time > deleteTime) {
 		alive = false;
+		actor->setName("erased");
 	}
 	
 }
