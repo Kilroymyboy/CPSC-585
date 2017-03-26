@@ -5,6 +5,7 @@
 #include "InputManager.h"
 #include "Graphics.h"
 #include "FilterGroup.h"
+#include "PowerUpList.h"
 #include <vector>
 #include <list>
 #include <memory>
@@ -77,6 +78,7 @@ class Aventador : public Entity {
 	void updateLightCamera();
 
 	VehicleData aventadorData;
+	void usePowerUp();
 
 	float wheelAngle;
 	float brakeForce;

@@ -93,7 +93,7 @@ void Aventador::update(glm::mat4 parentTransform) {
 	updateBraking();
 
 	updateLightCamera();
-
+	usePowerUp();
 
 	for (int i = 0; i < wheel.size(); i++) {
 		wheel[i].get()->update(tempTransform);
@@ -365,6 +365,31 @@ bool Aventador::hasPowerUp() {
 }
 void Aventador::setPowerUpStatus(bool status) {
 	aventadorData.powerStatus = status;
+}
+
+void Aventador::usePowerUp() {
+	if (Keyboard::keyDown(aventadorId ? GLFW_KEY_RIGHT_SHIFT : GLFW_KEY_F)) {
+		if (aventadorData.powerStatus == true) {
+			cout << aventadorId << " is using power" << endl;
+			aventadorData.powerStatus = false;
+		}
+	}
+	if (aventadorId == 0) {
+		if (controller1.GetButtonPressed(0)) {
+			if (aventadorData.powerStatus == true) {
+				cout << aventadorId << " is using power" << endl;
+				aventadorData.powerStatus = false;
+			}
+		}
+	}
+	if (aventadorId == 1) {
+		if (controller2.GetButtonPressed(0)) {
+			if (aventadorData.powerStatus == true) {
+				cout << aventadorId << " is using power" << endl;
+				aventadorData.powerStatus = false;
+			}
+		}
+	}
 }
 
 void Aventador::changeRole() {
