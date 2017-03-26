@@ -52,15 +52,13 @@ Aventador::Aventador(int id) {
 	PhysicsManager::setContactFilter(actor, FilterGroup::eAventador, FilterGroup::eAventador | FilterGroup::ePowerUp);
 
 	if (aventadorId == 0) {
-		actor->setGlobalPose(PxTransform(0, 0, -10.0),true);
-		//aventadorData.isFront = true;
-		//aventadorData.isAI = true;
-		aventadorData.force = 20;
+		actor->setGlobalPose(PxTransform(0, 0, 20.0),true);
+		aventadorData.force = 30;
 		AiManager::aiInit(aventadorData.isAI, aventadorData.isFront);
 	}
 	else {
 		aventadorData.isFront = false;
-		aventadorData.isFront = true;
+		//aventadorData.isFront = true;
 	}
 
 	//Setting contact modification flags
@@ -85,10 +83,10 @@ void Aventador::update(glm::mat4 parentTransform) {
 	updateTopSpeed();
 	updateDrift();
 	updateBraking();
-	/* commented out for testing
+/*	// commented out for testing
 	if (!aventadorData.isFront)
 		updateFuel();
-	*/
+*/
 
 	updateLightCamera();
 
@@ -288,6 +286,8 @@ void Aventador::updateFuel() {
 		std::cout << "is on path\n";
 		if (aventadorData.fuel < aventadorData.tankSize) {
 			aventadorData.fuel += 5;
+			if (aventadorData.fuel > aventadorData.tankSize)
+				aventadorData.fuel = aventadorData.tankSize;
 		}
 	}
 	std::cout << "fuel: " << aventadorData.fuel << "\n";

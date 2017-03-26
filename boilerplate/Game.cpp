@@ -28,7 +28,7 @@ namespace Game {
 	void init() {
 		aventador0 = shared_ptr<Aventador>(new Aventador(0));
 		aventador1 = shared_ptr<Aventador>(new Aventador(1));
-		path = shared_ptr<Path>(new Path(100));
+		path = shared_ptr<Path>(new Path(150));
 		entities.push_back(aventador0);
 		entities.push_back(aventador1);
 		entities.push_back(path);	//the path that gets drawn under the car
@@ -65,7 +65,6 @@ namespace Game {
 			entities.push_back(shared_ptr<Entity>(new PowerUp()));
 		}
 		//check the distance between the aventators
-		/*
 		if (dist < switchRange && !inSwtichRange) {
 			PxRigidBodyExt::addLocalForceAtLocalPos(*getBack()->actor,
 				PxVec3(0, 0, impulse), PxVec3(0, 0, 0), PxForceMode::eIMPULSE);
@@ -75,7 +74,6 @@ namespace Game {
 		else if (dist > switchRange && inSwtichRange) {
 			inSwtichRange = false;
 		}
-		*/
 	}
 
 	void switchRole() {
