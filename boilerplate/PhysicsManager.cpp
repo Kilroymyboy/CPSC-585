@@ -230,16 +230,17 @@ void ContactBehaviourCallback::onContact(const PxContactPairHeader& pairHeader, 
 				Aventador* a = Game::aventador0.get();
 				//remove the power up from the scene
 				PxRigidActor* pickedUp = (pairHeader.actors[0]->getName() == name0) ? pairHeader.actors[0] : pairHeader.actors[1];
-				auto power = find_if(Game::entities.begin(), Game::entities.end(), [&](std::shared_ptr<Entity>toFind) {
-					PowerUp* power = static_cast<PowerUp*>(toFind.get());
-					return power->getActor() == pickedUp; });
-				if (power != Game::entities.end()) {
-					if (a->isFront()) { //change powerUp to the other type
-						static_cast<PowerUp*>(power->get())->powerId = 1;
-						pickedUp->setName(name1);	//may cause some issues
-					}
-					else {
-						Game::entities.erase(power);
+				for (std::list<std::shared_ptr<Entity>>::iterator itr = Game::entities.begin(); itr != Game::entities.end(); ++itr) {
+					if (static_cast<PowerUp*>(itr->get())->getActor() == pickedUp) {
+						if (a->isFront()) { //change powerUp to the other type
+							static_cast<PowerUp*>(itr->get())->powerId = 1;
+							pickedUp->setName(name1);	//may cause some issues
+							break;
+						}
+						else {
+							itr = Game::entities.erase(itr);
+							break;
+						}
 					}
 				}
 				//have aventador hold the power up. Holds one power up at a time
@@ -249,19 +250,21 @@ void ContactBehaviourCallback::onContact(const PxContactPairHeader& pairHeader, 
 				break;
 			}
 			else if (isPowerUp1 && isAventador1) {
+				std::cout << "picked up power up\n";
 				Aventador* a = Game::aventador1.get();
 				//remove the power up from the scene
 				PxRigidActor* pickedUp = (pairHeader.actors[0]->getName() == name1) ? pairHeader.actors[0] : pairHeader.actors[1];
-				auto power = find_if(Game::entities.begin(), Game::entities.end(), [&](std::shared_ptr<Entity>toFind) {
-					PowerUp* power = static_cast<PowerUp*>(toFind.get());
-					return power->getActor() == pickedUp; });
-				if (power != Game::entities.end()) {
-					if (a->isFront()) { //change powerUp to the other type
-						static_cast<PowerUp*>(power->get())->powerId = 0;
-						pickedUp->setName(name0);	//may cause some issues
-					}
-					else {
-						Game::entities.erase(power);
+				for (std::list<std::shared_ptr<Entity>>::iterator itr = Game::entities.begin(); itr != Game::entities.end(); ++itr) {
+					if (static_cast<PowerUp*>(itr->get())->getActor() == pickedUp) {
+						if (a->isFront()) { //change powerUp to the other type
+							static_cast<PowerUp*>(itr->get())->powerId = 0;
+							pickedUp->setName(name0);	//may cause some issues
+							break;
+						}
+						else {
+							itr = Game::entities.erase(itr);
+							break;
+						}
 					}
 				}
 				//have aventador hold the power up. Holds one power up at a time

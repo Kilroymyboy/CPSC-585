@@ -279,7 +279,8 @@ void Aventador::updateFuel() {
 			PxRigidBodyExt::addLocalForceAtLocalPos(*actor,
 				PxVec3(0, -20, 0), PxVec3(0.5, 1, 0), PxForceMode::eIMPULSE);
 			//game over flag
-			Game::setGameOverFlag(true);
+			if(aventadorData.fuel < -3)
+				Game::setGameOverFlag(true);
 		}
 	}
 	else {

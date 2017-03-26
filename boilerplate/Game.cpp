@@ -39,7 +39,6 @@ namespace Game {
 		//entities.push_back(unique_ptr<CenteredCube>(new CenteredCube(vec3(0, 3, 0))));
 		entities.push_back(unique_ptr<Plane>(new Plane));
 		entities.push_back(unique_ptr<Skybox>(new Skybox(1000)));
-
 	}
 
 	void update() {
@@ -62,7 +61,7 @@ namespace Game {
 		//adding more power ups into the scene
 		if (Time::time > powerUpSpawnTime) {
 			powerUpSpawnTime += spawnCoolDown;
-			entities.push_back(shared_ptr<Entity>(new PowerUp()));
+			entities.push_back(unique_ptr<Entity>(new PowerUp()));
 		}
 		//check the distance between the aventators
 		if (dist < switchRange && !inSwtichRange) {

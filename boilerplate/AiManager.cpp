@@ -11,43 +11,43 @@ namespace AiManager {
 
 	void aiInit(bool &setIsAi, bool &setIsFront) {
 		setIsAi = true;
-		//setIsFront = true;
 		setIsFront = true;
-
 	}
 
 	void aiSteering(float &wheelAngle, bool isFront, PxTransform globalPos) {
 
 		if (isFront) {
-			//float turnRate = rand() % 2;
-			//if (Time::time > dChangeTime) {
-			//	dChangeTime += dCoolDown;
-			//	int randDirection = rand() % 3;
-			//	if (randDirection == 0) {
-			//		wheelAngle += turnRate;
-			//	}
-			//	else if (randDirection == 1) {
-			//		wheelAngle -= turnRate;
-			//	}
-			//	else if (randDirection == 2) {
-			//		wheelAngle *= turnRate;
-			//	}
-			//}
+			float turnRate = rand() % 2;
+			if (Time::time > dChangeTime) {
+				dChangeTime += dCoolDown;
+				int randDirection = rand() % 3;
+				if (randDirection == 0) {
+					wheelAngle += turnRate;
+				}
+				else if (randDirection == 1) {
+					wheelAngle -= turnRate;
+				}
+				else if (randDirection == 2) {
+					wheelAngle *= turnRate;
+				}
+			}
 		}
 
 		if (!isFront) {
 			//left when x increases
 			PxTransform frontPos = Game::getFront()->actor->getGlobalPose();
 			PxVec3 direction = frontPos.p - globalPos.p;
-			float magnitude = direction.magnitude();
-			float turnRate = 0.1;
-			if (magnitude < 100) { //if the car isn't that far behing the front, look for the path
+			float distance = direction.magnitude();
+			float turnRate = 0.01;
+			if (distance < 100) { //if the car isn't that far behing the front, look for the path
 				for (float i = 0.5; i < 1.5; i += 0.5) { //assign y axis of point
 					float yCoordAhead = globalPos.p.z + i;
-					if (Game::path->pointInPath(globalPos.p.x, yCoordAhead)) {	//check if the path is ahead of the car
-						std::cout << "up ahead\n";
-						wheelAngle *= 0;
-						return;
+					for (float j = -1; j <= 1; j += 0.5) {
+						if (Game::path->pointInPath(globalPos.p.x+j, yCoordAhead)) {	//check if the path is ahead of the car
+							std::cout << "up ahead\n";
+							wheelAngle *= turnRate;
+							return;
+						}
 					}
 					for (float j = 1; j < 3; j += 1) { //assign x axis of point
 						float xCoordLeft = globalPos.p.x + j;
@@ -95,7 +95,7 @@ namespace AiManager {
 		}
 		else if (direction.x < 1 && direction.x > 1) {
 			std::cout << "straight\n";
-			wheelAngle *= 0;
+			wheelAngle *= turnRate;
 		}
 	}
 
