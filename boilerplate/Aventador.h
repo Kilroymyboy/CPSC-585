@@ -36,7 +36,7 @@ public:
 	std::vector<float> tireHeatIncrease{ 0.00f,0.00f,0.0f,0.0f };
 	float tireHeatDecrease = 0.45;
 	float tireHeatFastDecrease = 0.1;
-	float manualTireHeatIncrease = 0.15;
+	float manualTireHeatIncrease = 0.5;
 
 
 	int powerStatus = 0;
