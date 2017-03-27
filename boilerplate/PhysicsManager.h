@@ -17,6 +17,7 @@ namespace PhysicsManager
 
 	void update(float);
 	physx::PxRigidDynamic* createDynamic(const PxTransform&, const PxVec3&, const PxVec3& = PxVec3(0));
+	PxRigidDynamic* createDynamic2(const PxTransform& t, const PxVec3& dimensions);
 	void attachSimulationShape(PxRigidDynamic *actor, const PxVec3& dimensions, PxReal distance);
 	void attachTriggerShape(PxRigidDynamic *actor, const PxVec3& dimensions);
 	void setContactFilter(PxRigidActor *actor, PxU32 filterGroup, PxU32 filterMask);

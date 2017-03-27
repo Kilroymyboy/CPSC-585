@@ -6,14 +6,20 @@ using namespace physx;
 
 PowerUp::PowerUp() {
 	powerId = pseudoRand() % 2; //0 or 1;
-	deleteTime = Time::time += countDown+20; //allows at most 6 power ups at a time
-
-	PxTransform t(getRandLocation(), PxQuat::createIdentity());
+	deleteTime = Time::time += countDown+15;
 	PxVec3 dimensions(0.5f, 0.5f, 0.5f);
+	
+	if (powerId == 0) {
+		t = PxTransform(Game::aventador0->actor->getGlobalPose());
+	}
+	else {
+		t = PxTransform(Game::aventador1->actor->getGlobalPose());
+	}
+
+	PxTransform r(getRandLocation(), PxQuat::createIdentity());
+	t.operator*=(r);
 	actor = PhysicsManager::createDynamic(t, dimensions);
 	actor->userData = (void*)ContactModFlags::eIGNORE_CONTACT;
-	//actor->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, true);
-	//PhysicsManager::attachTriggerShape(actor, dimensions);
 	PhysicsManager::attachSimulationShape(actor, dimensions, 0);
 	PhysicsManager::setContactFilter(actor, FilterGroup::ePowerUp, FilterGroup::eAventador);
 
@@ -37,18 +43,18 @@ void PowerUp::update(mat4 parentTransform) {
 
 	// power up time out
 	if (Time::time > deleteTime) {
-		deleteTime += countDown;
 		alive = false;
+		actor->setName("erased");
 	}
 	
 }
 
 void PowerUp::render(mat4 parentTransform) {
 	if (powerId == 0) {
-		Graphics::Render(&Resources::centeredCube, &Resources::coralMaterial, transform);
+		Graphics::RenderInstanced(&Resources::centeredCube, &Resources::coralMaterial, transform);
 	}
 	else {
-		Graphics::Render(&Resources::centeredCube, &Resources::paleGreenMaterial, transform);
+		Graphics::RenderInstanced(&Resources::centeredCube, &Resources::paleGreenMaterial, transform);
 	}
 }
 
@@ -58,10 +64,9 @@ physx::PxRigidDynamic *const PowerUp::getActor() {
 
 PxVec3 PowerUp::getRandLocation() {
 	float x, y, z;
-	x = (float)(pseudoRand() %200) - 10; //random number between -10 to 9
-	y = 1.0f;
-	z = (float)(pseudoRand() %200);
-	
+	x = (float)(pseudoRand() %30) - 15;
+	y = 2.0f;
+	z = (float)(pseudoRand() %50) + 100;	
 	return PxVec3(x, y, z);
 }
 
@@ -69,6 +74,7 @@ void PowerUp::use()
 {
 	printf("POWERUP ERROR\n");
 }
+
 
 int PowerUp::pseudoRand() {
 	// our initial starting seed is 5323

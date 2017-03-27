@@ -42,10 +42,14 @@ namespace Graphics {
 
 	bool SPLIT_SCREEN = 1;
 	// 0 horizontal/side by side, 1 vertical/stacked
-	int SPLIT_SCREEN_ORIENTATION = 1;
+	int SPLIT_SCREEN_ORIENTATION = 0;
 
 	bool SHADOW = 1;
 	int SOFT_SHADOW = 1;
+
+	int tDrawCalls = 0;
+
+	vector<MyGeometry*> instancedGeometry;
 
 	void QueryGLVersion();
 	bool CheckGLErrors();
@@ -83,7 +87,7 @@ namespace Graphics {
 		glDeleteShader(shader->fragment);
 	}
 
-	bool InitializeTexture(MyTexture* texture, const char* filename, GLuint target = GL_TEXTURE_2D)
+	bool InitializeTexture(MyTexture* texture, const char* filename, GLuint target, GLuint wrap, GLuint filter)
 	{
 		int numComponents;
 		stbi_set_flip_vertically_on_load(true);
@@ -113,12 +117,12 @@ namespace Graphics {
 				break;
 			};
 			glTexImage2D(texture->target, 0, format, texture->width, texture->height, 0, format, GL_UNSIGNED_BYTE, data);
-
+			glGenerateMipmap(target);
 			// Note: Only wrapping modes supported for GL_TEXTURE_RECTANGLE when defining
 			// GL_TEXTURE_WRAP are GL_CLAMP_TO_EDGE or GL_CLAMP_TO_BORDER
-			glTexParameteri(texture->target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-			glTexParameteri(texture->target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-			glTexParameteri(texture->target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTexParameteri(texture->target, GL_TEXTURE_WRAP_S, wrap);
+			glTexParameteri(texture->target, GL_TEXTURE_WRAP_T, wrap);
+			glTexParameteri(texture->target, GL_TEXTURE_MIN_FILTER, filter);
 			glTexParameteri(texture->target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 			// Clean up
@@ -178,8 +182,7 @@ namespace Graphics {
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 
-	// render to a framebuffer with an id
-	void RenderId(MyGeometry *geometry, void(*material)(), mat4 transform, int id) {
+	void _Render(MyGeometry* geometry, const vector<vec3>& c, const vector<vec3>& ec, GLuint texture, vec3 emissiveTexture, const vector<mat4>& transforms, int id) {
 		if (id == 0) {
 			glBindFramebuffer(GL_FRAMEBUFFER, defaultFbo.fbo);
 			glBindTexture(GL_TEXTURE_2D, defaultFbo.texture);
@@ -203,36 +206,111 @@ namespace Graphics {
 			glViewport(0, 0, WINDOW_WIDTH*MSAA, WINDOW_HEIGHT*MSAA);
 		}
 
+
+		glBindBuffer(GL_ARRAY_BUFFER, geometry->transformBuffer);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(mat4)*transforms.size(), &transforms[0], GL_DYNAMIC_DRAW);
+
+		glBindVertexArray(geometry->vertexArray);
+		glEnableVertexAttribArray(TRANSFORM_LOCATION);
+		glVertexAttribPointer(TRANSFORM_LOCATION, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (GLvoid*)0);
+		glEnableVertexAttribArray(TRANSFORM_LOCATION + 1);
+		glVertexAttribPointer(TRANSFORM_LOCATION + 1, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (GLvoid*)(sizeof(glm::vec4)));
+		glEnableVertexAttribArray(TRANSFORM_LOCATION + 2);
+		glVertexAttribPointer(TRANSFORM_LOCATION + 2, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (GLvoid*)(2 * sizeof(glm::vec4)));
+		glEnableVertexAttribArray(TRANSFORM_LOCATION + 3);
+		glVertexAttribPointer(TRANSFORM_LOCATION + 3, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (GLvoid*)(3 * sizeof(glm::vec4)));
+
+		glVertexAttribDivisor(TRANSFORM_LOCATION, 1);
+		glVertexAttribDivisor(TRANSFORM_LOCATION + 1, 1);
+		glVertexAttribDivisor(TRANSFORM_LOCATION + 2, 1);
+		glVertexAttribDivisor(TRANSFORM_LOCATION + 3, 1);
+		glBindVertexArray(0);
+
+		glBindBuffer(GL_ARRAY_BUFFER, geometry->colorBuffer);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(vec3)*c.size(), &c[0], GL_DYNAMIC_DRAW);
+		glBindVertexArray(geometry->vertexArray);
+		glEnableVertexAttribArray(COLOR_LOCATION);
+		glVertexAttribPointer(COLOR_LOCATION, 3, GL_FLOAT, GL_FALSE, 0, 0);
+		glVertexAttribDivisor(COLOR_LOCATION, 1);
+		glBindVertexArray(0);
+
+		glBindBuffer(GL_ARRAY_BUFFER, geometry->emissionColorBuffer);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(vec3)*ec.size(), &ec[0], GL_DYNAMIC_DRAW);
+		glBindVertexArray(geometry->vertexArray);
+		glEnableVertexAttribArray(EMISSION_COLOR_LOCATION);
+		glVertexAttribPointer(EMISSION_COLOR_LOCATION, 3, GL_FLOAT, GL_FALSE, 0, 0);
+		glVertexAttribDivisor(EMISSION_COLOR_LOCATION, 1);
+		glBindVertexArray(0);
+
 		glBindVertexArray(geometry->vertexArray);
 
-		material();
-		Viewport::update(transform, id);
+		Viewport::update(id);
 		Light::update(id);
-
-		//	glUniform1i(SOFT_SHADOW_LOCATION, SOFT_SHADOW);
 
 		mat4 shadowMvp = Light::biasMatrix*Light::projection[id] * Light::transform[id];
 		glUniformMatrix4fv(SHADOW_MVP_LOCATION, 1, GL_FALSE, &shadowMvp[0][0]);
+
+		glUniform1i(glGetUniformLocation(Resources::standardShader.program, "shadowMap"), 0);
+		glUniform1i(glGetUniformLocation(Resources::standardShader.program, "colorTexture"), 1);
+
+		glUniform3f(EMISSIVE_TEXTURE_LOCATION, emissiveTexture.x, emissiveTexture.y, emissiveTexture.z);
 
 		glActiveTexture(GL_TEXTURE0);
 		if (id == 0)glBindTexture(GL_TEXTURE_2D, shadowFbo.texture);
 		else glBindTexture(GL_TEXTURE_2D, shadowFbo1.texture);
 
-		glDrawArrays(GL_TRIANGLES, 0, geometry->elementCount);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, texture);
+
+		tDrawCalls++;
+		glDrawArraysInstanced(GL_TRIANGLES, 0, geometry->elementCount, transforms.size());
 
 		// reset state to default (no shader or geometry bound)
 		glBindVertexArray(0);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glBindTexture(GL_TEXTURE_2D, 0);
-
-		// check for an report any OpenGL errors
-		CheckGLErrors();
 	}
 
-	void Render(MyGeometry *geometry, void(*material)(), mat4 transform)
+	// render to a framebuffer with an id
+	void RenderId(MyGeometry *geometry, Material* material, mat4 transform, int id) {
+		vector<vec3> c, ec;
+		c.push_back(material->color);
+		ec.push_back(material->emmisiveColor);
+		vector<mat4> t;
+		t.push_back(transform);
+		_Render(geometry, c, ec, material->texture, material->useEmissive, t, id);
+	}
+
+	void Render(MyGeometry *geometry, Material* material, mat4 transform)
 	{
 		RenderId(geometry, material, transform, 0);
 		if (SPLIT_SCREEN) RenderId(geometry, material, transform, 1);
+	}
+
+	void RenderInstanced(MyGeometry *geometry, Material* material, mat4 transform) {
+		geometry->transforms.push_back(transform);
+		geometry->materials.push_back(material);
+	}
+
+	void flushInstancedGeometryId(MyGeometry *geometry, int id) {
+		vector<vec3> c, ec;
+		c.resize(geometry->transforms.size());
+		ec.resize(geometry->transforms.size());
+
+		for (int i = 0; i < geometry->transforms.size(); i++) {
+			c[i] = geometry->materials[i]->color;
+			ec[i] = geometry->materials[i]->emmisiveColor;
+		}
+
+		_Render(geometry, c, ec, geometry->materials[0]->texture, geometry->materials[0]->useEmissive, geometry->transforms, id);
+	}
+
+	void flushInstancedGeometry(MyGeometry *geometry) {
+		if (geometry->transforms.size() == 0)return;
+		flushInstancedGeometryId(geometry, 0);
+		if (SPLIT_SCREEN)flushInstancedGeometryId(geometry, 1);
+		geometry->transforms.clear();
+		geometry->materials.clear();
 	}
 
 	void QueryGLVersion()
@@ -378,6 +456,17 @@ namespace Graphics {
 		-1.0f,  1.0f,  0.0f, 1
 	};
 
+	void initInstancedGeometry() {
+		instancedGeometry.push_back(&Resources::plane);
+		instancedGeometry.push_back(&Resources::aventadorBody);
+		instancedGeometry.push_back(&Resources::aventadorBodyGlow);
+		instancedGeometry.push_back(&Resources::aventadorUnder);
+		instancedGeometry.push_back(&Resources::aventadorWheel);
+		instancedGeometry.push_back(&Resources::aventadorWheelGlow);
+		instancedGeometry.push_back(&Resources::gridLines);
+		instancedGeometry.push_back(&Resources::centeredCube);
+	}
+
 	int init() {
 		// initialize the GLFW windowing system
 		if (!glfwInit()) {
@@ -441,6 +530,8 @@ namespace Graphics {
 		if (!InitializeShaders(&splitscreenShader, "framebuffervertex.glsl", "split.glsl")) return -1;
 
 		InitializeFrameBufferVAO();
+
+		initInstancedGeometry();
 
 		return 0;
 	}
@@ -693,14 +784,20 @@ namespace Graphics {
 		clearFrameBuffer();
 
 		// render shadowmap
+		glUseProgram(Graphics::shadowmapShader.program);
 		for (auto it = Game::entities.begin(); it != Game::entities.end(); it++) {
 			it->get()->renderShadowMap(mat4(1));
 		}
+		Light::flushShadowMap();
 
 		// render geometry
 		glUseProgram(Resources::standardShader.program);
 		for (auto it = Game::entities.begin(); it != Game::entities.end(); it++) {
 			it->get()->render(mat4(1));
+		}
+		// flush instancedGeometry
+		for (int i = 0; i < instancedGeometry.size(); i++) {
+			flushInstancedGeometry(instancedGeometry[i]);
 		}
 		glUseProgram(0);
 
@@ -719,7 +816,13 @@ namespace Graphics {
 			renderAberration();
 		}
 
-		CheckGLErrors();
+		if (PRINT_DRAW_CALLS) {
+			cout << "Draw Calls:\t" << tDrawCalls << "\n";
+		}
+		tDrawCalls = 0;
+
+
+		if (CHECK_GL_ERRORS)	CheckGLErrors();
 
 		// vertical sync
 		glfwSwapInterval(VSYNC);
@@ -735,8 +838,54 @@ namespace Graphics {
 		cout << "Goodbye!" << endl;
 	}
 
+	void bufferGeometry(MyGeometry* geometry, const vector<vec3>& pos, const vector<vec2>& texcoord, const vector<vec3>& nor) {
+		geometry->elementCount = pos.size();
+
+		glBindBuffer(GL_ARRAY_BUFFER, geometry->vertexBuffer);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(vec3)*pos.size(), &pos[0], GL_STATIC_DRAW);
+
+		glBindBuffer(GL_ARRAY_BUFFER, geometry->textureBuffer);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(vec2)*texcoord.size(), &texcoord[0], GL_STATIC_DRAW);
+
+		glBindBuffer(GL_ARRAY_BUFFER, geometry->normalBuffer);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(vec3)*nor.size(), &nor[0], GL_STATIC_DRAW);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+	}
+
+	void initGeometry(MyGeometry* geometry) {
+		glGenBuffers(1, &geometry->vertexBuffer);
+		glGenBuffers(1, &geometry->normalBuffer);
+		glGenBuffers(1, &geometry->textureBuffer);
+		glGenBuffers(1, &geometry->transformBuffer);
+		glGenBuffers(1, &geometry->colorBuffer);
+		glGenBuffers(1, &geometry->emissionColorBuffer);
+
+		// create a vertex array object encapsulating all our vertex attributes
+		glGenVertexArrays(1, &geometry->vertexArray);
+		glBindVertexArray(geometry->vertexArray);
+
+		// associate the position array with the vertex array object
+		glBindBuffer(GL_ARRAY_BUFFER, geometry->vertexBuffer);
+		glVertexAttribPointer(VERTEX_POSITION_LOCATION, 3, GL_FLOAT, GL_FALSE, 0, 0);
+		glEnableVertexAttribArray(VERTEX_POSITION_LOCATION);
+
+		// assocaite the colour array with the vertex array object
+		glBindBuffer(GL_ARRAY_BUFFER, geometry->normalBuffer);
+		glVertexAttribPointer(VERTEX_NORMAL_LOCATION, 3, GL_FLOAT, GL_FALSE, 0, 0);
+		glEnableVertexAttribArray(VERTEX_NORMAL_LOCATION);
+
+		glBindBuffer(GL_ARRAY_BUFFER, geometry->textureBuffer);
+		glVertexAttribPointer(VERTEX_TEXCOORD_LOCATION, 2, GL_FLOAT, GL_FALSE, 0, 0);
+		glEnableVertexAttribArray(VERTEX_TEXCOORD_LOCATION);
+
+		// unbind our buffers, resetting to default state
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindVertexArray(0);
+	}
+
 	void loadGeometry(MyGeometry* geometry, char* path) {
 		vector<vec3> vertices, normals, bufferVertices, bufferNormals;
+		vector<vec2> uvs, bufferUVs;
 		FILE * file = fopen(path, "r");
 		int asdf = 0;
 		while (1) {
@@ -753,6 +902,11 @@ namespace Graphics {
 				fscanf(file, "%f %f %f\n", &normal.x, &normal.y, &normal.z);
 				normals.push_back(normal);
 			}
+			else if (strcmp(lineHeader, "vt") == 0) {
+				vec2 uv;
+				fscanf(file, "%f %f\n", &uv.x, &uv.y);
+				uvs.push_back(uv);
+			}
 			else if (strcmp(lineHeader, "f") == 0) {
 				unsigned int vertexIndex[3], uvIndex[3], normalIndex[3];
 				int matches = fscanf(file, "%d/%d/%d %d/%d/%d %d/%d/%d\n", &vertexIndex[0], &uvIndex[0], &normalIndex[0], &vertexIndex[1], &uvIndex[1], &normalIndex[1], &vertexIndex[2], &uvIndex[2], &normalIndex[2]);
@@ -767,39 +921,16 @@ namespace Graphics {
 				bufferNormals.push_back(normals[tn.x]);
 				bufferNormals.push_back(normals[tn.y]);
 				bufferNormals.push_back(normals[tn.z]);
+				ivec3 tu(uvIndex[0] - 1, uvIndex[1] - 1, uvIndex[2] - 1);
+				bufferUVs.push_back(uvs[tu.x]);
+				bufferUVs.push_back(uvs[tu.y]);
+				bufferUVs.push_back(uvs[tu.z]);
 			}
 		}
 
-		geometry->elementCount = bufferVertices.size();
-
-		glGenBuffers(1, &geometry->vertexBuffer);
-		glBindBuffer(GL_ARRAY_BUFFER, geometry->vertexBuffer);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(vec3)*bufferVertices.size(), &bufferVertices[0], GL_STATIC_DRAW);
-
-		// create another one for storing our colours
-		glGenBuffers(1, &geometry->normalBuffer);
-		glBindBuffer(GL_ARRAY_BUFFER, geometry->normalBuffer);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(vec3)*bufferNormals.size(), &bufferNormals[0], GL_STATIC_DRAW);
-
-		// create a vertex array object encapsulating all our vertex attributes
-		glGenVertexArrays(1, &geometry->vertexArray);
-		glBindVertexArray(geometry->vertexArray);
-
-		// associate the position array with the vertex array object
-		glBindBuffer(GL_ARRAY_BUFFER, geometry->vertexBuffer);
-		glVertexAttribPointer(VERTEX_POSITION_LOCATION, 3, GL_FLOAT, GL_FALSE, 0, 0);
-		glEnableVertexAttribArray(VERTEX_POSITION_LOCATION);
-
-		// assocaite the colour array with the vertex array object
-		glBindBuffer(GL_ARRAY_BUFFER, geometry->normalBuffer);
-		glVertexAttribPointer(VERTEX_NORMAL_LOCATION, 3, GL_FLOAT, GL_FALSE, 0, 0);
-		glEnableVertexAttribArray(VERTEX_NORMAL_LOCATION);
-
-		// unbind our buffers, resetting to default state
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		glBindVertexArray(0);
+		initGeometry(geometry);
+		bufferGeometry(geometry, bufferVertices, bufferUVs, bufferNormals);
 	}
-
 }
 
 namespace Viewport {
@@ -822,11 +953,10 @@ namespace Viewport {
 			transform[i] = lookAt(vec3(5, 2, 5), vec3(0, 0, 0), vec3(0, 1, 0));
 	}
 
-	void update(mat4 obj, int id) {
+	void update(int id) {
 		double splitscreenRatio = Graphics::SPLIT_SCREEN ? (Graphics::SPLIT_SCREEN_ORIENTATION ? 2 : 0.5) : 1;
-		projection[id] = perspective(PI / 3, (double)WINDOW_WIDTH / WINDOW_HEIGHT * splitscreenRatio, 0.1, 1000.0);
+		projection[id] = perspective(PI / 3, (double)WINDOW_WIDTH / WINDOW_HEIGHT * splitscreenRatio, 0.1, 2000.0);
 		transform[id] = lookAt(position[id], target[id], vec3(0, 1, 0));
-		glUniformMatrix4fv(MODEL_LOCATION, 1, false, &obj[0][0]);
 		glUniformMatrix4fv(VIEW_LOCATION, 1, false, &transform[id][0][0]);
 		glUniformMatrix4fv(PROJECTION_LOCATION, 1, false, &projection[id][0][0]);
 	}
@@ -873,23 +1003,37 @@ namespace Light {
 			glBindFramebuffer(GL_FRAMEBUFFER, Graphics::shadowFbo1.fbo);
 			glBindTexture(GL_TEXTURE_2D, Graphics::shadowFbo1.texture);
 		}
-		glUseProgram(Graphics::shadowmapShader.program);
 
 		// enable gl depth test
 		glEnable(GL_DEPTH_TEST);
 		glScissor(0, 0, SHADOWMAP_SIZE, SHADOWMAP_SIZE);
 		glViewport(0, 0, SHADOWMAP_SIZE, SHADOWMAP_SIZE);
 
-		// bind our shader program and the vertex array object containing our
-		// scene geometry, then tell OpenGL to draw our geometry
-		glBindVertexArray(geometry->vertexArray);
-
 		transform[id] = lookAt(position[id], target[id], vec3(0, 1, 0));
 		direction[id] = normalize(target[id] - position[id]);
 		mat4 mvp = projection[id] * transform[id] * obj;
-		glUniformMatrix4fv(1, 1, GL_FALSE, &mvp[0][0]);
+		glBindBuffer(GL_ARRAY_BUFFER, geometry->transformBuffer);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(mat4), &mvp, GL_DYNAMIC_DRAW);
 
-		glDrawArrays(GL_TRIANGLES, 0, geometry->elementCount);
+		glBindVertexArray(geometry->vertexArray);
+
+		glEnableVertexAttribArray(TRANSFORM_LOCATION);
+		glVertexAttribPointer(TRANSFORM_LOCATION, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (GLvoid*)0);
+		glEnableVertexAttribArray(TRANSFORM_LOCATION + 1);
+		glVertexAttribPointer(TRANSFORM_LOCATION + 1, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (GLvoid*)(sizeof(glm::vec4)));
+		glEnableVertexAttribArray(TRANSFORM_LOCATION + 2);
+		glVertexAttribPointer(TRANSFORM_LOCATION + 2, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (GLvoid*)(2 * sizeof(glm::vec4)));
+		glEnableVertexAttribArray(TRANSFORM_LOCATION + 3);
+		glVertexAttribPointer(TRANSFORM_LOCATION + 3, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (GLvoid*)(3 * sizeof(glm::vec4)));
+		glVertexAttribDivisor(TRANSFORM_LOCATION, 1);
+		glVertexAttribDivisor(TRANSFORM_LOCATION + 1, 1);
+		glVertexAttribDivisor(TRANSFORM_LOCATION + 2, 1);
+		glVertexAttribDivisor(TRANSFORM_LOCATION + 3, 1);
+		glBindVertexArray(0);
+
+		glBindVertexArray(geometry->vertexArray);
+
+		glDrawArraysInstanced(GL_TRIANGLES, 0, geometry->elementCount, 1);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 
@@ -899,10 +1043,75 @@ namespace Light {
 			if (Graphics::SPLIT_SCREEN)renderShadowMapId(geometry, obj, 1);
 		}
 	}
+
+	void renderShadowMapInstancedId(Graphics::MyGeometry* geometry, int id) {
+		if (geometry->transforms.size() == 0)return;
+
+		if (id == 0) {
+			glBindFramebuffer(GL_FRAMEBUFFER, Graphics::shadowFbo.fbo);
+			glBindTexture(GL_TEXTURE_2D, Graphics::shadowFbo.texture);
+		}
+		else {
+			glBindFramebuffer(GL_FRAMEBUFFER, Graphics::shadowFbo1.fbo);
+			glBindTexture(GL_TEXTURE_2D, Graphics::shadowFbo1.texture);
+		}
+
+		// enable gl depth test
+		glEnable(GL_DEPTH_TEST);
+		glScissor(0, 0, SHADOWMAP_SIZE, SHADOWMAP_SIZE);
+		glViewport(0, 0, SHADOWMAP_SIZE, SHADOWMAP_SIZE);
+
+		transform[id] = lookAt(position[id], target[id], vec3(0, 1, 0));
+		direction[id] = normalize(target[id] - position[id]);
+		vector<mat4> t;
+		for (int i = 0; i < geometry->transforms.size(); i++) {
+			t.push_back(projection[id] * transform[id] * geometry->transforms[i]);
+		}
+		glBindBuffer(GL_ARRAY_BUFFER, geometry->transformBuffer);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(mat4)*t.size(), &t[0], GL_DYNAMIC_DRAW);
+
+		glBindVertexArray(geometry->vertexArray);
+
+		glEnableVertexAttribArray(TRANSFORM_LOCATION);
+		glVertexAttribPointer(TRANSFORM_LOCATION, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (GLvoid*)0);
+		glEnableVertexAttribArray(TRANSFORM_LOCATION + 1);
+		glVertexAttribPointer(TRANSFORM_LOCATION + 1, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (GLvoid*)(sizeof(glm::vec4)));
+		glEnableVertexAttribArray(TRANSFORM_LOCATION + 2);
+		glVertexAttribPointer(TRANSFORM_LOCATION + 2, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (GLvoid*)(2 * sizeof(glm::vec4)));
+		glEnableVertexAttribArray(TRANSFORM_LOCATION + 3);
+		glVertexAttribPointer(TRANSFORM_LOCATION + 3, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (GLvoid*)(3 * sizeof(glm::vec4)));
+		glVertexAttribDivisor(TRANSFORM_LOCATION, 1);
+		glVertexAttribDivisor(TRANSFORM_LOCATION + 1, 1);
+		glVertexAttribDivisor(TRANSFORM_LOCATION + 2, 1);
+		glVertexAttribDivisor(TRANSFORM_LOCATION + 3, 1);
+		glBindVertexArray(0);
+
+		// bind our shader program and the vertex array object containing our
+		// scene geometry, then tell OpenGL to draw our geometry
+		glBindVertexArray(geometry->vertexArray);
+
+		glDrawArraysInstanced(GL_TRIANGLES, 0, geometry->elementCount, geometry->transforms.size());
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	}
+
+	void flushShadowMap() {
+		for (auto it : Graphics::instancedGeometry) {
+			if (Graphics::SHADOW) {
+				renderShadowMapInstancedId(it, 0);
+				if (Graphics::SPLIT_SCREEN)renderShadowMapInstancedId(it, 1);
+			}
+			it->transforms.clear();
+		}
+	}
+
+	void renderShadowMapInstanced(Graphics::MyGeometry* geometry, glm::mat4 obj) {
+		if (Graphics::SHADOW)
+			geometry->transforms.push_back(obj);
+	}
 }
 
 namespace Effects {
-	float sigma = 8;
-	int blurSize = 24;
+	float sigma = 10;
+	int blurSize = 32;
 	float splitscreenLineThickness = 2.0f / WINDOW_WIDTH;
 }

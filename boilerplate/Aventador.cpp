@@ -8,6 +8,7 @@ using namespace physx;
 
 Aventador::Aventador(int id) {
 	aventadorId = id;
+	aventadorData.fuel = aventadorData.tankSize;
 
 	wheel.resize(4);
 	wheelPos.resize(4);
@@ -41,27 +42,28 @@ Aventador::Aventador(int id) {
 
 
 	PxTransform t(PxVec3(0, 5, 0), PxQuat::createIdentity());
-	PxVec3 dimensions(1, aventadorData.dimensionHeight, 2.5);
+	PxVec3 dimensions(aventadorData.dimensionWidth, aventadorData.dimensionHeight, aventadorData.dimensionLength);
 
 	actor = PhysicsManager::createDynamic(t, dimensions);
 	actor->setMass(5.5);
-	actor->setAngularDamping(0.8);
 	actor->setLinearDamping(0.5);
+
 	PhysicsManager::attachSimulationShape(actor, dimensions,200);
 	PhysicsManager::setContactFilter(actor, FilterGroup::eAventador, FilterGroup::eAventador | FilterGroup::ePowerUp);
+
 	if (aventadorId == 0) {
-		aventadorData.isFront = true;
-		//aventadorData.isAI = true;
+		actor->setGlobalPose(PxTransform(0, 0, 10.0),true);
 		aventadorData.force = 30;
-		aventadorData.wheelTurnRate = 0.5;
-		dChangeTime = Time::time += dCoolDown;
+		AiManager::aiInit(aventadorData.isAI, aventadorData.isFront);
 	}
 	else {
 		aventadorData.isFront = false;
+		//aventadorData.isFront = true;
 	}
 
 	//Setting contact modification flags
 	actor->userData = (void*)(ContactModFlags::eIGNORE_CONTACT);
+
 }
 
 void Aventador::update(glm::mat4 parentTransform) {
@@ -81,6 +83,10 @@ void Aventador::update(glm::mat4 parentTransform) {
 	updateTopSpeed();
 	updateDrift();
 	updateBraking();
+/*	// commented out for testing
+	if (!aventadorData.isFront)
+		updateFuel();
+*/
 
 	updateLightCamera();
 
@@ -110,9 +116,9 @@ void Aventador::updateLightCamera() {
 }
 
 void Aventador::renderShadowMap(glm::mat4 parentTransform) {
-	Light::renderShadowMap(&Resources::aventadorBody, tempTransform);
-	Light::renderShadowMap(&Resources::aventadorBodyGlow, tempTransform);
-	Light::renderShadowMap(&Resources::aventadorUnder, tempTransform);
+	Light::renderShadowMapInstanced(&Resources::aventadorBody, tempTransform);
+	Light::renderShadowMapInstanced(&Resources::aventadorBodyGlow, tempTransform);
+	Light::renderShadowMapInstanced(&Resources::aventadorUnder, tempTransform);
 
 	for (int i = 0; i < wheel.size(); i++) {
 		wheel[i].get()->renderShadowMap(tempTransform);
@@ -120,9 +126,9 @@ void Aventador::renderShadowMap(glm::mat4 parentTransform) {
 }
 
 void Aventador::render(glm::mat4 parentTransform) {
-	Graphics::Render(&Resources::aventadorBody, &(Resources::darkGreyMaterial), tempTransform);
-	Graphics::Render(&Resources::aventadorBodyGlow, &Resources::emmisiveBlueMaterial, tempTransform);
-	Graphics::Render(&Resources::aventadorUnder, &Resources::pureBlackMaterial, tempTransform);
+	Graphics::RenderInstanced(&Resources::aventadorBody, &Resources::darkGreyMaterial, tempTransform);
+	Graphics::RenderInstanced(&Resources::aventadorBodyGlow, &Resources::emmisiveMaterial, tempTransform);
+	Graphics::RenderInstanced(&Resources::aventadorUnder, &Resources::pureBlackMaterial, tempTransform);
 
 	for (int i = 0; i < wheel.size(); i++) {
 		wheel[i].get()->render(tempTransform);
@@ -194,7 +200,6 @@ void Aventador::updateFriction() {
 						Util::g2p(wheelPos[i] - vec3(0, aventadorData.dimensionHeight, 0)), PxForceMode::eFORCE);
 				}
 			}
-
 			PxVec3 wspeed = PxRigidBodyExt::getVelocityAtPos(*actor, Util::g2p(transform*vec4(wheelPos[i], 1)));
 			wspeed.y = 0;
 			vec3 forwardv = proj(Util::p2g(wspeed), wheeld); forwardv.y = 0;
@@ -211,21 +216,11 @@ void Aventador::updateFriction() {
 }
 
 void Aventador::updateSteering() {
+	//actor->setAngularDamping(actor->getAngularVelocity().y );	//invalid parameter : RigidDynamic::setAngularDamping: The angular damping must be nonnegative!
+	actor->addTorque(-actor->getAngularVelocity() * 20);
 
 	if (aventadorData.isAI) {
-		if (Time::time > dChangeTime) {
-			dChangeTime += dCoolDown;
-			randDirection = pseudoRand() % 3;
-			if (randDirection == 0) {
-				wheelAngle += aventadorData.wheelTurnRate;
-			}
-			else if (randDirection == 1) {
-				wheelAngle -= aventadorData.wheelTurnRate;
-			}
-			else if (randDirection == 2) {
-				wheelAngle *= aventadorData.wheelTurnRate;
-			}
-		}
+		AiManager::aiSteering(wheelAngle, aventadorData.isFront, actor->getGlobalPose());
 	}
 	else {
 		if (Keyboard::keyDown(aventadorId ? GLFW_KEY_LEFT : GLFW_KEY_A)) {
@@ -273,8 +268,30 @@ void Aventador::updateBraking() {
 	}
 }
 
-physx::PxRigidDynamic *const Aventador::getActor() {
-	return actor;
+void Aventador::updateFuel() {
+	bool onPath = Game::path->pointInPath(actor->getGlobalPose().p.x, actor->getGlobalPose().p.z);
+	if (!onPath) {
+		std::cout << "is not on path\n";
+		aventadorData.fuel--;
+		if (aventadorData.fuel == 0) {
+			PxRigidBodyExt::addLocalForceAtLocalPos(*actor,
+				PxVec3(100, 50, 0), PxVec3(-0.5, 0, 0), PxForceMode::eIMPULSE);
+			PxRigidBodyExt::addLocalForceAtLocalPos(*actor,
+				PxVec3(0, -20, 0), PxVec3(0.5, 1, 0), PxForceMode::eIMPULSE);
+			//game over flag
+			if(aventadorData.fuel < -3)
+				Game::setGameOverFlag(true);
+		}
+	}
+	else {
+		std::cout << "is on path\n";
+		if (aventadorData.fuel < aventadorData.tankSize) {
+			aventadorData.fuel += 5;
+			if (aventadorData.fuel > aventadorData.tankSize)
+				aventadorData.fuel = aventadorData.tankSize;
+		}
+	}
+	std::cout << "fuel: " << aventadorData.fuel << "\n";
 }
 
 bool Aventador::hasPowerUp() {
@@ -286,13 +303,11 @@ void Aventador::setPowerUpStatus(bool status) {
 
 void Aventador::changeRole() {
 	aventadorData.isFront = !aventadorData.isFront;
+	aventadorData.fuel = aventadorData.tankSize;
 }
 
-int Aventador::pseudoRand() {
-	// our initial starting seed is 5323
-	static unsigned int seed = 5323;
-	seed = (8253729 * seed + 2396403);
-	return seed;
+bool Aventador::isFront() {
+	return aventadorData.isFront;
 }
 
 void AventadorWheel::update(glm::mat4 parentTransform) {
@@ -304,11 +319,11 @@ void AventadorWheel::update(glm::mat4 parentTransform) {
 }
 
 void AventadorWheel::renderShadowMap(glm::mat4 parentTransform) {
-	Light::renderShadowMap(&Resources::aventadorWheel, parentTransform*tempTransform);
-	Light::renderShadowMap(&Resources::aventadorWheelGlow, parentTransform*tempTransform);
+	Light::renderShadowMapInstanced(&Resources::aventadorWheel, parentTransform*tempTransform);
+	Light::renderShadowMapInstanced(&Resources::aventadorWheelGlow, parentTransform*tempTransform);
 }
 
 void AventadorWheel::render(glm::mat4 parentTransform) {
-	Graphics::Render(&Resources::aventadorWheel, &Resources::darkGreyMaterial, parentTransform*tempTransform);
-	Graphics::Render(&Resources::aventadorWheelGlow, &Resources::emmisiveBlueMaterial, parentTransform*tempTransform);
+	Graphics::RenderInstanced(&Resources::aventadorWheel, &Resources::darkGreyMaterial, parentTransform*tempTransform);
+	Graphics::RenderInstanced(&Resources::aventadorWheelGlow, &Resources::emmisiveMaterial, parentTransform*tempTransform);
 }

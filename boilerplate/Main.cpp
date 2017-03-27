@@ -72,10 +72,12 @@ int main(int argc, char *argv[])
 	Time::init();
 	Keyboard::init();
 	Game::init();
+
 	Sound::init();
 	Sound::playSound(1);
 	
 //	Sound::list_audio_devices(Sound::device);
+
 	while (!Graphics::shouldClose()) {
 		Time::update();
 		Game::update();
