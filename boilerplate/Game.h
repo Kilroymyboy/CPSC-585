@@ -28,6 +28,8 @@ namespace Game {
 	void init();
 	void update();
 	void switchRole();
+	void addPowerUp();
+	void checkDistance();
 	double getDist();
 	Aventador * getFront();
 	Aventador * getBack();

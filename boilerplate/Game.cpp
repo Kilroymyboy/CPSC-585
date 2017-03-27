@@ -43,7 +43,7 @@ namespace Game {
 
 	void update() {
 		glfwPollEvents();
-		double dist = getDist();
+		
 
 		for (auto it = entities.begin(); it != entities.end(); it++) {
 			if (it->get()->alive) {
@@ -58,12 +58,21 @@ namespace Game {
 			cout << entities.size() << endl;
 		}
 
-		//adding more power ups into the scene
+		addPowerUp();
+		checkDistance();
+	}
+
+	//adding more power ups into the scene
+	void addPowerUp() {
 		if (Time::time > powerUpSpawnTime) {
 			powerUpSpawnTime += spawnCoolDown;
 			entities.push_back(unique_ptr<Entity>(new PowerUp()));
 		}
-		//check the distance between the aventators
+	}
+
+	//check the distance between the aventators
+	void checkDistance() {
+		double dist = getDist();
 		if (dist < switchRange && !inSwtichRange) {
 			PxRigidBodyExt::addLocalForceAtLocalPos(*getBack()->actor,
 				PxVec3(0, 0, impulse), PxVec3(0, 0, 0), PxForceMode::eIMPULSE);
@@ -78,7 +87,6 @@ namespace Game {
 	void switchRole() {
 		aventador0->changeRole();
 		aventador1->changeRole();
-		std::cout << "role switch\n";
 	}
 
 	double getDist() {

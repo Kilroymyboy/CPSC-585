@@ -12,7 +12,6 @@ class PowerUp : public Entity {
 	PxVec3 direction;
 	PxTransform t;
 
-//	int powerId;
 	int pseudoRand();
 
 public:
