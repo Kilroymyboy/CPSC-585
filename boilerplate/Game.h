@@ -11,6 +11,7 @@
 #include "Entity.h"
 #include "Aventador.h"
 #include "PowerUp.h"
+#include "PowerUpList.h"
 
 #define PRINT_FPS 0
 
@@ -20,10 +21,10 @@ namespace Game {
 	extern std::shared_ptr<Aventador> aventador1;
 	extern std::shared_ptr<HUDobj> hud;
 	void init();
-	int update();
+	void update();
 	void switchRole();
-	int startScreen();
-	void endScreen();
+	//int startScreen();
+	//void endScreen();
 }
 
 namespace Time {

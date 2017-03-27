@@ -245,7 +245,7 @@ void ContactBehaviourCallback::onContact(const PxContactPairHeader& pairHeader, 
 				if (power != Game::entities.end()) {
 					Game::entities.erase(power);
 				}
-				std::cout << "aventador0 contacted a power up\n";
+				std::cout << "aventador1 contacted a power up\n";
 				//have aventador hold the power up. Holds one power up at a time
 				Aventador* a = Game::aventador1.get();
 				if (!a->hasPowerUp()) {

@@ -1,5 +1,6 @@
 #include "Aventador.h"
 #include "Game.h"
+#include "PowerUp.h"
 #include <glm\gtx\projection.hpp>
 
 using namespace std;

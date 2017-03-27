@@ -27,20 +27,16 @@ int main(int argc, char *argv[])
 	Resources::init();
 	Time::init();
 	Keyboard::init();
-	Game::startScreen();
-	//Game::init();
+	//Game::startScreen();
+	Game::init();
 	//Sound::init();
 	//Sound::playSound(1);
 	
 //	Sound::list_audio_devices(Sound::device);
 	while (!Graphics::shouldClose()) {
 		
-		if (mode == 0) {
+		/*if (mode == 0) {
 			cout << "In start screen" << endl;
-			Game::startScreen();
-			Time::update();
-			Game::update();
-			Graphics::update();
 			mode = Game::startScreen();
 		}
 		else if (mode == 1) {
@@ -50,11 +46,17 @@ int main(int argc, char *argv[])
 
 			hud->update();
 			PhysicsManager::update(1);
-			cout << "In game Loop" << endl;
-		}
-	
+		}*/
+
+		Time::update();
+		Game::update();
+		Graphics::update();
+
 		hud->update();
 		PhysicsManager::update(1);
+		hud->update();
+		PhysicsManager::update(1);
+
 		//need these 4 lines for controller update now that its global
 		controller1.Update();
 		controller2.Update();

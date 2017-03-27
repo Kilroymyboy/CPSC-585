@@ -5,6 +5,7 @@
 #include "InputManager.h"
 #include "Graphics.h"
 #include "FilterGroup.h"
+#include "PowerUp.h"
 #include "PowerUpList.h"
 #include <vector>
 #include <list>
@@ -28,7 +29,7 @@ public:
 	float brakeSpeed = 0.8;
 	float maxBrakeForce = 60;
 
-	std::vector<float> tireHeatIncrease{ 0.006f,0.006f,0.02f,0.02f };
+	std::vector<float> tireHeatIncrease{ 0.106f,0.106f,0.12f,0.12f };
 	float tireHeatDecrease = 0.45;
 	float tireHeatFastDecrease = 0.1;
 	float manualTireHeatIncrease = 0.15;

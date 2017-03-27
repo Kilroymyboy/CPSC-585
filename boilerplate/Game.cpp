@@ -3,6 +3,7 @@
 #include "InputManager.h"
 #include "Aventador.h"
 #include "Path.h"
+#include "PowerUpList.h"
 
 using namespace std;
 using namespace glm;
@@ -10,6 +11,7 @@ using namespace physx;
 
 namespace Game {
 	list<shared_ptr<Entity> > entities;
+	list<shared_ptr<Entity> > startGameEntities;
 	shared_ptr<Aventador> aventador0;
 	shared_ptr<Aventador> aventador1;
 
@@ -17,7 +19,6 @@ namespace Game {
 
 	double spawnCoolDown = 1.0;
 	double powerUpSpawnTime = Time::time += spawnCoolDown;
-
 
 	// we can customize this function as much as we want for now for debugging
 	void init() {
@@ -31,7 +32,7 @@ namespace Game {
 		//entities.push_back(unique_ptr<Plane>(new Plane));
 	}
 
-	int update() {
+	void update() {
 		glfwPollEvents();
 		for (auto it = entities.begin(); it != entities.end(); it++) {
 			if (it->get()->alive) {
@@ -44,17 +45,14 @@ namespace Game {
 		//adding more power ups into the scene
 		if (Time::time > powerUpSpawnTime) {
 			powerUpSpawnTime += spawnCoolDown;
-			entities.push_back(shared_ptr<Entity>(new PowerUp()));
+			entities.push_back(shared_ptr<Entity>(new Boost()));
 		}
 
 		//This is where a restart function would go
 		//currently doing something wrong as restarting must not actually delete as the program slows down after each restart
-		if ((controller1.GetButtonPressed(13)) || (Keyboard::keyPressed(GLFW_KEY_Q))) {
+		if ((controller1.GetButtonPressed(13)) || (Keyboard::keyPressed(GLFW_KEY_ENTER))) {
 			entities.clear();
 			init();
-		}
-		else if (controller1.GetButtonPressed(12)) {
-			return 2;
 		}
 	}
 
@@ -62,16 +60,14 @@ namespace Game {
 		aventador0->changeRole();
 		aventador1->changeRole();
 	}
-
-	//this is it's own game loop so this would generate the start screen objects or place an image
+	/*
+	//this is the start screen loop objects or place an image
 	int startScreen() {
 		//initialization of whatever we want in here for now just a print statement
 		//currently can only go to the main game loop because of how i set up loops in the main file
-		controller1.Update();
-		controller2.Update();
-		controller1.GetState();
-		controller2.GetState();
-		cout << "In Start Screen" << endl;
+
+		cout << "In Start Screen" << endl;		
+
 		if ((controller1.GetButtonPressed(12)) || (Keyboard::keyPressed(GLFW_KEY_ENTER))) {
 			cout << "ENTERED GAME LOOP" << endl;
 			entities.clear();
@@ -82,8 +78,8 @@ namespace Game {
 
 	//same as start screen but just after the race is over
 	void endScreen() {
-		entities.clear();
-	}
+		
+	}*/
 }
 
 namespace Time {
