@@ -24,32 +24,34 @@
 
 #define VERTEX_POSITION_LOCATION 0
 #define VERTEX_NORMAL_LOCATION 1
-#define TRANSFORM_LOCATION 2
-#define PROJECTION_LOCATION 3
-#define VIEW_LOCATION 4
-#define MODEL_LOCATION 5
-#define LIGHT_LOCATION 6
-#define AMBIENT_LOCATION 7
-#define COLOR_LOCATION 8
-#define EMISSION_COLOR_LOCATION 9
-#define SHADOW_MVP_LOCATION 10
-#define SOFT_SHADOW_LOCATION 11
 
-#define WINDOW_WIDTH 1200
-#define WINDOW_HEIGHT 800
+#define VERTEX_TEXCOORD_LOCATION 2
+#define TRANSFORM_LOCATION 3
+#define COLOR_LOCATION 7
+#define EMISSION_COLOR_LOCATION 8
+#define PROJECTION_LOCATION 9
+#define VIEW_LOCATION 10
+#define LIGHT_LOCATION 11
+#define AMBIENT_LOCATION 12
+#define SHADOW_MVP_LOCATION 13
+#define SOFT_SHADOW_LOCATION 14
+#define EMISSIVE_TEXTURE_LOCATION 15
+
+#define WINDOW_WIDTH 1040
+#define WINDOW_HEIGHT 640
+
 
 #define MSAA 1
 #define VSYNC 1
 #define SHADOWMAP_SIZE 1600
 
-
-#define EFFECTS 0
-#define HDR_ENABLED 0
+#define EFFECTS 1
+#define HDR_ENABLED 1
 
 #define PRINT_DRAW_CALLS 0
 
-#define BLOOM_DOWNSAMPLE 2
-#define BLOOM_DOWNSAMPLE1 8
+#define CHECK_GL_ERRORS 0
+
 
 namespace Graphics {
 	extern bool SPLIT_SCREEN;
@@ -88,6 +90,21 @@ namespace Graphics {
 		{}
 	};
 
+	struct Material {
+		glm::vec3 color;
+		glm::vec3 emmisiveColor;
+		GLuint texture;
+		glm::vec3 useEmissive;
+
+		Material() :color(glm::vec3(0)), emmisiveColor(glm::vec3(0)) {}
+		Material(glm::vec3 c) :color(c), emmisiveColor(glm::vec3(0)) {}
+		Material(glm::vec3 c, glm::vec3 e) :color(c), emmisiveColor(e) {}
+
+		Material(GLuint t) :color(glm::vec3(0)), emmisiveColor(glm::vec3(0)), texture(t) {}
+		Material(glm::vec3 c, GLuint t) :color(c), emmisiveColor(glm::vec3(0)), texture(t) {}
+		Material(glm::vec3 c, glm::vec3 e, GLuint t) :color(c), emmisiveColor(e), texture(t) {}
+	};
+
 	struct MyGeometry
 	{
 		// OpenGL names for array buffer objects, vertex array object
@@ -96,11 +113,18 @@ namespace Graphics {
 		GLuint  normalBuffer;
 		GLuint  vertexArray;
 		GLsizei elementCount;
+		GLuint  transformBuffer;
+		GLuint  colorBuffer;
+		GLuint  emissionColorBuffer;
+
+		std::vector<glm::mat4> transforms;
+		std::vector<Material*> materials;
 
 		// initialize object names to zero (OpenGL reserved value)
-		MyGeometry() : vertexBuffer(0), normalBuffer(0), vertexArray(0), elementCount(0)
+		MyGeometry() : vertexBuffer(0), textureBuffer(0), normalBuffer(0), vertexArray(0), elementCount(0), transformBuffer(0)
 		{}
 	};
+
 
 	struct MyFrameBuffer {
 		GLuint fbo;
@@ -110,11 +134,17 @@ namespace Graphics {
 		MyFrameBuffer() :fbo(0), texture(0), rbo(0) {}
 	};
 
+
+	void bufferGeometry(MyGeometry* geometry, const std::vector<glm::vec3>& pos, const std::vector<glm::vec2>& texcoord, const std::vector<glm::vec3>& nor);
+	void initGeometry(MyGeometry* geometry);
 	void loadGeometry(MyGeometry* geometry, char* path);
-	void Render(MyGeometry *geometry, void(*material)(), glm::mat4 transform);
+	void Render(MyGeometry *geometry, Material* materal, glm::mat4 transform);
+	void RenderInstanced(MyGeometry *geometry, Material* material, glm::mat4 transform);
 	bool InitializeShaders(MyShader *shader, const std::string vertex, const std::string fragment);
 	bool InitializeFrameBuffer(MyFrameBuffer* frameBuffer, glm::vec2 dimension, bool HDR);
 	bool InitializeShadowMap(MyFrameBuffer* frameBuffer, glm::vec2 dimension);
+	bool InitializeTexture(MyTexture* texture, const char* filename, GLuint target = GL_TEXTURE_2D,
+		GLuint wrap = GL_CLAMP_TO_EDGE, GLuint filter = GL_LINEAR);
 }
 
 namespace Viewport {
@@ -123,7 +153,7 @@ namespace Viewport {
 	extern std::vector<glm::vec3> position, target;
 
 	void init(int);
-	void update(glm::mat4, int);
+	void update(int);
 }
 
 namespace Light {
@@ -137,6 +167,8 @@ namespace Light {
 	void init(int);
 	void update(int);
 	void renderShadowMap(Graphics::MyGeometry* geometry, glm::mat4 obj);
+	void renderShadowMapInstanced(Graphics::MyGeometry* geometry, glm::mat4 obj);
+	void flushShadowMap();
 }
 
 namespace Effects {
