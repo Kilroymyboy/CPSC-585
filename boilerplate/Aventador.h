@@ -21,10 +21,10 @@ public:
 	float dimensionWidth = 1;
 	float dimensionLength = 2.5;
 	float maxWheelDist = 0.46;
-	float wheelTurnRate = 0.25;
+	float wheelTurnRate = 0.5;
 	float wheelReurnRate = 0.85;
 
-	float force = 45;
+	float force = 30;
 	float wheelSideFriction = 6.25;
 	float wheelSideMaxFriction = 25;
 	float topSpeedFriction = 0.8;
@@ -41,7 +41,7 @@ public:
 
 	int powerStatus = 0;
 	int fuel;
-	int tankSize = 400;
+	int tankSize = 1000;
 
 
 	bool isAI = false;

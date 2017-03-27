@@ -100,10 +100,11 @@ void Aventador::update(glm::mat4 parentTransform) {
 	updateTopSpeed();
 	updateDrift();
 	updateBraking();
-/*	// commented out for testing
-	if (!aventadorData.isFront)
+	
+	//enable for the ability to lose game by not staying on path and running out of fuel
+/*	if (!aventadorData.isFront)
 		updateFuel();
-*/
+		*/
 
 	updateLightCamera();
 	usePowerUp();
@@ -315,15 +316,15 @@ void Aventador::updateDrift() {
 	if (aventadorId == 0) {
 		if (controller1.GetButtonPressed(1)) {
 			PxVec3 v = actor->getLinearVelocity();
-			tireHeat[2] += aventadorData.manualTireHeatIncrease*v.magnitude();
-			tireHeat[3] += aventadorData.manualTireHeatIncrease*v.magnitude();
+			tireHeat[2] += aventadorData.manualTireHeatIncrease*v.magnitude()*2;
+			tireHeat[3] += aventadorData.manualTireHeatIncrease*v.magnitude()*2;
 		}
 	}
 	if (aventadorId == 1) {
 		if (controller2.GetButtonPressed(1)) {
 			PxVec3 v = actor->getLinearVelocity();
-			tireHeat[2] += aventadorData.manualTireHeatIncrease*v.magnitude();
-			tireHeat[3] += aventadorData.manualTireHeatIncrease*v.magnitude();
+			tireHeat[2] += aventadorData.manualTireHeatIncrease*v.magnitude()*2;
+			tireHeat[3] += aventadorData.manualTireHeatIncrease*v.magnitude()*2;
 		}
 	}
 
@@ -395,35 +396,53 @@ void Aventador::usePowerUp() {
 	if (Keyboard::keyDown(aventadorId ? GLFW_KEY_RIGHT_SHIFT : GLFW_KEY_F)) {
 		if (aventadorData.powerStatus == 1) {
 			cout << aventadorId << " is using power 1" << endl;
-			&AutoPilot::use;
 			aventadorData.powerStatus = 0;
 		}
 		else if (aventadorData.powerStatus == 2) {
 			cout << aventadorId << " is using power 2" << endl;
-			&Cloak::use;
 			aventadorData.powerStatus = 0;
 		}
 		else if (aventadorData.powerStatus == 3) {
 			cout << aventadorId << " is using power 3" << endl;
-			&Boost::use;
+			PxRigidBodyExt::addLocalForceAtLocalPos(*actor,
+				PxVec3(0, 0, 500), PxVec3(0, 0, 0), PxForceMode::eIMPULSE);
 			aventadorData.powerStatus = 0;
 		}
 		else if (aventadorData.powerStatus == 4) {
 			cout << aventadorId << " is using power 4" << endl;
-			&BlackIce::use;
+			aventadorData.fuel = aventadorData.fuel + 250;
+			cout << aventadorData.fuel << endl;
 			aventadorData.powerStatus = 0;
 		}
 		else if (aventadorData.powerStatus == 5) {
 			cout << aventadorId << " is using power 5" << endl;
-			&Blind::use;
 			aventadorData.powerStatus = 0;
 		}
 	}
 	if (aventadorId == 0) {
-		if (controller1.GetButtonPressed(3)) {
+		if (controller1.GetButtonPressed(0)) {
 			if (aventadorData.powerStatus == 1) {
-				cout << aventadorId << " is using power" << endl;
-				&AutoPilot::use;
+				cout << aventadorId << " is using power 1" << endl;
+				aventadorData.powerStatus = 0;
+			}
+			else if (aventadorData.powerStatus == 2) {
+				cout << aventadorId << " is using power 2" << endl;
+				aventadorData.powerStatus = 0;
+			}
+			else if (aventadorData.powerStatus == 3) {
+				cout << aventadorId << " is using power 3" << endl;
+				PxRigidBodyExt::addLocalForceAtLocalPos(*actor,
+					PxVec3(0, 0, 500), PxVec3(0, 0, 0), PxForceMode::eIMPULSE);
+				aventadorData.powerStatus = 0;
+			}
+			else if (aventadorData.powerStatus == 4) {
+				cout << aventadorId << " is using power 4" << endl;
+				aventadorData.fuel = aventadorData.fuel + 250;
+				cout << aventadorData.fuel << endl;
+				aventadorData.powerStatus = 0;
+			}
+			else if (aventadorData.powerStatus == 5) {
+				cout << aventadorId << " is using power 5" << endl;
 				aventadorData.powerStatus = 0;
 			}
 		}
@@ -431,7 +450,28 @@ void Aventador::usePowerUp() {
 	if (aventadorId == 1) {
 		if (controller2.GetButtonPressed(0)) {
 			if (aventadorData.powerStatus == 1) {
-				cout << aventadorId << " is using power" << endl;
+				cout << aventadorId << " is using power 1" << endl;
+				aventadorData.powerStatus = 0;
+			}
+			else if (aventadorData.powerStatus == 2) {
+				cout << aventadorId << " is using power 2" << endl;
+				aventadorData.powerStatus = 0;
+			}
+			else if (aventadorData.powerStatus == 3) {
+				cout << aventadorId << " is using power 3" << endl;
+				PxRigidBodyExt::addLocalForceAtLocalPos(*actor,
+					PxVec3(0, 0, 500), PxVec3(0, 0, 0), PxForceMode::eIMPULSE);
+				aventadorData.powerStatus = 0;
+			}
+			else if (aventadorData.powerStatus == 4) {
+				cout << aventadorId << " is using power 4" << endl;
+				aventadorData.fuel = aventadorData.fuel + 250;
+				cout << aventadorData.fuel << endl;
+				aventadorData.powerStatus = 0;
+			}
+			else if (aventadorData.powerStatus == 5) {
+				cout << aventadorId << " is using power 5" << endl;
+				Blind::use;
 				aventadorData.powerStatus = 0;
 			}
 		}

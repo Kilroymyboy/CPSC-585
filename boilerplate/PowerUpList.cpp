@@ -40,9 +40,8 @@ void BlackIce::use()
 	cout << "slipping " << endl;
 }
 
-//no idea status will be 5
+//FRONT no idea status will be 5
 void Blind::use()
 {
 	cout << "I am blind" << endl;
 }
-//FRONT
