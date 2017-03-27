@@ -22,7 +22,7 @@ public:
 	void render(glm::mat4 parentTransform)override;
 
 	Path(int geometrySize);
-	
+
 	bool pointInPath(float x, float y);
 
 };
