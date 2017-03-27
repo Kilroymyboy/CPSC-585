@@ -232,7 +232,9 @@ void ContactBehaviourCallback::onContact(const PxContactPairHeader& pairHeader, 
 				//have aventador hold the power up. Holds one power up at a time
 				Aventador* a = Game::aventador0.get();
 				if (!a->hasPowerUp()) {
-					a->setPowerUpStatus(true);
+					int random = rand() % 3 + 1;
+					a->setPowerUpStatus(random);
+					std::cout << "Powerup value " << random << std::endl;
 				}
 				break;
 			}
@@ -249,7 +251,9 @@ void ContactBehaviourCallback::onContact(const PxContactPairHeader& pairHeader, 
 				//have aventador hold the power up. Holds one power up at a time
 				Aventador* a = Game::aventador1.get();
 				if (!a->hasPowerUp()) {
-					a->setPowerUpStatus(true);
+					int random = rand() % 3 + 3;
+					a->setPowerUpStatus(random);
+					std::cout << "Powerup value " << random << std::endl;
 				}
 				break;
 			}

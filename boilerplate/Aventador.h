@@ -34,7 +34,7 @@ public:
 	float tireHeatFastDecrease = 0.1;
 	float manualTireHeatIncrease = 0.15;
 
-	bool powerStatus = false;
+	int powerStatus = 0;
 	bool isAI = false;
 	bool hasLost = false;
 	float fuel = 1000;
@@ -98,7 +98,7 @@ public:
 	void render(glm::mat4 parentTransform)override;
 	physx::PxRigidDynamic *const getActor();
 	bool hasPowerUp();
-	void setPowerUpStatus(bool status);
+	void setPowerUpStatus(int status);
 	void changeRole();
 	Aventador(int);
 

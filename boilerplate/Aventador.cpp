@@ -364,30 +364,52 @@ physx::PxRigidDynamic *const Aventador::getActor() {
 bool Aventador::hasPowerUp() {
 	return aventadorData.powerStatus;
 }
-void Aventador::setPowerUpStatus(bool status) {
+void Aventador::setPowerUpStatus(int status) {
 	aventadorData.powerStatus = status;
 }
 
 void Aventador::usePowerUp() {
 	if (Keyboard::keyDown(aventadorId ? GLFW_KEY_RIGHT_SHIFT : GLFW_KEY_F)) {
-		if (aventadorData.powerStatus == true) {
-			cout << aventadorId << " is using power" << endl;
-			aventadorData.powerStatus = false;
+		if (aventadorData.powerStatus == 1) {
+			cout << aventadorId << " is using power 1" << endl;
+			&AutoPilot::use;
+			aventadorData.powerStatus = 0;
+		}
+		else if (aventadorData.powerStatus == 2) {
+			cout << aventadorId << " is using power 2" << endl;
+			&Cloak::use;
+			aventadorData.powerStatus = 0;
+		}
+		else if (aventadorData.powerStatus == 3) {
+			cout << aventadorId << " is using power 3" << endl;
+			&Boost::use;
+			aventadorData.powerStatus = 0;
+		}
+		else if (aventadorData.powerStatus == 4) {
+			cout << aventadorId << " is using power 4" << endl;
+			&BlackIce::use;
+			aventadorData.powerStatus = 0;
+		}
+		else if (aventadorData.powerStatus == 5) {
+			cout << aventadorId << " is using power 5" << endl;
+			&Blind::use;
+			aventadorData.powerStatus = 0;
 		}
 	}
 	if (aventadorId == 0) {
-		if (controller1.GetButtonPressed(0)) {
-			if (aventadorData.powerStatus == true) {
+		if (controller1.GetButtonPressed(3)) {
+			if (aventadorData.powerStatus == 1) {
 				cout << aventadorId << " is using power" << endl;
-				aventadorData.powerStatus = false;
+				&AutoPilot::use;
+				aventadorData.powerStatus = 0;
 			}
 		}
 	}
 	if (aventadorId == 1) {
 		if (controller2.GetButtonPressed(0)) {
-			if (aventadorData.powerStatus == true) {
+			if (aventadorData.powerStatus == 1) {
 				cout << aventadorId << " is using power" << endl;
-				aventadorData.powerStatus = false;
+				aventadorData.powerStatus = 0;
 			}
 		}
 	}
