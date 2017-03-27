@@ -46,55 +46,67 @@ namespace AiManager {
 			vec2 frontPos2D = vec2(frontPos.p.x, frontPos.p.z);
 			vec2 currPos2D = vec2(globalPos.p.x, globalPos.p.z);
 
-			if (distance < 150) { //if the car isn't that far behing the front, look for the path
+			if (distance < 10000000) { //if the car isn't that far behing the front, look for the path
 				for (float i = 0.5; i < 1.5; i += 0.5) { //assign y axis of point
-					//float yCoordAhead = globalPos.p.z + i;
-					//for (float j = -1; j <= 1; j += 0.5) {
-					//	if (Game::path->pointInPath(globalPos.p.x+j, yCoordAhead)) {	//check if the path is ahead of the car
-					//		std::cout << "up ahead\n";
-					//		wheelAngle *= 0;
-					//		return;
-					//	}
-					//}
+					float yCoordAhead = globalPos.p.z + i;
+					for (float j = -1; j <= 1; j += 0.5) {
+						if (Game::path->pointInPath(globalPos.p.x+j, yCoordAhead)) {	//check if the path is ahead of the car
+							std::cout << "up ahead\n";
+							wheelAngle *= 0;
+							return;
+						}
+					}
+					
+					/*
 					float yCoordAhead = currPos2D.y + i;
 					for (float j = -1; j <= 1; j += 0.5) {
 						float xCoord = currPos2D.x + j;
 						if (Game::path->pointInPath(xCoord, yCoordAhead)) {
-							moveTo(currPos2D, vec2(xCoord, yCoordAhead), wheelAngle, turnRate);
+							moveTo(currPos2D, vec2(currPos2D.x, yCoordAhead), wheelAngle, turnRate);
+							return;
 						}
 					}
+					*/
 					for (float j = 1; j < 4; j += 1.5) { //assign x axis of point
-						float xCoordLeft = currPos2D.x - j;
+					/*	float xCoordLeft = currPos2D.x - j;
 						float xCoordRight = currPos2D.x + j;
 						if (Game::path->pointInPath(xCoordLeft, yCoordAhead)) {
 							moveTo(currPos2D, vec2(xCoordLeft, yCoordAhead), wheelAngle, turnRate);
+							return;
 						}
 						else if (Game::path->pointInPath(xCoordRight, yCoordAhead)) {
 							moveTo(currPos2D, vec2(xCoordRight, yCoordAhead), wheelAngle, turnRate);
+							return;
 						}
+						else {
+							std::cout << "where's the path?\n";
+							moveTo(currPos2D, frontPos2D, wheelAngle, turnRate);
+							return;
+						}
+						*/
 
-						//float xCoordLeft = globalPos.p.x + j;
-						//float xCoordRight = globalPos.p.x - j;
-						//vec2 pointLeft = vec2(xCoordLeft, yCoordAhead);
-						//vec2 pointRight = vec2(xCoordRight, yCoordAhead);
-						//if (Game::path->pointInPath(pointRight.x, pointRight.y)) {	//check if the path is to the right of the car
-						//	std::cout << "to the right\n";
-						//	if (wheelAngle > -2)
-						//		wheelAngle -= turnRate;
-						//	return;
-						//}
-						//if (Game::path->pointInPath(pointLeft.x, pointLeft.y)) {	//check if the path is to the left of the car
-						//	std::cout << "to the left\n";
-						//	if (wheelAngle < 2)
-						//		wheelAngle += turnRate;
-						//	return;
-						//}
-						//else {	//the path is not nearby, turn towards the front car
-						//	//move towards the front car
-						//	std::cout << "where's the path?\n";
-						//	//findFront(direction, wheelAngle, turnRate);
-						//	moveTo(currPos2D, frontPos2D, wheelAngle, turnRate);
-						//}
+						float xCoordLeft = globalPos.p.x + j;
+						float xCoordRight = globalPos.p.x - j;
+						vec2 pointLeft = vec2(xCoordLeft, yCoordAhead);
+						vec2 pointRight = vec2(xCoordRight, yCoordAhead);
+						if (Game::path->pointInPath(pointRight.x, pointRight.y)) {	//check if the path is to the right of the car
+							std::cout << "to the right\n";
+							if (wheelAngle > -2)
+								wheelAngle -= turnRate;
+							return;
+						}
+						if (Game::path->pointInPath(pointLeft.x, pointLeft.y)) {	//check if the path is to the left of the car
+							std::cout << "to the left\n";
+							if (wheelAngle < 2)
+								wheelAngle += turnRate;
+							return;
+						}
+						else {	//the path is not nearby, turn towards the front car
+							//move towards the front car
+							std::cout << "where's the path?\n";
+							//findFront(direction, wheelAngle, turnRate);
+							moveTo(currPos2D, frontPos2D, wheelAngle, turnRate);
+						}
 					}
 				}
 			}
@@ -109,7 +121,7 @@ namespace AiManager {
 	}
 
 	float cross2D(vec2 point1, vec2 point2) {
-		return point1.x*point2.y - point1.y*point2.x;
+		return (point1.x*point2.y) - (point1.y*point2.x);
 	}
 
 	void moveTo(vec2 origin, vec2 target, float &wheelAngle, float turnRate) {
@@ -117,13 +129,18 @@ namespace AiManager {
 		float cross = cross2D(origin, target);
 
 		if (cross == 0.0f) {
+			std::cout << "move ahead\n";
 			wheelAngle *= 0;
 		}
 		else if (cross < 0.0f) {
-			wheelAngle += turnRate;
+			std::cout << "move left\n";
+			if (wheelAngle < 2)
+				wheelAngle += turnRate;
 		}
 		else if (cross > 0.0f) {
-			wheelAngle -= turnRate;
+			std::cout << "move right\n";
+			if (wheelAngle > -2)
+				wheelAngle -= turnRate;
 		}
 
 	}
