@@ -48,6 +48,7 @@ Aventador::Aventador(int id) {
 	actor = PhysicsManager::createDynamic(t, dimensions);
 	actor->setMass(5.5);
 	actor->setLinearDamping(0.5);
+	actor->userData = (void*)(ContactModFlags::eIGNORE_CONTACT);
 
 	PhysicsManager::attachSimulationShape(actor, dimensions,200);
 	PhysicsManager::setContactFilter(actor, FilterGroup::eAventador, FilterGroup::eAventador | FilterGroup::ePowerUp);
@@ -63,23 +64,18 @@ Aventador::Aventador(int id) {
 		//dChangeTime = Time::time += dCoolDown;
 
 		aventadorData.isFront = true;
-		//aventadorData.isAI = true;
+		//do we still want to adjust the force?
 		aventadorData.force = 30;
 		aventadorData.wheelTurnRate = 0.5;
-//		dChangeTime = Time::time += dCoolDown;
-
 		actor->setGlobalPose(PxTransform(0, 0, 10.0),true);
 		aventadorData.force = 30;
+		//If the player is versing AI
 		AiManager::aiInit(aventadorData.isAI, aventadorData.isFront);
 
 	}
 	else {
 		aventadorData.isFront = false;
-		//aventadorData.isFront = true;
 	}
-
-	//Setting contact modification flags
-	actor->userData = (void*)(ContactModFlags::eIGNORE_CONTACT);
 
 }
 
@@ -100,10 +96,8 @@ void Aventador::update(glm::mat4 parentTransform) {
 	updateTopSpeed();
 	updateDrift();
 	updateBraking();
-/*	// commented out for testing
 	if (!aventadorData.isFront)
 		updateFuel();
-*/
 
 	updateLightCamera();
 	usePowerUp();
@@ -361,7 +355,6 @@ void Aventador::updateBraking() {
 void Aventador::updateFuel() {
 	bool onPath = Game::path->pointInPath(actor->getGlobalPose().p.x, actor->getGlobalPose().p.z);
 	if (!onPath) {
-		std::cout << "is not on path\n";
 		aventadorData.fuel--;
 		if (aventadorData.fuel == 0) {
 			PxRigidBodyExt::addLocalForceAtLocalPos(*actor,
@@ -369,19 +362,17 @@ void Aventador::updateFuel() {
 			PxRigidBodyExt::addLocalForceAtLocalPos(*actor,
 				PxVec3(0, -20, 0), PxVec3(0.5, 1, 0), PxForceMode::eIMPULSE);
 			//game over flag
-			if(aventadorData.fuel < -3)
+			if(aventadorData.fuel < -10)
 				Game::setGameOverFlag(true);
 		}
 	}
 	else {
-		std::cout << "is on path\n";
 		if (aventadorData.fuel < aventadorData.tankSize) {
 			aventadorData.fuel += 5;
 			if (aventadorData.fuel > aventadorData.tankSize)
 				aventadorData.fuel = aventadorData.tankSize;
 		}
 	}
-	std::cout << "fuel: " << aventadorData.fuel << "\n";
 }
 
 bool Aventador::hasPowerUp() {
