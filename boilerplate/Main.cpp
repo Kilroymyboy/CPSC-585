@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
 	Game::init();
 
 	Sound::init();
-	Sound::playSound(1);
+	//Sound::playSound(1);
 	
 //	Sound::list_audio_devices(Sound::device);
 

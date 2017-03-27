@@ -70,7 +70,7 @@ Aventador::Aventador(int id) {
 
 		actor->setGlobalPose(PxTransform(0, 0, 10.0),true);
 		aventadorData.force = 30;
-		AiManager::aiInit(aventadorData.isAI, aventadorData.isFront);
+		//AiManager::aiInit(aventadorData.isAI, aventadorData.isFront);
 
 	}
 	else {
