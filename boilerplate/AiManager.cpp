@@ -8,9 +8,6 @@ namespace AiManager {
 
 	double dCoolDown = 2;
 	double dChangeTime = Time::time += dCoolDown;
-	float prevDist = 10000;
-	double aChangeWait = 1;
-	double aChangeTime = Time::time += aChangeWait;
 
 	void aiInit(bool &setIsAi, bool &setIsFront) {
 		setIsAi = true;
@@ -20,20 +17,20 @@ namespace AiManager {
 	void aiSteering(float &wheelAngle, bool isFront, PxTransform globalPos) {
 
 		if (isFront) {
-			//float turnRate = rand() % 2;
-			//if (Time::time > dChangeTime) {
-			//	dChangeTime += dCoolDown;
-			//	int randDirection = rand() % 3;
-			//	if (randDirection == 0) {
-			//		wheelAngle += turnRate;
-			//	}
-			//	else if (randDirection == 1) {
-			//		wheelAngle -= turnRate;
-			//	}
-			//	else if (randDirection == 2) {
-			//		wheelAngle *= turnRate;
-			//	}
-			//}
+			float turnRate = rand() % 2;
+			if (Time::time > dChangeTime) {
+				dChangeTime += dCoolDown;
+				int randDirection = rand() % 3;
+				if (randDirection == 0) {
+					wheelAngle += turnRate;
+				}
+				else if (randDirection == 1) {
+					wheelAngle -= turnRate;
+				}
+				else if (randDirection == 2) {
+					wheelAngle *= turnRate;
+				}
+			}
 		}
 
 		if (!isFront) {
@@ -56,35 +53,7 @@ namespace AiManager {
 							return;
 						}
 					}
-					
-					/*
-					float yCoordAhead = currPos2D.y + i;
-					for (float j = -1; j <= 1; j += 0.5) {
-						float xCoord = currPos2D.x + j;
-						if (Game::path->pointInPath(xCoord, yCoordAhead)) {
-							moveTo(currPos2D, vec2(currPos2D.x, yCoordAhead), wheelAngle, turnRate);
-							return;
-						}
-					}
-					*/
 					for (float j = 1; j < 4; j += 1.5) { //assign x axis of point
-
-					/*	float xCoordLeft = currPos2D.x - j;
-						float xCoordRight = currPos2D.x + j;
-						if (Game::path->pointInPath(xCoordLeft, yCoordAhead)) {
-							moveTo(currPos2D, vec2(xCoordLeft, yCoordAhead), wheelAngle, turnRate);
-							return;
-						}
-						else if (Game::path->pointInPath(xCoordRight, yCoordAhead)) {
-							moveTo(currPos2D, vec2(xCoordRight, yCoordAhead), wheelAngle, turnRate);
-							return;
-						}
-						else {
-							std::cout << "where's the path?\n";
-							moveTo(currPos2D, frontPos2D, wheelAngle, turnRate);
-							return;
-						}
-						*/
 
 						float xCoordLeft = globalPos.p.x + j;
 						float xCoordRight = globalPos.p.x - j;
@@ -116,7 +85,6 @@ namespace AiManager {
 				//findFront(direction, wheelAngle, turnRate);
 				moveTo(currPos2D, frontPos2D, wheelAngle, turnRate);
 			}
-			prevDist = distance;
 		}
 
 	}
@@ -132,7 +100,7 @@ namespace AiManager {
 
 	void moveTo(vec2 origin, vec2 target, float &wheelAngle, float turnRate) {
 
-		/*
+		/* not an improvement
 		float cross = cross2D(origin, target);
 
 		if (cross == 0.0f) {
