@@ -128,12 +128,12 @@ namespace AiManager {
 		}
 		else if (move.x < 0) {
 			//std::cout << "move left\n";
-			if (wheelAngle < 3)
+			if (wheelAngle < 1)
 				wheelAngle += turnRate;
 		}
 		else if (move.x > 0) {
 			//std::cout << "move right\n";
-			if (wheelAngle > -3)
+			if (wheelAngle > -1)
 				wheelAngle -= turnRate;
 		}
 
