@@ -84,14 +84,17 @@
     <ClCompile Include="Sound.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="PowerUp.cpp">
+      <Filter>Source Files\Powerups</Filter>
+    </ClCompile>
+    <ClCompile Include="PowerUpList.cpp">
+      <Filter>Source Files\Powerups</Filter>
+    </ClCompile>
     <ClCompile Include="Skybox.cpp">
       <Filter>Source Files\Game</Filter>
     </ClCompile>
     <ClCompile Include="Geometry.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="PowerUp.cpp">
-      <Filter>Source Files\Powerups</Filter>
     </ClCompile>
     <ClCompile Include="AiManager.cpp">
       <Filter>Source Files\Game</Filter>
@@ -140,14 +143,17 @@
     <ClInclude Include="FilterGroup.h">
       <Filter>Header Files\Physics</Filter>
     </ClInclude>
+    <ClInclude Include="PowerUp.h">
+      <Filter>Header Files\Powerups</Filter>
+    </ClInclude>
+    <ClInclude Include="PowerUpList.h">
+      <Filter>Header Files\Powerups</Filter>
+    </ClInclude>
     <ClInclude Include="Skybox.h">
       <Filter>Header Files\Game</Filter>
     </ClInclude>
     <ClInclude Include="Geometry.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="PowerUp.h">
-      <Filter>Header Files\Powerups</Filter>
     </ClInclude>
     <ClInclude Include="AiManager.h">
       <Filter>Header Files\Game</Filter>

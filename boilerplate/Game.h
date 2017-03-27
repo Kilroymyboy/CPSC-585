@@ -1,5 +1,6 @@
 #pragma once
 
+#include <iostream>
 #include <vector>
 #include <list>
 #include <memory>
@@ -12,7 +13,7 @@
 #include "Path.h"
 #include "Aventador.h"
 #include "PowerUp.h"
-
+#include "PowerUpList.h"
 
 #define PRINT_FPS 0
 #define PRINT_ENTITIES 0
@@ -28,13 +29,17 @@ namespace Game {
 	void init();
 	void update();
 	void switchRole();
+
+	//int startScreen();
+	//void endScreen();
+
 	void addPowerUp();
 	void checkDistance();
 	double getDist();
 	Aventador * getFront();
 	Aventador * getBack();
 	void setGameOverFlag(bool flag);
-	
+
 }
 
 namespace Time {

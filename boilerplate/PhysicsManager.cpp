@@ -230,6 +230,13 @@ void ContactBehaviourCallback::onContact(const PxContactPairHeader& pairHeader, 
 				Aventador* a = Game::aventador0.get();
 				//remove the power up from the scene
 				PxRigidActor* pickedUp = (pairHeader.actors[0]->getName() == name0) ? pairHeader.actors[0] : pairHeader.actors[1];
+//<<<<<<< HEAD
+//				auto power = find_if(Game::entities.begin(), Game::entities.end(), [&](std::shared_ptr<Entity>toFind) {
+//					PowerUp* power = static_cast<PowerUp*>(toFind.get());
+//					return power->getActor() == pickedUp; });
+//				if (power != Game::entities.end()) {
+//					Game::entities.erase(power);
+//=======
 				for (std::list<std::shared_ptr<Entity>>::iterator itr = Game::entities.begin(); itr != Game::entities.end(); ++itr) {
 					if (static_cast<PowerUp*>(itr->get())->getActor() == pickedUp) {
 						if (a->isFront()) { //change powerUp to the other type
@@ -245,10 +252,13 @@ void ContactBehaviourCallback::onContact(const PxContactPairHeader& pairHeader, 
 							break;
 						}
 					}
+//>>>>>>> Tram
 				}
 				//have aventador hold the power up. Holds one power up at a time
 				if (!a->hasPowerUp()) {
-					a->setPowerUpStatus(true);
+					int random = rand() % 3 + 1;
+					a->setPowerUpStatus(random);
+					std::cout << "Powerup value " << random << std::endl;
 				}
 				break;
 			}
@@ -257,6 +267,13 @@ void ContactBehaviourCallback::onContact(const PxContactPairHeader& pairHeader, 
 				Aventador* a = Game::aventador1.get();
 				//remove the power up from the scene
 				PxRigidActor* pickedUp = (pairHeader.actors[0]->getName() == name1) ? pairHeader.actors[0] : pairHeader.actors[1];
+//<<<<<<< HEAD
+//				auto power = find_if(Game::entities.begin(), Game::entities.end(), [&](std::shared_ptr<Entity>toFind) {
+//					PowerUp* power = static_cast<PowerUp*>(toFind.get());
+//					return power->getActor() == pickedUp; });
+//				if (power != Game::entities.end()) {
+//					Game::entities.erase(power);
+//=======
 				for (std::list<std::shared_ptr<Entity>>::iterator itr = Game::entities.begin(); itr != Game::entities.end(); ++itr) {
 					if (static_cast<PowerUp*>(itr->get())->getActor() == pickedUp) {
 						if (a->isFront()) { //change powerUp to the other type
@@ -272,10 +289,16 @@ void ContactBehaviourCallback::onContact(const PxContactPairHeader& pairHeader, 
 							break;
 						}
 					}
+//>>>>>>> Tram
 				}
+
+				std::cout << "aventador1 contacted a power up\n";
+
 				//have aventador hold the power up. Holds one power up at a time
 				if (!a->hasPowerUp()) {
-					a->setPowerUpStatus(true);
+					int random = rand() % 3 + 3;
+					a->setPowerUpStatus(random);
+					std::cout << "Powerup value " << random << std::endl;
 				}
 				break;
 			}

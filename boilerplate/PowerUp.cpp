@@ -70,6 +70,12 @@ PxVec3 PowerUp::getRandLocation() {
 	return PxVec3(x, y, z);
 }
 
+void PowerUp::use()
+{
+	printf("POWERUP ERROR\n");
+}
+
+
 int PowerUp::pseudoRand() {
 	// our initial starting seed is 5323
 	static unsigned int seed = 5323;

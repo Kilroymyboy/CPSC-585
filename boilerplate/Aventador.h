@@ -5,6 +5,8 @@
 #include "InputManager.h"
 #include "Graphics.h"
 #include "FilterGroup.h"
+#include "PowerUp.h"
+#include "PowerUpList.h"
 #include "AiManager.h"
 #include <vector>
 #include <list>
@@ -19,7 +21,7 @@ public:
 	float dimensionWidth = 1;
 	float dimensionLength = 2.5;
 	float maxWheelDist = 0.46;
-	float wheelTurnRate = 0.01;
+	float wheelTurnRate = 0.25;
 	float wheelReurnRate = 0.85;
 
 	float force = 45;
@@ -30,17 +32,23 @@ public:
 	float brakeSpeed = 0.8;
 	float maxBrakeForce = 60;
 
+
 	std::vector<float> tireHeatIncrease{ 0.00f,0.00f,0.0f,0.0f };
 	float tireHeatDecrease = 0.45;
 	float tireHeatFastDecrease = 0.1;
 	float manualTireHeatIncrease = 0.15;
 
+
+	int powerStatus = 0;
 	int fuel;
 	int tankSize = 400;
 
-	bool powerStatus = false;
+
 	bool isAI = false;
+	bool hasLost = false;
+
 	bool isFront;
+
 };
 
 class AventadorWheel :public Entity {
@@ -78,6 +86,7 @@ class Aventador : public Entity {
 	void updateLightCamera();
 
 	VehicleData aventadorData;
+	void usePowerUp();
 
 	float wheelAngle;
 	float brakeForce;
@@ -92,7 +101,7 @@ public:
 	void renderShadowMap(glm::mat4 parentTransform)override;
 	void render(glm::mat4 parentTransform)override;
 	bool hasPowerUp();
-	void setPowerUpStatus(bool status);
+	void setPowerUpStatus(int status);
 	void changeRole();
 	bool isFront();
 	Aventador(int);

@@ -3,6 +3,7 @@
 #include "InputManager.h"
 #include "Aventador.h"
 #include "Path.h"
+#include "PowerUpList.h"
 #include "Skybox.h"
 
 using namespace std;
@@ -10,7 +11,9 @@ using namespace glm;
 using namespace physx;
 
 namespace Game {
-	list<shared_ptr<Entity>> entities;
+	list<shared_ptr<Entity> > entities;
+	list<shared_ptr<Entity> > startGameEntities;
+
 	shared_ptr<Aventador> aventador0;
 	shared_ptr<Aventador> aventador1;
 	shared_ptr<Path> path;
@@ -19,6 +22,7 @@ namespace Game {
 
 	double spawnCoolDown = 2;
 	double powerUpSpawnTime = Time::time += spawnCoolDown;
+
 	float impulse = 300;
 	double switchRange = 15.0;
 	bool inSwtichRange = false;
@@ -33,6 +37,7 @@ namespace Game {
 		entities.push_back(aventador1);
 		entities.push_back(path);	//the path that gets drawn under the car
 
+
 	//	entities.push_back(shared_ptr<Path>(new Path(100, aventador0)));	//the path that gets drawn under the car
 
 		//entities.push_back(unique_ptr<Cube>(new Cube));
@@ -43,7 +48,6 @@ namespace Game {
 
 	void update() {
 		glfwPollEvents();
-		
 
 		for (auto it = entities.begin(); it != entities.end(); it++) {
 			if (it->get()->alive) {
@@ -66,9 +70,18 @@ namespace Game {
 	void addPowerUp() {
 		if (Time::time > powerUpSpawnTime) {
 			powerUpSpawnTime += spawnCoolDown;
+
 			entities.push_back(unique_ptr<Entity>(new PowerUp()));
+
 		}
 	}
+
+
+		//This is where a restart function would go
+		//currently doing something wrong as restarting must not actually delete as the program slows down after each restart
+//		if ((controller1.GetButtonPressed(13)) || (Keyboard::keyPressed(GLFW_KEY_ENTER))) {
+//			entities.clear();
+//			init();
 
 	//check the distance between the aventators
 	void checkDistance() {
@@ -81,6 +94,7 @@ namespace Game {
 		}
 		else if (dist > switchRange && inSwtichRange) {
 			inSwtichRange = false;
+
 		}
 	}
 
@@ -88,6 +102,28 @@ namespace Game {
 		aventador0->changeRole();
 		aventador1->changeRole();
 	}
+
+	/*
+	//this is the start screen loop objects or place an image
+	int startScreen() {
+		//initialization of whatever we want in here for now just a print statement
+		//currently can only go to the main game loop because of how i set up loops in the main file
+
+		cout << "In Start Screen" << endl;		
+
+		if ((controller1.GetButtonPressed(12)) || (Keyboard::keyPressed(GLFW_KEY_ENTER))) {
+			cout << "ENTERED GAME LOOP" << endl;
+			entities.clear();
+			init();
+			return 1;
+		}
+	}
+
+	//same as start screen but just after the race is over
+	void endScreen() {
+		
+	}*/
+
 
 	double getDist() {
 		PxTransform pos0 = aventador0->actor->getGlobalPose();
@@ -106,7 +142,6 @@ namespace Game {
 	void setGameOverFlag(bool flag) {
 		isGameOver = flag;
 	}
-
 }
 
 namespace Time {
