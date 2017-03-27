@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
 	Game::init();
 
 	Sound::init();
-	Sound::playSound(1);
+
 	
 //	Sound::list_audio_devices(Sound::device);
 
@@ -49,11 +49,15 @@ int main(int argc, char *argv[])
 			hud->update();
 			PhysicsManager::update(1);
 		}*/
+		Sound::playSound(1);
+		Sound::playSound(2);
+		Sound::updateSources();
+		Sound::updateListener();
 
 		Time::update();
 		Game::update();
 		Graphics::update();
-
+		
 		hud->update();
 		PhysicsManager::update(1);
 		hud->update();
