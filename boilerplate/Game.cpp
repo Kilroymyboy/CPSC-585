@@ -61,7 +61,12 @@ namespace Game {
 		if (PRINT_ENTITIES) {
 			cout << entities.size() << endl;
 		}
-
+		//This is where a restart function would go
+		//currently doing something wrong as restarting must not actually delete as the program slows down after each restart
+		if ((controller1.GetButtonPressed(13)) || (Keyboard::keyPressed(GLFW_KEY_ENTER))) {
+			entities.clear();
+			init();
+		}
 		addPowerUp();
 		checkDistance();
 	}
@@ -75,13 +80,6 @@ namespace Game {
 
 		}
 	}
-
-
-		//This is where a restart function would go
-		//currently doing something wrong as restarting must not actually delete as the program slows down after each restart
-//		if ((controller1.GetButtonPressed(13)) || (Keyboard::keyPressed(GLFW_KEY_ENTER))) {
-//			entities.clear();
-//			init();
 
 	//check the distance between the aventators
 	void checkDistance() {

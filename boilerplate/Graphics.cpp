@@ -42,7 +42,7 @@ namespace Graphics {
 
 	bool SPLIT_SCREEN = 1;
 	// 0 horizontal/side by side, 1 vertical/stacked
-	int SPLIT_SCREEN_ORIENTATION = 0;
+	int SPLIT_SCREEN_ORIENTATION = 1;
 
 	bool SHADOW = 1;
 	int SOFT_SHADOW = 1;

@@ -69,10 +69,12 @@ Aventador::Aventador(int id) {
 		aventadorData.wheelTurnRate = 0.5;
 		actor->setGlobalPose(PxTransform(0, 0, 10.0),true);
 		aventadorData.force = 30;
+
 		if (VS_AI) {
 			//If the player is versing AI
 			AiManager::aiInit(aventadorData.isAI, aventadorData.isFront);
 		}
+
 
 	}
 	else {
@@ -98,8 +100,10 @@ void Aventador::update(glm::mat4 parentTransform) {
 	updateTopSpeed();
 	updateDrift();
 	updateBraking();
+
 	if (!aventadorData.isFront)
 		updateFuel();
+
 
 	updateLightCamera();
 	usePowerUp();
@@ -311,15 +315,15 @@ void Aventador::updateDrift() {
 	if (aventadorId == 0) {
 		if (controller1.GetButtonPressed(1)) {
 			PxVec3 v = actor->getLinearVelocity();
-			tireHeat[2] += aventadorData.manualTireHeatIncrease*v.magnitude();
-			tireHeat[3] += aventadorData.manualTireHeatIncrease*v.magnitude();
+			tireHeat[2] += aventadorData.manualTireHeatIncrease*v.magnitude()*2;
+			tireHeat[3] += aventadorData.manualTireHeatIncrease*v.magnitude()*2;
 		}
 	}
 	if (aventadorId == 1) {
 		if (controller2.GetButtonPressed(1)) {
 			PxVec3 v = actor->getLinearVelocity();
-			tireHeat[2] += aventadorData.manualTireHeatIncrease*v.magnitude();
-			tireHeat[3] += aventadorData.manualTireHeatIncrease*v.magnitude();
+			tireHeat[2] += aventadorData.manualTireHeatIncrease*v.magnitude()*2;
+			tireHeat[3] += aventadorData.manualTireHeatIncrease*v.magnitude()*2;
 		}
 	}
 
@@ -336,9 +340,6 @@ void Aventador::updateBraking() {
 	if (aventadorId == 0) {
 		if (controller1.GetButtonPressed(1)) {
 			brakeForce = min(brakeForce + aventadorData.brakeSpeed, aventadorData.maxBrakeForce);
-		}
-		else {
-			brakeForce = 0;
 		}
 	}
 	if (aventadorId == 1) {
@@ -388,35 +389,65 @@ void Aventador::usePowerUp() {
 	if (Keyboard::keyDown(aventadorId ? GLFW_KEY_RIGHT_SHIFT : GLFW_KEY_F)) {
 		if (aventadorData.powerStatus == 1) {
 			cout << aventadorId << " is using power 1" << endl;
-			&AutoPilot::use;
+			Game::getBack()->actor->addForce(PxVec3(100, 0, 100), PxForceMode::eIMPULSE);
 			aventadorData.powerStatus = 0;
 		}
 		else if (aventadorData.powerStatus == 2) {
 			cout << aventadorId << " is using power 2" << endl;
-			&Cloak::use;
+			Game::getBack()->tireHeat[0] = 1000;
+			Game::getBack()->tireHeat[1] = 1000;
+			Game::getBack()->tireHeat[2] = 1000;
+			Game::getBack()->tireHeat[3] = 1000;
 			aventadorData.powerStatus = 0;
 		}
 		else if (aventadorData.powerStatus == 3) {
 			cout << aventadorId << " is using power 3" << endl;
-			&Boost::use;
+			PxRigidBodyExt::addLocalForceAtLocalPos(*actor,
+				PxVec3(0, 0, 300), PxVec3(0, 0, 0), PxForceMode::eIMPULSE);
 			aventadorData.powerStatus = 0;
 		}
 		else if (aventadorData.powerStatus == 4) {
 			cout << aventadorId << " is using power 4" << endl;
-			&BlackIce::use;
+			aventadorData.fuel = aventadorData.fuel + 250;
+			cout << aventadorData.fuel << endl;
 			aventadorData.powerStatus = 0;
 		}
 		else if (aventadorData.powerStatus == 5) {
 			cout << aventadorId << " is using power 5" << endl;
-			&Blind::use;
+			Game::getFront()->actor->addForce(PxVec3(0, 0, -100), PxForceMode::eIMPULSE);
 			aventadorData.powerStatus = 0;
 		}
 	}
 	if (aventadorId == 0) {
-		if (controller1.GetButtonPressed(3)) {
+		if (controller1.GetButtonPressed(0)) {
 			if (aventadorData.powerStatus == 1) {
-				cout << aventadorId << " is using power" << endl;
-				&AutoPilot::use;
+				cout << aventadorId << " is using power 1" << endl;
+				Game::getBack()->actor->addForce(PxVec3(100, 0, 100), PxForceMode::eIMPULSE);
+				aventadorData.powerStatus = 0;
+			}
+			else if (aventadorData.powerStatus == 2) {
+				cout << aventadorId << " is using power 2" << endl;
+				Game::getBack()->tireHeat[0] = 1000;
+				Game::getBack()->tireHeat[1] = 1000;
+				Game::getBack()->tireHeat[2] = 1000;
+				Game::getBack()->tireHeat[3] = 1000;
+				aventadorData.powerStatus = 0;
+			}
+			else if (aventadorData.powerStatus == 3) {
+				cout << aventadorId << " is using power 3" << endl;
+				PxRigidBodyExt::addLocalForceAtLocalPos(*actor,
+					PxVec3(0, 0, 300), PxVec3(0, 0, 0), PxForceMode::eIMPULSE);
+				aventadorData.powerStatus = 0;
+			}
+			else if (aventadorData.powerStatus == 4) {
+				cout << aventadorId << " is using power 4" << endl;
+				aventadorData.fuel = aventadorData.fuel + 250;
+				cout << aventadorData.fuel << endl;
+				aventadorData.powerStatus = 0;
+			}
+			else if (aventadorData.powerStatus == 5) {
+				cout << aventadorId << " is using power 5" << endl;
+				Game::getFront()->actor->addForce(PxVec3(0, 0, -100), PxForceMode::eIMPULSE);
 				aventadorData.powerStatus = 0;
 			}
 		}
@@ -424,9 +455,51 @@ void Aventador::usePowerUp() {
 	if (aventadorId == 1) {
 		if (controller2.GetButtonPressed(0)) {
 			if (aventadorData.powerStatus == 1) {
-				cout << aventadorId << " is using power" << endl;
+				cout << aventadorId << " is using power 1" << endl;
+				Game::getBack()->actor->addForce(PxVec3(100, 0, 100), PxForceMode::eIMPULSE);
 				aventadorData.powerStatus = 0;
 			}
+			else if (aventadorData.powerStatus == 2) {
+				cout << aventadorId << " is using power 2" << endl;
+				Game::getBack()->tireHeat[0] = 1000;
+				Game::getBack()->tireHeat[1] = 1000;
+				Game::getBack()->tireHeat[2] = 1000;
+				Game::getBack()->tireHeat[3] = 1000;
+				aventadorData.powerStatus = 0;
+			}
+			else if (aventadorData.powerStatus == 3) {
+				cout << aventadorId << " is using power 3" << endl;
+				PxRigidBodyExt::addLocalForceAtLocalPos(*actor,
+					PxVec3(0, 0, 300), PxVec3(0, 0, 0), PxForceMode::eIMPULSE);
+				aventadorData.powerStatus = 0;
+			}
+			else if (aventadorData.powerStatus == 4) {
+				cout << aventadorId << " is using power 4" << endl;
+				aventadorData.fuel = aventadorData.fuel + 250;
+				cout << aventadorData.fuel << endl;
+				aventadorData.powerStatus = 0;
+			}
+			else if (aventadorData.powerStatus == 5) {
+				cout << aventadorId << " is using power 5" << endl;
+				Game::getFront()->actor->addForce(PxVec3(0, 0, -100), PxForceMode::eIMPULSE);
+				aventadorData.powerStatus = 0;
+			}
+		}
+	}
+	if (Keyboard::keyDown(aventadorId ? GLFW_KEY_END : GLFW_KEY_T)) {
+		cout << "throwing away powerup" << endl;
+		aventadorData.powerStatus = 0;
+	}
+	if (aventadorId == 0) {
+		if (controller1.GetButtonPressed(3)) {
+			cout << "throwing away powerup" << endl;
+			aventadorData.powerStatus = 0;
+		}
+	}
+	if (aventadorId == 1) {
+		if (controller2.GetButtonPressed(3)) {
+			cout << "throwing away powerup" << endl;
+			aventadorData.powerStatus = 0;
 		}
 	}
 }
