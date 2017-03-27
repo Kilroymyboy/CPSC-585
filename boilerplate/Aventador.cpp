@@ -69,8 +69,10 @@ Aventador::Aventador(int id) {
 		aventadorData.wheelTurnRate = 0.5;
 		actor->setGlobalPose(PxTransform(0, 0, 10.0),true);
 		aventadorData.force = 30;
-		//If the player is versing AI
-		AiManager::aiInit(aventadorData.isAI, aventadorData.isFront);
+		if (VS_AI) {
+			//If the player is versing AI
+			AiManager::aiInit(aventadorData.isAI, aventadorData.isFront);
+		}
 
 	}
 	else {
