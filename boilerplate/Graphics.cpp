@@ -125,6 +125,10 @@ namespace Graphics {
 			glTexParameteri(texture->target, GL_TEXTURE_MIN_FILTER, filter);
 			glTexParameteri(texture->target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
+			GLfloat fl;
+			glGetFloatv(0x84FF, &fl);
+			glTexParameterf(GL_TEXTURE_2D, 0x84FE, fl);
+
 			// Clean up
 			glBindTexture(texture->target, 0);
 			stbi_image_free(data);
