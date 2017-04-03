@@ -55,22 +55,10 @@ Aventador::Aventador(int id) {
 
 	if (aventadorId == 0) {
 
-
-		// JEREMY WHAT NEEDS TO STAY FROM HERE ********************************************************************************************
-		//PhysicsManager::setContactFilter(actor, FilterGroup::eAventador0, FilterGroup::eAventador1 | FilterGroup::ePowerUp0);
-		//actor->setName("front");
-		//aventadorData.isAI = true;
-		//aventadorData.force = 30;
-		//dChangeTime = Time::time += dCoolDown;
-
-		aventadorData.isFront = true;
-		//do we still want to adjust the force?
-		aventadorData.force = 30;
-		aventadorData.wheelTurnRate = 0.5;
-		actor->setGlobalPose(PxTransform(0, 0, 10.0),true);
-		aventadorData.force = 30;
+		actor->setGlobalPose(PxTransform(0, 0, 20.0),true);
 
 		if (VS_AI) {
+			aventadorData.force = 30;
 			//If the player is versing AI
 			AiManager::aiInit(aventadorData.isAI, aventadorData.isFront);
 		}
@@ -101,9 +89,10 @@ void Aventador::update(glm::mat4 parentTransform) {
 	updateDrift();
 	updateBraking();
 
+	/*
 	if (!aventadorData.isFront)
 		updateFuel();
-
+	*/
 
 	updateLightCamera();
 	usePowerUp();

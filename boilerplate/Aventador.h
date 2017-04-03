@@ -24,7 +24,7 @@ public:
 	float wheelTurnRate = 0.5;
 	float wheelReurnRate = 0.85;
 
-	float force = 30;
+	float force = 45;
 	float wheelSideFriction = 6.25;
 	float wheelSideMaxFriction = 25;
 	float topSpeedFriction = 0.8;

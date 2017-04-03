@@ -17,7 +17,8 @@ namespace AiManager {
 	void aiSteering(float &wheelAngle, bool isFront, PxTransform globalPos) {
 
 		if (isFront) {
-			float turnRate = rand() % 2;
+		/*
+		float turnRate = rand() % 2;
 			if (Time::time > dChangeTime) {
 				dChangeTime += dCoolDown;
 				int randDirection = rand() % 3;
@@ -31,6 +32,7 @@ namespace AiManager {
 					wheelAngle *= turnRate;
 				}
 			}
+			*/
 		}
 
 		if (!isFront) {
@@ -122,16 +124,20 @@ namespace AiManager {
 
 		vec2 direction = origin - target;
 		vec2 move = normalize(direction);
-		if (move.x == 0) {
+		PxVec2 dir = PxVec2(direction.x, direction.y);
+		PxReal mag = dir.magnitude();
+		PxVec2 mo = PxVec2(dir.x / mag, dir.y / mag);
+
+		if (mo.x == 0) {
 			//std::cout << "move ahead\n";
 			wheelAngle *= 0;
 		}
-		else if (move.x < 0) {
+		else if (mo.x < 0) {
 			//std::cout << "move left\n";
 			if (wheelAngle < 1)
 				wheelAngle += turnRate;
 		}
-		else if (move.x > 0) {
+		else if (mo.x > 0) {
 			//std::cout << "move right\n";
 			if (wheelAngle > -1)
 				wheelAngle -= turnRate;
