@@ -8,6 +8,7 @@ namespace AiManager {
 
 	double dCoolDown = 2;
 	double dChangeTime = Time::time += dCoolDown;
+	PxVec3 carFront = PxVec3(0, 0, 1);	//The direction the car is facing
 
 	void aiInit(bool &setIsAi, bool &setIsFront) {
 		setIsAi = true;
@@ -45,6 +46,10 @@ namespace AiManager {
 			vec2 frontPos2D = vec2(frontPos.p.x, frontPos.p.z);
 			vec2 currPos2D = vec2(globalPos.p.x, globalPos.p.z);
 
+			//testing beeline
+			moveTo(globalPos, frontPos, wheelAngle);
+
+			/*
 			if (distance < 150) { //if the car isn't that far behing the front, look for the path
 				for (float i = 0.5; i < 1.5; i += 0.5) { //assign y axis of point
 					float yCoordAhead = globalPos.p.z + i;
@@ -85,8 +90,30 @@ namespace AiManager {
 			else {	//the front car is far away, move closer
 				//std::cout << "so far away\n";
 				//findFront(direction, wheelAngle, turnRate);
-				moveTo(currPos2D, frontPos2D, wheelAngle, turnRate);
+				//moveTo(currPos2D, frontPos2D, wheelAngle, turnRate);
+				moveTo(globalPos, frontPos, wheelAngle);
 			}
+			*/
+		}
+
+	}
+
+	void moveTo(PxTransform origin, PxTransform target, float &wheelAngle) {
+		PxVec3 originDirection = origin.q.rotate(carFront);	//current direction of the origin
+		PxVec3 DirToTarget = target.p - origin.p;	//direction to move to
+		//get the angle
+		PxVec3 crossProd = originDirection.cross(DirToTarget);
+		float angle = crossProd.magnitude();
+		std::cout << "angle: " << angle << "\n";
+
+		if (crossProd.y < 2.0f && crossProd.y > -2.0f) {
+			wheelAngle = 0;
+		}
+		else if (crossProd.y > 0.0f) {
+			wheelAngle = angle;
+		}
+		else if (crossProd.y < 0.0f) {
+			wheelAngle = (angle*-1);
 		}
 
 	}
@@ -100,7 +127,9 @@ namespace AiManager {
 		return vec2(v.x/magnitude, v.y/magnitude);
 	}
 
+
 	void moveTo(vec2 origin, vec2 target, float &wheelAngle, float turnRate) {
+
 
 		//not an improvement
 		/*
@@ -122,6 +151,8 @@ namespace AiManager {
 		}
 		*/
 
+		//bad AI
+		/*
 		vec2 direction = origin - target;
 		vec2 move = normalize(direction);
 		PxVec2 dir = PxVec2(direction.x, direction.y);
@@ -142,6 +173,7 @@ namespace AiManager {
 			if (wheelAngle > -1)
 				wheelAngle -= turnRate;
 		}
+		*/
 
 	}
 }
