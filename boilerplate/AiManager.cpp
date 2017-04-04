@@ -46,11 +46,11 @@ namespace AiManager {
 			float pointDistToFront;				//distance between the point in the path 
 			float prevDistToPoint = 0;			//the furthest point within maxDist
 			float ClosestPointToFront = 1000;	//closest point towards the front car
-			float maxDist = 10.0f;				//max range
+			float maxDist = 20.0f;				//max range
 			if (distance < 5) {
 				moveTo(thisPos, frontPos, wheelAngle);
 			}
-			else if (distance < 100) {
+			else if (distance < 150) {
 				//find a point that is closest to the front car, near the back car
 				for (int i = 0; i < pathPoints.size() - 1; i++) {
 					PxVec3 thisToPoint = pathPoints[i] - thisPos.p;
@@ -61,7 +61,7 @@ namespace AiManager {
 						prevDistToPoint = thisDistToPoint;
 						ClosestPointToFront = pointDistToFront;
 						goToPoint = pathPoints[i];
-						//std::cout << "goToPoint Updated " << i << "\n";
+						std::cout << "goToPoint Updated " << i << "\n";
 					}
 				}
 				PxTransform goToPointTransform(goToPoint, PxQuat::createIdentity());
