@@ -41,13 +41,13 @@ namespace AiManager {
 			PxVec3 direction = frontPos.p - globalPos.p;
 			float distance = direction.magnitude();
 			std::vector<PxVec3> pathPoints = Game::path->centerPoints;
-			PxVec3 goToPoint = pathPoints[0];
+			PxVec3 goToPoint = pathPoints[10];
 			float thisDistToPoint;				//distance between the current poition and a point in the path
 			float pointDistToFront;				//distance between the point in the path 
 			float prevDistToPoint = 0;			//the furthest point within maxDist
 			float ClosestPointToFront = 1000;	//closest point towards the front car
 			float maxDist = 20.0f;				//max range
-			if (distance < 5) {
+			if (distance < 20) {
 				moveTo(thisPos, frontPos, wheelAngle);
 			}
 			else if (distance < 150) {
@@ -98,7 +98,7 @@ namespace AiManager {
 		//std::cout << "angle: " << angle << "\n";
 
 
-		if (crossProd.y < 2.5f && crossProd.y > -2.5f) {
+		if (crossProd.y < 2.0f && crossProd.y > -2.0f) {
 			wheelAngle = 0;
 		}
 		else if (crossProd.y > 2.5f) { //to the left
