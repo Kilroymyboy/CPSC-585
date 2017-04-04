@@ -60,10 +60,9 @@ Aventador::Aventador(int id) {
 		if (VS_AI) {
 			//aventadorData.force = 30;
 			//If the player is versing AI
-			AiManager::aiInit(aventadorData.isAI, aventadorData.isFront);
+			aventadorData.isFront = true;
+			AiManager::aiInit(aventadorData.isAI);
 		}
-
-
 	}
 	else {
 		aventadorData.isFront = false;

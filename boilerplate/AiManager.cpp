@@ -10,9 +10,8 @@ namespace AiManager {
 	double dChangeTime = Time::time += dCoolDown;
 	PxVec3 carFront = PxVec3(0, 0, 1);	//The direction the car is facing
 
-	void aiInit(bool &setIsAi, bool &setIsFront) {
+	void aiInit(bool &setIsAi) {
 		setIsAi = true;
-		setIsFront = true;
 	}
 
 	void aiSteering(float &wheelAngle, bool isFront, PxTransform globalPos) {
@@ -37,20 +36,22 @@ namespace AiManager {
 		}
 
 		if (!isFront) {
-			//left when x increases
 			PxTransform frontPos = Game::getFront()->actor->getGlobalPose();
 			PxTransform thisPos = globalPos;
 			PxVec3 direction = frontPos.p - globalPos.p;
 			float distance = direction.magnitude();
 			std::vector<PxVec3> pathPoints = Game::path->centerPoints;
-			PxVec3 goToPoint = pathPoints[10];
-			float thisDistToPoint;	//distance between the current poition and a point in the path
-			float pointDistToFront;	//distance between the point in the path 
-			float prevDistToPoint = 0;
-			float ClosestPointToFront = 1000;
-			float maxDist = 10.0f;
-			if (distance < 100) {
-				//find a point that is closest to the front car near the back car
+			PxVec3 goToPoint = pathPoints[0];
+			float thisDistToPoint;				//distance between the current poition and a point in the path
+			float pointDistToFront;				//distance between the point in the path 
+			float prevDistToPoint = 0;			//the furthest point within maxDist
+			float ClosestPointToFront = 1000;	//closest point towards the front car
+			float maxDist = 10.0f;				//max range
+			if (distance < 5) {
+				moveTo(thisPos, frontPos, wheelAngle);
+			}
+			else if (distance < 100) {
+				//find a point that is closest to the front car, near the back car
 				for (int i = 0; i < pathPoints.size() - 1; i++) {
 					PxVec3 thisToPoint = pathPoints[i] - thisPos.p;
 					thisDistToPoint = thisToPoint.magnitude();
@@ -97,13 +98,13 @@ namespace AiManager {
 		//std::cout << "angle: " << angle << "\n";
 
 
-		if (crossProd.y < 2.0f && crossProd.y > 2.0f) {
+		if (crossProd.y < 2.5f && crossProd.y > -2.5f) {
 			wheelAngle = 0;
 		}
-		else if (crossProd.y > 0.0f) { //to the left
+		else if (crossProd.y > 2.5f) { //to the left
 			wheelAngle = angle;
 		}
-		else if (crossProd.y < 0.0f) { //to the right
+		else if (crossProd.y < -2.5f) { //to the right
 			wheelAngle = angle*-1;
 		}
 
