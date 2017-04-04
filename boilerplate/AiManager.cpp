@@ -39,81 +39,72 @@ namespace AiManager {
 		if (!isFront) {
 			//left when x increases
 			PxTransform frontPos = Game::getFront()->actor->getGlobalPose();
+			PxTransform thisPos = globalPos;
 			PxVec3 direction = frontPos.p - globalPos.p;
 			float distance = direction.magnitude();
-			float turnRate = 0.01;
-
-			vec2 frontPos2D = vec2(frontPos.p.x, frontPos.p.z);
-			vec2 currPos2D = vec2(globalPos.p.x, globalPos.p.z);
-
-			//testing beeline
-			moveTo(globalPos, frontPos, wheelAngle);
-
-			/*
-			if (distance < 150) { //if the car isn't that far behing the front, look for the path
-				for (float i = 0.5; i < 1.5; i += 0.5) { //assign y axis of point
-					float yCoordAhead = globalPos.p.z + i;
-					for (float j = -1; j <= 1; j += 0.5) {
-						if (Game::path->pointInPath(globalPos.p.x+j, yCoordAhead)) {	//check if the path is ahead of the car
-							//std::cout << "up ahead\n";
-							wheelAngle *= 0;
-							return;
-						}
-					}
-					for (float j = 1; j < 4; j += 1.5) { //assign x axis of point
-
-						float xCoordLeft = globalPos.p.x + j;
-						float xCoordRight = globalPos.p.x - j;
-						vec2 pointLeft = vec2(xCoordLeft, yCoordAhead);
-						vec2 pointRight = vec2(xCoordRight, yCoordAhead);
-						if (Game::path->pointInPath(pointRight.x, pointRight.y)) {	//check if the path is to the right of the car
-							//std::cout << "to the right\n";
-							if (wheelAngle > -2)
-								wheelAngle -= turnRate;
-							return;
-						}
-						if (Game::path->pointInPath(pointLeft.x, pointLeft.y)) {	//check if the path is to the left of the car
-							//std::cout << "to the left\n";
-							if (wheelAngle < 2)
-								wheelAngle += turnRate;
-							return;
-						}
-						else {	//the path is not nearby, turn towards the front car
-							//move towards the front car
-							//std::cout << "where's the path?\n";
-							//findFront(direction, wheelAngle, turnRate);
-							moveTo(currPos2D, frontPos2D, wheelAngle, turnRate);
-						}
+			std::vector<PxVec3> pathPoints = Game::path->centerPoints;
+			PxVec3 goToPoint = pathPoints[10];
+			float thisDistToPoint;	//distance between the current poition and a point in the path
+			float pointDistToFront;	//distance between the point in the path 
+			float prevDistToPoint = 0;
+			float ClosestPointToFront = 1000;
+			float maxDist = 10.0f;
+			if (distance < 100) {
+				//find a point that is closest to the front car near the back car
+				for (int i = 0; i < pathPoints.size() - 1; i++) {
+					PxVec3 thisToPoint = pathPoints[i] - thisPos.p;
+					thisDistToPoint = thisToPoint.magnitude();
+					PxVec3 pointToFront = frontPos.p - pathPoints[i];
+					pointDistToFront = pointToFront.magnitude();
+					if (thisDistToPoint > prevDistToPoint && thisDistToPoint < maxDist && ClosestPointToFront > pointDistToFront) {
+						prevDistToPoint = thisDistToPoint;
+						ClosestPointToFront = pointDistToFront;
+						goToPoint = pathPoints[i];
+						//std::cout << "goToPoint Updated " << i << "\n";
 					}
 				}
+				PxTransform goToPointTransform(goToPoint, PxQuat::createIdentity());
+				moveTo(thisPos, goToPointTransform, wheelAngle);
 			}
-			else {	//the front car is far away, move closer
-				//std::cout << "so far away\n";
-				//findFront(direction, wheelAngle, turnRate);
-				//moveTo(currPos2D, frontPos2D, wheelAngle, turnRate);
-				moveTo(globalPos, frontPos, wheelAngle);
+			else {	//to straight to the front car
+				moveTo(thisPos, frontPos, wheelAngle);
 			}
-			*/
 		}
 
 	}
 
+	void adjustAngle(float &angle) {
+		if (angle > 10) {
+			angle = 6;
+		}
+		else if (angle > 5) {
+			angle = 5;
+		}
+		else if (angle > 2) {
+			angle = 1;
+		}
+	}
+
 	void moveTo(PxTransform origin, PxTransform target, float &wheelAngle) {
 		PxVec3 originDirection = origin.q.rotate(carFront);	//current direction of the origin
-		PxVec3 DirToTarget = target.p - origin.p;	//direction to move to
+		//PxVec3 targetDirection = target.q.rotate(carFront);	//maybe later for when the front car is really close by
+		PxVec3 dirToTarget = target.p - origin.p;	//direction to move to
 		//get the angle
-		PxVec3 crossProd = originDirection.cross(DirToTarget);
+		PxVec3 crossProd = originDirection.cross(dirToTarget);
 		float angle = crossProd.magnitude();
-		std::cout << "angle: " << angle << "\n";
+		//adjust angle values for smoother movements
+		//adjustAngle(angle);
+		//std::cout << "angle: " << angle << "\n";
 
-		if (crossProd.y < 2.0f && crossProd.y > -2.0f) {
+
+		if (crossProd.y < 2.0f && crossProd.y > 2.0f) {
 			wheelAngle = 0;
 		}
-		else if (crossProd.y > 0.0f) {
+		else if (crossProd.y > 0.0f) { //to the left
 			wheelAngle = angle;
 		}
-		else if (crossProd.y < 0.0f) {
-			wheelAngle = (angle*-1);
+		else if (crossProd.y < 0.0f) { //to the right
+			wheelAngle = angle*-1;
 		}
 
 	}
@@ -122,58 +113,4 @@ namespace AiManager {
 		return (point1.x*point2.y) - (point1.y*point2.x);
 	}
 
-	vec2 normalize2D(vec2 v) {
-		float magnitude = sqrt(v.x*v.x + v.y*v.y);
-		return vec2(v.x/magnitude, v.y/magnitude);
-	}
-
-
-	void moveTo(vec2 origin, vec2 target, float &wheelAngle, float turnRate) {
-
-
-		//not an improvement
-		/*
-		 float cross = cross2D(origin, target);
-
-		if (cross == 0.0f) {
-			std::cout << "move ahead\n";
-			wheelAngle *= 0;
-		}
-		else if (cross < 0.0f) {
-			std::cout << "move left\n";
-			if (wheelAngle < 2)
-				wheelAngle += turnRate;
-		}
-		else if (cross > 0.0f) {
-			std::cout << "move right\n";
-			if (wheelAngle > -2)
-				wheelAngle -= turnRate;
-		}
-		*/
-
-		//bad AI
-		/*
-		vec2 direction = origin - target;
-		vec2 move = normalize(direction);
-		PxVec2 dir = PxVec2(direction.x, direction.y);
-		PxReal mag = dir.magnitude();
-		PxVec2 mo = PxVec2(dir.x / mag, dir.y / mag);
-
-		if (mo.x == 0) {
-			//std::cout << "move ahead\n";
-			wheelAngle *= 0;
-		}
-		else if (mo.x < 0) {
-			//std::cout << "move left\n";
-			if (wheelAngle < 1)
-				wheelAngle += turnRate;
-		}
-		else if (mo.x > 0) {
-			//std::cout << "move right\n";
-			if (wheelAngle > -1)
-				wheelAngle -= turnRate;
-		}
-		*/
-
-	}
 }

@@ -55,10 +55,10 @@ Aventador::Aventador(int id) {
 
 	if (aventadorId == 0) {
 
-		actor->setGlobalPose(PxTransform(0, 0, 20.0),true);
+		actor->setGlobalPose(PxTransform(0, 0, 5.0),true);
 
 		if (VS_AI) {
-			aventadorData.force = 30;
+			//aventadorData.force = 30;
 			//If the player is versing AI
 			AiManager::aiInit(aventadorData.isAI, aventadorData.isFront);
 		}

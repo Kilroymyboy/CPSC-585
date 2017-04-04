@@ -68,6 +68,8 @@ void Path::update(mat4 parentTransform) {
 	glBindBuffer(GL_ARRAY_BUFFER, geometry.vertexBuffer);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vec3)*positions.size(), &positions[0], GL_DYNAMIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	setCenterPoints();
 }
 
 void Path::render(mat4 parentTransform) {
@@ -103,3 +105,19 @@ bool Path::pointInPath(float x, float y) {
 	}
 	return false;
 }
+
+float getcenter(float A, float B, float C) {
+	return (A + B + C) / 3;
+}
+
+void Path::setCenterPoints() {
+	centerPoints.clear();
+	PxVec3 point;
+	for (int i = 0; i < positions.size() - 1; i += 3) {
+		point.x = getcenter(positions[i].x, positions[i + 1].x, positions[i + 2].x);
+		point.y = 0.0f;
+		point.z = getcenter(positions[i].z, positions[i + 1].z, positions[i + 2].z);
+		centerPoints.push_back(point);
+	}
+}
+
