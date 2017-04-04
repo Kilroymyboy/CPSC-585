@@ -56,8 +56,12 @@ void Path::update(mat4 parentTransform) {
 	vec4 flw(aventador->wheelPos[1], 1);
 	frw = aventador->transform*frw;
 	frw.y = 0.01;
+	//frw.x = frw.x + 1;
+	//frw.z = frw.z + 1;
 	flw = aventador->transform*flw;
 	flw.y = 0.01;
+	//flw.x = flw.x + 1;
+	//flw.z = flw.z - 1;
 	positions[positions.size() - 6] = positions[positions.size() - 12 + 2];
 	positions[positions.size() - 5] = vec3(frw);
 	positions[positions.size() - 4] = vec3(flw);

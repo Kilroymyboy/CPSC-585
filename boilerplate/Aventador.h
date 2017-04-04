@@ -48,7 +48,7 @@ public:
 	bool hasLost = false;
 
 	bool isFront;
-
+	std::vector<PowerUp> powerHeld;
 };
 
 class AventadorWheel :public Entity {

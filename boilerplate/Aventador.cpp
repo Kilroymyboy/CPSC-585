@@ -54,28 +54,15 @@ Aventador::Aventador(int id) {
 
 	if (aventadorId == 0) {
 
-
-		// JEREMY WHAT NEEDS TO STAY FROM HERE ********************************************************************************************
-		//PhysicsManager::setContactFilter(actor, FilterGroup::eAventador0, FilterGroup::eAventador1 | FilterGroup::ePowerUp0);
-		//actor->setName("front");
-		//aventadorData.isAI = true;
-		//aventadorData.force = 30;
-		//dChangeTime = Time::time += dCoolDown;
-
-		aventadorData.isFront = true;
-		//aventadorData.isAI = true;
-		aventadorData.force = 30;
 		aventadorData.wheelTurnRate = 0.5;
 //		dChangeTime = Time::time += dCoolDown;
 
-		actor->setGlobalPose(PxTransform(0, 0, 10.0),true);
-		aventadorData.force = 30;
+		actor->setGlobalPose(PxTransform(0, 0, 20.0),true);
 		//AiManager::aiInit(aventadorData.isAI, aventadorData.isFront);
 
 	}
 	else {
-		aventadorData.isFront = false;
-		//aventadorData.isFront = true;
+		aventadorData.isFront = true;
 	}
 
 	//Setting contact modification flags
@@ -111,6 +98,13 @@ void Aventador::update(glm::mat4 parentTransform) {
 
 	for (int i = 0; i < wheel.size(); i++) {
 		wheel[i].get()->update(tempTransform);
+	}
+
+	if (aventadorData.isFront) {
+		aventadorData.force = 30;
+	}
+	else {
+		aventadorData.force = 40;
 	}
 }
 
@@ -385,15 +379,43 @@ void Aventador::updateFuel() {
 bool Aventador::hasPowerUp() {
 	return aventadorData.powerStatus;
 }
+
 void Aventador::setPowerUpStatus(int status) {
 	aventadorData.powerStatus = status;
+	if (status = 1) {
+		AutoPilot power;
+		aventadorData.powerHeld.push_back(power);
+	}
+	else if (status = 2) {
+		Restore power;
+		aventadorData.powerHeld.push_back(power);
+	}
+	else if (status = 3){
+		Boost power;
+		aventadorData.powerHeld.push_back(power);
+	}
+	else if (status = 4) {
+		BlackIce power;
+		aventadorData.powerHeld.push_back(power);
+	}
+	else if (status = 5) {
+		Blind power; 
+		aventadorData.powerHeld.push_back(power);
+	}
 }
+
+/*
+void Aventador::setPowerUpStatus(PowerUp power) {
+	aventadorData.powerHeld.push_back(power);
+}*/
 
 void Aventador::usePowerUp() {
 	if (Keyboard::keyDown(aventadorId ? GLFW_KEY_RIGHT_SHIFT : GLFW_KEY_F)) {
 		if (aventadorData.powerStatus == 1) {
 			cout << aventadorId << " is using power 1" << endl;
 			Game::getBack()->actor->addForce(PxVec3(100, 0, 100), PxForceMode::eIMPULSE);
+			//QUESTION ABOUT THIS accessing a power from a vector of powerups though this will only hold one powerup
+			//aventadorData.powerHeld(power.use());
 			aventadorData.powerStatus = 0;
 		}
 		else if (aventadorData.powerStatus == 2) {

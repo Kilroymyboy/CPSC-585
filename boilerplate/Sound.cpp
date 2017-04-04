@@ -3,7 +3,7 @@ using namespace std;
 using namespace Sound;
 
 wavInfo song;
-namespace Sound 
+namespace Sound
 {
 	string fileSong = "\\test.wav";
 
@@ -41,7 +41,7 @@ namespace Sound
 
 		/*Initializing a context to render an audio scene*/
 		ALCcontext *ctx = alcCreateContext(device, NULL);
-		
+
 		if (!alcMakeContextCurrent(ctx))
 		{
 			fprintf(stderr, "Oops2\n");
@@ -159,7 +159,7 @@ namespace Sound
 	{
 		char* currDir;
 
-		// Get the current working directory:   
+		// Get the current working directory:
 		if ((currDir = _getcwd(NULL, 0)) == NULL)
 		{
 			perror("_getcwd error");
@@ -281,4 +281,4 @@ namespace Sound
 		checkError();
 		alSourcePlay(song.source);
 	}
-} 
+}

@@ -18,20 +18,20 @@ void AutoPilot::use()
 
 //BACK Just an idea I had, a quick health replenish so you could run off the track and just when you are about to die use it to restore your fuel\
 //status will be 2
-/*
+
 void Restore::use()
 {
-	aventadorData.fuel = aventadorData.tankSize
+	//aventador::aventadorData.fuel = aventadorData.tankSize;
+	cout << "restore" << endl;
 }
-*/
 
 
 //BACK status will be 2
 //possibly deprecated
-void Cloak::use()
+/*id Cloak::use()
 {
 	cout << "cloaking " << endl;
-}
+}*/
 
 //FRONT Status value will be 4
 void BlackIce::use()
