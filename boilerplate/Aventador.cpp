@@ -56,12 +56,12 @@ Aventador::Aventador(int id) {
 	if (aventadorId == 0) {
 		actor->setGlobalPose(PxTransform(0, 0, -10.0),true);
 		if (VS_AI) {	//If the player is versing AI
-			aventadorData.isFront = true;	//NOTE: AI needs to start off as the front car
+			aventadorData.isFront = false;
 			AiManager::aiInit(aventadorData.isAI);
 		}
 	}
 	else {
-		aventadorData.isFront = false;
+		aventadorData.isFront = true;
 	}
 
 }

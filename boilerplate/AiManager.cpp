@@ -33,22 +33,27 @@ namespace AiManager {
 		}
 
 		if (!isFront) {
-
 			PxTransform frontPos = Game::getFront()->actor->getGlobalPose();
 			PxTransform thisPos = globalPos;
 			float distance = getDist(frontPos.p, globalPos.p);
 			std::vector<PxVec3> pathPoints = Game::path->centerPoints;
-			PxVec3 goToPoint = pathPoints[10];
+			PxVec3 goToPoint = frontPos.p;
 			float thisDistToPoint;				//distance between the current poition and a point in the path
 			float pointDistToFront;				//distance between the point in the path and tthe front car
 			float prevDistToPoint = 0;			//the furthest point within maxDist
 			float ClosestPointToFront = 1000;	//closest point towards the front car
 			float maxDist = 20.0f;				//max range
 
-			if (distance < 15) {	//if the front is nearby, go straight to it
-				moveTo(thisPos, frontPos, wheelAngle);
+			if (distance < 20) {	//if the front is nearby, predict where the front is heading and move there
+				PxTransform predict = frontPos;
+				PxTransform ahead(PxVec3(0, 0, 5), PxQuat::createIdentity());
+				predict.operator*(ahead);
+				moveTo(thisPos, predict, wheelAngle);
 			}
-			else if (distance < 150) {	//find a point that is closest to the front car, near the back car
+			else if (distance < 150 && isNearPowerUp()) { //attempt to pick up a power point
+
+			}
+			else if (distance < 150) {	//find a point that is closest to the front car and near the back car
 				for (int i = 0; i < pathPoints.size() - 1; i++) {
 					thisDistToPoint = getDist(pathPoints[i], thisPos.p);
 					pointDistToFront = getDist(frontPos.p, pathPoints[i]);
@@ -87,12 +92,15 @@ namespace AiManager {
 		else if (crossProd.y < -2.0f) { //to the right
 			wheelAngle = angle*-1;
 		}
-
 	}
 
 	float getDist(PxVec3 a, PxVec3 b) {
 		PxVec3 direction = a - b;
 		return direction.magnitude();
+	}
+
+	bool isNearPowerUp() {
+		return false;
 	}
 
 	float cross2D(vec2 point1, vec2 point2) {

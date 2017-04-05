@@ -10,10 +10,10 @@ PowerUp::PowerUp() {
 	PxVec3 dimensions(0.5f, 0.5f, 0.5f);
 	
 	if (powerId == 0) {
-		t = PxTransform(Game::aventador0->actor->getGlobalPose());
+		t = Game::aventador0->actor->getGlobalPose();
 	}
 	else {
-		t = PxTransform(Game::aventador1->actor->getGlobalPose());
+		t = Game::aventador1->actor->getGlobalPose();
 	}
 
 	PxTransform r(getRandLocation(), PxQuat::createIdentity());

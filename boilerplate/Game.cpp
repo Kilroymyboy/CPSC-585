@@ -37,11 +37,6 @@ namespace Game {
 		entities.push_back(aventador1);
 		entities.push_back(path);	//the path that gets drawn under the car
 
-
-	//	entities.push_back(shared_ptr<Path>(new Path(100, aventador0)));	//the path that gets drawn under the car
-
-		//entities.push_back(unique_ptr<Cube>(new Cube));
-		//entities.push_back(unique_ptr<CenteredCube>(new CenteredCube(vec3(0, 3, 0))));
 		entities.push_back(unique_ptr<Plane>(new Plane));
 		entities.push_back(unique_ptr<Skybox>(new Skybox(1000)));
 	}
@@ -68,7 +63,7 @@ namespace Game {
 			init();
 		}
 		addPowerUp();
-		checkDistance();
+		checkForSwap();
 	}
 
 	//adding more power ups into the scene
@@ -82,7 +77,7 @@ namespace Game {
 	}
 
 	//check the distance between the aventators
-	void checkDistance() {
+	void checkForSwap() {
 		double dist = getDist();
 		if (dist < switchRange && !inSwtichRange) {
 			PxRigidBodyExt::addLocalForceAtLocalPos(*getBack()->actor,
@@ -121,7 +116,6 @@ namespace Game {
 	void endScreen() {
 		
 	}*/
-
 
 	double getDist() {
 		PxTransform pos0 = aventador0->actor->getGlobalPose();
