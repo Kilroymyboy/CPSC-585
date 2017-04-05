@@ -76,7 +76,7 @@ namespace Game {
 		}
 	}
 
-	//check the distance between the aventators
+	//swaps the roles if they are withing range
 	void checkForSwap() {
 		double dist = getDist();
 		if (dist < switchRange && !inSwtichRange) {

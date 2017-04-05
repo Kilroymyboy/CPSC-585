@@ -11,6 +11,9 @@ PowerUp::PowerUp() {
 	
 	if (powerId == 0) {
 		t = Game::aventador0->actor->getGlobalPose();
+		if (VS_AI) {
+
+		}
 	}
 	else {
 		t = Game::aventador1->actor->getGlobalPose();
