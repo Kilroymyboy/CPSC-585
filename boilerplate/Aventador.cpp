@@ -54,13 +54,9 @@ Aventador::Aventador(int id) {
 	PhysicsManager::setContactFilter(actor, FilterGroup::eAventador, FilterGroup::eAventador | FilterGroup::ePowerUp);
 
 	if (aventadorId == 0) {
-
-		actor->setGlobalPose(PxTransform(0, 0, 5.0),true);
-
-		if (VS_AI) {
-			//aventadorData.force = 30;
-			//If the player is versing AI
-			aventadorData.isFront = true;
+		actor->setGlobalPose(PxTransform(0, 0, -10.0),true);
+		if (VS_AI) {	//If the player is versing AI
+			aventadorData.isFront = true;	//NOTE: AI needs to start off as the front car
 			AiManager::aiInit(aventadorData.isAI);
 		}
 	}
@@ -88,10 +84,10 @@ void Aventador::update(glm::mat4 parentTransform) {
 	updateDrift();
 	updateBraking();
 
-	/*
+	
 	if (!aventadorData.isFront)
 		updateFuel();
-	*/
+	
 
 	updateLightCamera();
 	usePowerUp();

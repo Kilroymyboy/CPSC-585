@@ -129,6 +129,10 @@ namespace Game {
 		return sqrt(pow((pos0.p.x - pos1.p.x), 2) + pow((pos0.p.z - pos1.p.z), 2));
 	}
 
+	bool didSwitchOccur() {
+		return inSwtichRange;
+	}
+
 	Aventador* getFront() {
 		return (aventador0->isFront()) ? aventador0.get() : aventador1.get();
 	}

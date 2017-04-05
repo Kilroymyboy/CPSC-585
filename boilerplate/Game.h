@@ -40,6 +40,7 @@ namespace Game {
 	Aventador * getFront();
 	Aventador * getBack();
 	void setGameOverFlag(bool flag);
+	bool didSwitchOccur();
 
 }
 

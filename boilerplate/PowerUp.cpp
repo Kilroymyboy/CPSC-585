@@ -18,7 +18,7 @@ PowerUp::PowerUp() {
 
 	PxTransform r(getRandLocation(), PxQuat::createIdentity());
 	t.operator*=(r);
-	actor = PhysicsManager::createDynamic(t, dimensions);
+	actor = PhysicsManager::createDynamic2(t, dimensions);
 	actor->userData = (void*)ContactModFlags::eIGNORE_CONTACT;
 	PhysicsManager::attachSimulationShape(actor, dimensions, 0);
 	PhysicsManager::setContactFilter(actor, FilterGroup::ePowerUp, FilterGroup::eAventador);

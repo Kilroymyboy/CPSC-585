@@ -17,6 +17,7 @@ const std::vector<glm::vec3> displacements{
 
 Path::Path(int geometrySize) {
 	size = geometrySize;
+	offset = 0.0f;
 	this->aventador = Game::getFront();
 	cooldown = 0.1;
 	nextGenTime = Time::time + cooldown;
@@ -45,6 +46,15 @@ void Path::generate() {
 	}
 }
 
+void Path::updateOffset(float &offset) {
+	if (Game::didSwitchOccur()) {
+		offset = 0;
+	}
+	else {
+		offset += 0.001;
+	}
+}
+
 void Path::update(mat4 parentTransform) {
 	if (Time::time > nextGenTime) {
 		generate();
@@ -52,8 +62,13 @@ void Path::update(mat4 parentTransform) {
 
 	aventador = Game::getFront();
 
-	vec4 frw(aventador->wheelPos[0], 1);
-	vec4 flw(aventador->wheelPos[1], 1);
+	//increasing the offset decreases the length
+	updateOffset(offset);
+	vec3 rightOffset = aventador->wheelPos[0] + vec3(-offset,0,0);
+	vec3 leftOffset = aventador->wheelPos[1] + vec3(offset,0,0);
+
+	vec4 frw(rightOffset, 1);
+	vec4 flw(leftOffset, 1);
 	frw = aventador->transform*frw;
 	frw.y = 0.01;
 	flw = aventador->transform*flw;

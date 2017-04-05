@@ -9,6 +9,7 @@ class Path :public Entity {
 	std::vector<glm::vec3> normals;
 	std::vector<glm::vec2> uvs;
 
+	float offset;
 	int size;
 	double cooldown;
 	double nextGenTime;
@@ -17,6 +18,7 @@ class Path :public Entity {
 
 	// generate the geometry again
 	void generate();
+	void updateOffset(float &offset);
 public:
 	void update(glm::mat4 parentTransform)override;
 	void render(glm::mat4 parentTransform)override;

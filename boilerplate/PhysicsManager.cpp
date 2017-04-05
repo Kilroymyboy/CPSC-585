@@ -27,7 +27,6 @@ namespace PhysicsManager {
 	void init()
 	{
 		printf("initializing PhysX\n");
-
 		// Physx Physics
 		static PxDefaultErrorCallback gDefaultErrorCallback;
 		static PxDefaultAllocator gDefaultAllocatorCallback;
