@@ -38,8 +38,9 @@ public:
 	float tireHeatFastDecrease = 0.1;
 	float manualTireHeatIncrease = 0.5;
 
+	//int powerStatus = 0;
+	bool powerStatus = false;
 
-	int powerStatus = 0;
 	int fuel;
 	int tankSize = 1000;
 
@@ -48,7 +49,7 @@ public:
 	bool hasLost = false;
 
 	bool isFront;
-	std::vector<PowerUp> powerHeld;
+	std::vector<PowerUp*> powerHeld;
 };
 
 class AventadorWheel :public Entity {
@@ -84,7 +85,7 @@ class Aventador : public Entity {
 	void updateFuel();
 
 	void updateLightCamera();
-
+	 
 	VehicleData aventadorData;
 	void usePowerUp();
 
@@ -104,5 +105,8 @@ public:
 	void setPowerUpStatus(int status);
 	void changeRole();
 	bool isFront();
+
+	void setFuel(int increase);
+	void setTireHeat(int heat);
 	Aventador(int);
 };

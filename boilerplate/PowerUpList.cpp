@@ -1,47 +1,51 @@
 #include "PowerUpList.h"
+#include "Game.h"
+#include "Aventador.h"
 
 using namespace std;
 
-//It's status value will be 3
-void Boost::use()
+//FRONT no idea status will be 1
+void Blind::use()
 {
-	cout << "boosting" << endl;
+
+	cout << "I am blind" << endl;
 }
 
-
-//BACK
-//also no idea status value will be 1
-void AutoPilot::use()
-{
-	cout << "autopilot" << endl;
-}
-
-//BACK Just an idea I had, a quick health replenish so you could run off the track and just when you are about to die use it to restore your fuel\
-//status will be 2
-
-void Restore::use()
-{
-	//aventador::aventadorData.fuel = aventadorData.tankSize;
-	cout << "restore" << endl;
-}
-
-
-//BACK status will be 2
-//possibly deprecated
-/*id Cloak::use()
-{
-	cout << "cloaking " << endl;
-}*/
-
-//FRONT Status value will be 4
+//FRONT Status value will be 2
 void BlackIce::use()
 {
-	//for (int i = 0; i < tireHeat.size(); i++)tireHeat[i] *= aventadorData.tireHeatFastDecrease;
+	Game::getBack()->Aventador::setTireHeat(10000);
 	cout << "slipping " << endl;
 }
 
-//FRONT no idea status will be 5
-void Blind::use()
+//It's status value will be 3
+void BoostFront::use()
 {
-	cout << "I am blind" << endl;
+	PxRigidBodyExt::addLocalForceAtLocalPos(*Game::getFront()->actor,
+		PxVec3(0, 0, 200), PxVec3(0, 0, 0), PxForceMode::eIMPULSE);
+	cout << "boosting front" << endl;
 }
+
+//BACK
+//status value will be 4
+void AutoPilot::use()
+{
+
+	cout << "autopilot" << endl;
+}
+
+//BACK status will be 5
+void Restore::use()
+{
+	Game::getBack()->Aventador::setFuel(250);
+	cout << "fuel restored " << endl;
+}
+
+//Back 6 boost back player
+void BoostBack::use()
+{
+	PxRigidBodyExt::addLocalForceAtLocalPos(*Game::getBack()->actor,
+		PxVec3(0, 0, 200), PxVec3(0, 0, 0), PxForceMode::eIMPULSE);
+	cout << "boosting back" << endl;
+}
+

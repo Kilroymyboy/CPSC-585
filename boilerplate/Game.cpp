@@ -24,7 +24,7 @@ namespace Game {
 	double powerUpSpawnTime = Time::time += spawnCoolDown;
 
 	float impulse = 300;
-	double switchRange = 15.0;
+	double switchRange = 10.0;
 	bool inSwtichRange = false;
 	bool isGameOver = false;
 

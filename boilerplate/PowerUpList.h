@@ -3,44 +3,45 @@
 #include "Aventador.h"
 #include <iostream>
 
-class Boost: public PowerUp
-{
-public:
-	void use();
-};
 
 
-// BACK
+// BACK index 1
 class AutoPilot : public PowerUp
 {
 public:
-	void use();
+	void use()override;
 };
 
-// BACK at the moment is not implemented but just an idea
+// BACK index 2
 class Restore : public PowerUp
 {
 public:
-	void use();
+	void use()override;
 };
-/*
-//BACK
-class Cloak : public PowerUp
+//BACK index 3
+class BoostBack : public PowerUp
 {
 public:
-	void use();
-};*/
+	void use()override;
+};
 
-//FRONT
+//BACK index 4
+class BoostFront : public PowerUp
+{
+public:
+	void use()override;
+};
+
+//FRONT index 5
 class BlackIce : public PowerUp
 {
 public:
-	void use();
+	void use()override;
 };
 
+//FRONT index 6
 class Blind : public PowerUp
 {
 public:
-	void use();
+	void use()override;
 };
-//FRONT

@@ -220,8 +220,6 @@ void ContactBehaviourCallback::onContact(const PxContactPairHeader& pairHeader, 
 			bool isPowerUp1 = pairHeader.actors[0]->getName() == name1 || pairHeader.actors[1]->getName() == name1;
 
 			if (isAventador0 && isAventador1) {
-				//Role swtiching is determined in Game.cpp
-				//Game::switchRole();
 				break;
 			}
 			else if (isPowerUp0 && isAventador0) {
@@ -246,14 +244,15 @@ void ContactBehaviourCallback::onContact(const PxContactPairHeader& pairHeader, 
 					}
 				}
 				//have aventador hold the power up. Holds one power up at a time
-				if (!a->hasPowerUp()) {
-					if((a->isFront()) == true){
+				//chooses power here based on random integer
+				if ((a->hasPowerUp()) == false) {
+					if ((a->isFront()) == true) {
 						int random = rand() % 3 + 1;
 						a->setPowerUpStatus(random);
 						std::cout << "Front Powerup value " << random << std::endl;
 					}
-					else if ((a->isFront()) == false){
-						int random = rand() % 3 + 3;
+					else if ((a->isFront()) == false) {
+						int random = rand() % 3 + 4;
 						a->setPowerUpStatus(random);
 						std::cout << "Back Powerup value " << random << std::endl;
 					}
@@ -286,7 +285,8 @@ void ContactBehaviourCallback::onContact(const PxContactPairHeader& pairHeader, 
 				std::cout << "aventador1 contacted a power up\n";
 
 				//have aventador hold the power up. Holds one power up at a time
-				if (!a->hasPowerUp()) {
+				//chooses power here based on random integer
+				if ((a->hasPowerUp()) == false) {
 					if ((a->isFront()) == true) {
 						int random = rand() % 3 + 1;
 						a->setPowerUpStatus(random);
