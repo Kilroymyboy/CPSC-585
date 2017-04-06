@@ -40,9 +40,8 @@ public:
 
 
 	int powerStatus = 0;
-	int fuel;
 	int tankSize = 1000;
-
+	int fuel = tankSize;
 
 	bool isAI = false;
 	bool hasLost = false;
@@ -91,6 +90,9 @@ class Aventador : public Entity {
 	float wheelAngle;
 	float brakeForce;
 	std::vector<float> tireHeat;
+	glm::vec3 fullHealthColor;
+	glm::vec3 noHealthColor;
+	Graphics::Material material;
 
 public:
 	physx::PxRigidDynamic *actor;

@@ -50,11 +50,11 @@ Aventador::Aventador(int id) {
 	actor->setLinearDamping(0.5);
 	actor->userData = (void*)(ContactModFlags::eIGNORE_CONTACT);
 
-	PhysicsManager::attachSimulationShape(actor, dimensions,200);
+	PhysicsManager::attachSimulationShape(actor, dimensions, 200);
 	PhysicsManager::setContactFilter(actor, FilterGroup::eAventador, FilterGroup::eAventador | FilterGroup::ePowerUp);
 
 	if (aventadorId == 0) {
-		actor->setGlobalPose(PxTransform(0, 0, -10.0),true);
+		actor->setGlobalPose(PxTransform(0, 0, -10.0), true);
 		if (VS_AI) {	//If the player is versing AI
 			aventadorData.isFront = false;
 			AiManager::aiInit(aventadorData.isAI);
@@ -64,6 +64,10 @@ Aventador::Aventador(int id) {
 		aventadorData.isFront = true;
 	}
 
+	fullHealthColor = vec3(1.8, 4.8, 12.6);
+	noHealthColor = vec3(5.2, .8, .8);
+
+	material = Graphics::Material(vec3(1));
 }
 
 void Aventador::update(glm::mat4 parentTransform) {
@@ -84,10 +88,11 @@ void Aventador::update(glm::mat4 parentTransform) {
 	updateDrift();
 	updateBraking();
 
-	
+	material.emmisiveColor = mix(noHealthColor, fullHealthColor, (double)aventadorData.fuel / aventadorData.tankSize);
+
 	if (!aventadorData.isFront)
 		updateFuel();
-	
+
 
 	updateLightCamera();
 	usePowerUp();
@@ -128,7 +133,7 @@ void Aventador::renderShadowMap(glm::mat4 parentTransform) {
 
 void Aventador::render(glm::mat4 parentTransform) {
 	Graphics::RenderInstanced(&Resources::aventadorBody, &Resources::darkGreyMaterial, tempTransform);
-	Graphics::RenderInstanced(&Resources::aventadorBodyGlow, &Resources::emmisiveMaterial, tempTransform);
+	Graphics::RenderInstanced(&Resources::aventadorBodyGlow, &material, tempTransform);
 	Graphics::RenderInstanced(&Resources::aventadorUnder, &Resources::pureBlackMaterial, tempTransform);
 
 	for (int i = 0; i < wheel.size(); i++) {
@@ -200,7 +205,7 @@ void Aventador::updateFriction() {
 						PxVec3(sin(wheelA) * -aventadorData.force, 0, cos(wheelA) * -aventadorData.force),
 						Util::g2p(wheelPos[i] - vec3(0, aventadorData.dimensionHeight, 0)), PxForceMode::eFORCE);
 				}
-				if (aventadorId == 0){
+				if (aventadorId == 0) {
 					float amount = controller1.RightTrigger();
 					PxRigidBodyExt::addLocalForceAtLocalPos(*actor,
 						PxVec3(sin(wheelA) * (aventadorData.force*amount), 0, cos(wheelA) * (aventadorData.force*amount)),
@@ -269,8 +274,8 @@ void Aventador::updateSteering() {
 		}
 		if (aventadorId == 0) {
 			float amount = -1 * controller1.LeftStick_X();
-			if((amount > 0.25)||(amount < -0.25)){
-				wheelAngle =+ (amount*aventadorData.wheelTurnRate);
+			if ((amount > 0.25) || (amount < -0.25)) {
+				wheelAngle = +(amount*aventadorData.wheelTurnRate);
 			}
 			else {
 				wheelAngle *= aventadorData.wheelReurnRate;
@@ -299,15 +304,15 @@ void Aventador::updateDrift() {
 	if (aventadorId == 0) {
 		if (controller1.GetButtonPressed(1)) {
 			PxVec3 v = actor->getLinearVelocity();
-			tireHeat[2] += aventadorData.manualTireHeatIncrease*v.magnitude()*2;
-			tireHeat[3] += aventadorData.manualTireHeatIncrease*v.magnitude()*2;
+			tireHeat[2] += aventadorData.manualTireHeatIncrease*v.magnitude() * 2;
+			tireHeat[3] += aventadorData.manualTireHeatIncrease*v.magnitude() * 2;
 		}
 	}
 	if (aventadorId == 1) {
 		if (controller2.GetButtonPressed(1)) {
 			PxVec3 v = actor->getLinearVelocity();
-			tireHeat[2] += aventadorData.manualTireHeatIncrease*v.magnitude()*2;
-			tireHeat[3] += aventadorData.manualTireHeatIncrease*v.magnitude()*2;
+			tireHeat[2] += aventadorData.manualTireHeatIncrease*v.magnitude() * 2;
+			tireHeat[3] += aventadorData.manualTireHeatIncrease*v.magnitude() * 2;
 		}
 	}
 
@@ -349,7 +354,7 @@ void Aventador::updateFuel() {
 			PxRigidBodyExt::addLocalForceAtLocalPos(*actor,
 				PxVec3(0, -20, 0), PxVec3(0.5, 1, 0), PxForceMode::eIMPULSE);
 			//game over flag
-			if(aventadorData.fuel < -10)
+			if (aventadorData.fuel < -10)
 				Game::setGameOverFlag(true);
 		}
 	}
