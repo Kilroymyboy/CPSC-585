@@ -88,7 +88,23 @@ void Aventador::update(glm::mat4 parentTransform) {
 	updateDrift();
 	updateBraking();
 
-	material.emmisiveColor = mix(noHealthColor, fullHealthColor, (double)aventadorData.fuel / aventadorData.tankSize);
+	if (max(aventadorData.fuel, 0) * 5 < aventadorData.tankSize) {
+		if (Time::time > nextFlashTime) {
+			nextFlashTime = max(flashCooldown*(double)max(aventadorData.fuel, 0), 0.05) / aventadorData.tankSize + Time::time;
+			if (material.emmisiveColor == vec3(0)) {
+				material.emmisiveColor = mix(noHealthColor, fullHealthColor, (double)max(aventadorData.fuel, 0) / aventadorData.tankSize);
+			}
+			else {
+				material.emmisiveColor = vec3(0);
+			}
+		}
+	}
+	else {
+		material.emmisiveColor = mix(noHealthColor, fullHealthColor, (double)max(aventadorData.fuel, 0) / aventadorData.tankSize);
+	}
+	if (aventadorData.fuel< 0) {
+		material.emmisiveColor = vec3(0);
+	}
 
 	if (!aventadorData.isFront)
 		updateFuel();

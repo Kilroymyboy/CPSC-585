@@ -94,6 +94,8 @@ class Aventador : public Entity {
 	glm::vec3 noHealthColor;
 	Graphics::Material material;
 
+	float flashCooldown = 2.5, nextFlashTime=0;
+
 public:
 	physx::PxRigidDynamic *actor;
 	// 0: front right, 1: front left, 2: rear left, 3: rear right
