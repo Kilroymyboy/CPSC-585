@@ -3,10 +3,14 @@ using namespace std;
 using namespace Sound;
 
 wavInfo song;
-namespace Sound
+
+wavInfo PlayerFront;
+wavInfo PlayerBack;
+
+namespace Sound 
 {
 	string fileSong = "\\test.wav";
-
+	string fileEngine = "\\car_v.wav";
 	ALuint setSource(ALuint source);
 	void checkError();
 	wavInfo openWavFile(string fileName, wavInfo toPlay);
@@ -16,7 +20,7 @@ namespace Sound
 	{
 		/*Open a device(In this case the default device)*/
 		ALCdevice *device = alcOpenDevice(NULL);
-		if (!device)
+		if (!device) 
 		{
 			fprintf(stderr, "Oops\n");
 		}
@@ -64,21 +68,34 @@ namespace Sound
 		/*Source Generation creating an audio source object which is the origin of the sound*/
 		alGenSources(1, &song.source);
 		checkError();
+		alGenSources(1, &PlayerBack.source);
+		checkError();
+		alGenSources(1, &PlayerFront.source);
+		checkError();
 
 		song.source = setSource(song.source);
+		checkError();
+		PlayerBack.source = setSource(PlayerBack.source);
+		checkError();
+		PlayerFront.source = setSource(PlayerFront.source);
 		checkError();
 
 		/*Buffer Generation this holds the raw audio stream*/
 		alGenBuffers(1, &song.buffer);
+		alGenBuffers(1, &PlayerBack.buffer);
+		alGenBuffers(1, &PlayerFront.buffer);
 		checkError();
 
 		char* curDir = _getcwd(NULL, 0);
 		string filename = curDir + fileSong;
 		song = openWavFile(filename, song);
 
-
-		cout << "gibbly bits " << song.bitsPerSample << endl;
 		song.format = formatSound(song.channels, song.bitsPerSample);
+
+		filename = curDir + fileEngine;
+		PlayerBack = openWavFile(filename, PlayerBack);
+
+		PlayerBack.format = formatSound(PlayerBack.channels, PlayerBack.bitsPerSample);
 
 
 	}
@@ -267,18 +284,91 @@ namespace Sound
 				return AL_FORMAT_STEREO8;
 			else
 				return AL_FORMAT_MONO8;
-		default:
+		default: 
 			return -1;
 		}
 	}
 
-	void playSound(ALuint a)
+
+	void updateSources()
 	{
-		alBufferData(song.buffer, song.format, (ALvoid*)song.songBuf, (ALsizei)song.dataSize, (ALsizei)song.sampleRate);
+		PxTransform frontPos = Game::aventador0->actor->getGlobalPose();
+		alSource3f(1, AL_POSITION, frontPos.p.x, frontPos.p.y, frontPos.p.z);
+
+		float dist = glm::distance(glm::vec3(frontPos.p.x, frontPos.p.y, frontPos.p.z), glm::vec3(1));
+
+		alDistanceModel(AL_INVERSE_DISTANCE);
+		float vol = 4 / (4 +  2  * (dist)-4);
+
+
+
+
+		//alSourcef(1, AL_PITCH, 1.0f);
+		//checkError();
+
+
+		alSourcef(1, AL_GAIN, .2);
 		checkError();
 
-		alSourcei(song.source, AL_BUFFER, song.buffer);
+		alSourcef(2, AL_GAIN, 2);
 		checkError();
-		alSourcePlay(song.source);
+
+
+
+		PxTransform backPos = Game::aventador0->actor->getGlobalPose();
+		alSource3f(2, AL_POSITION, backPos.p.x, backPos.p.y, backPos.p.z);
+
 	}
-}
+
+	void updateListener()
+	{
+		PxTransform backPos = Game::aventador1->actor->getGlobalPose();
+
+		alListener3f(AL_POSITION, backPos.p.x, backPos.p.y, backPos.p.z);
+	}
+
+
+	void playSound(ALuint a)
+	{
+		wavInfo toPlay;
+		switch (a)
+		{
+		case 1:
+			toPlay = song;
+			break;
+		case 2:
+			toPlay = PlayerBack;
+
+		default:
+			break;
+
+		}
+
+
+		ALint source_state;
+
+		alGetSourcei(toPlay.source, AL_SOURCE_STATE, &source_state);
+		checkError();
+		if (source_state == AL_PLAYING)
+		{
+			return;
+		}
+		else
+		{
+			alBufferData(toPlay.buffer, toPlay.format, (ALvoid*)toPlay.songBuf, (ALsizei)toPlay.dataSize, (ALsizei)toPlay.sampleRate);
+			checkError();
+
+			alSourcei(toPlay.source, AL_BUFFER, toPlay.buffer);
+			checkError();
+			alSourcePlay(toPlay.source);
+		}
+
+
+		alBufferData(toPlay.buffer, toPlay.format, (ALvoid*)toPlay.songBuf, (ALsizei)toPlay.dataSize, (ALsizei)toPlay.sampleRate);
+		checkError();
+
+		alSourcei(toPlay.source, AL_BUFFER, toPlay.buffer);
+		checkError();
+		alSourcePlay(toPlay.source);
+	} 
+} 

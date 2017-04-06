@@ -17,6 +17,7 @@
 
 #define PRINT_FPS 0
 #define PRINT_ENTITIES 0
+#define VS_AI 0
 
 namespace Game {
 	extern std::list<std::shared_ptr<Entity> > entities;

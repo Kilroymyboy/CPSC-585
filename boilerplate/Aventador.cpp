@@ -48,6 +48,7 @@ Aventador::Aventador(int id) {
 	actor = PhysicsManager::createDynamic(t, dimensions);
 	actor->setMass(5.5);
 	actor->setLinearDamping(0.5);
+	actor->userData = (void*)(ContactModFlags::eIGNORE_CONTACT);
 
 	PhysicsManager::attachSimulationShape(actor, dimensions,200);
 	PhysicsManager::setContactFilter(actor, FilterGroup::eAventador, FilterGroup::eAventador | FilterGroup::ePowerUp);
@@ -58,24 +59,18 @@ Aventador::Aventador(int id) {
 		//dChangeTime = Time::time += dCoolDown;
 
 		actor->setGlobalPose(PxTransform(0, 0, 20.0),true);
-		//AiManager::aiInit(aventadorData.isAI, aventadorData.isFront);
 		aventadorData.isFront = true;
+		aventadorData.force = 30;
+
+		if (VS_AI) {
+			//If the player is versing AI
+			AiManager::aiInit(aventadorData.isAI, aventadorData.isFront);
+		}
 	}
 	else {
 		aventadorData.isFront = false;
-	}
-
-	if (aventadorData.isFront) {
-		//leading car's speed
-		aventadorData.force = 30;
-	}
-	else {
-		//following car's speed
 		aventadorData.force = 35;
 	}
-
-	//Setting contact modification flags
-	actor->userData = (void*)(ContactModFlags::eIGNORE_CONTACT);
 
 }
 
@@ -96,11 +91,10 @@ void Aventador::update(glm::mat4 parentTransform) {
 	updateTopSpeed();
 	updateDrift();
 	updateBraking();
-	
-	//enable for the ability to lose game by not staying on path and running out of fuel
-/*	if (!aventadorData.isFront)
+
+	if (!aventadorData.isFront)
 		updateFuel();
-		*/
+
 
 	updateLightCamera();
 	usePowerUp();
@@ -369,7 +363,6 @@ void Aventador::updateBraking() {
 void Aventador::updateFuel() {
 	bool onPath = Game::path->pointInPath(actor->getGlobalPose().p.x, actor->getGlobalPose().p.z);
 	if (!onPath) {
-		std::cout << "is not on path\n";
 		aventadorData.fuel--;
 		if (aventadorData.fuel == 0) {
 			PxRigidBodyExt::addLocalForceAtLocalPos(*actor,
@@ -377,19 +370,17 @@ void Aventador::updateFuel() {
 			PxRigidBodyExt::addLocalForceAtLocalPos(*actor,
 				PxVec3(0, -20, 0), PxVec3(0.5, 1, 0), PxForceMode::eIMPULSE);
 			//game over flag
-			if(aventadorData.fuel < -3)
+			if(aventadorData.fuel < -10)
 				Game::setGameOverFlag(true);
 		}
 	}
 	else {
-		std::cout << "is on path\n";
 		if (aventadorData.fuel < aventadorData.tankSize) {
 			aventadorData.fuel += 5;
 			if (aventadorData.fuel > aventadorData.tankSize)
 				aventadorData.fuel = aventadorData.tankSize;
 		}
 	}
-	std::cout << "fuel: " << aventadorData.fuel << "\n";
 }
 void Aventador::setFuel(int increase) {
 	aventadorData.fuel += increase;
@@ -483,33 +474,6 @@ void Aventador::usePowerUp() {
 		//ai uses power if he has it
 		else if ((aventadorData.isAI) && (aventadorData.powerStatus == true)) {
 			aventadorData.powerHeld[0]->use();
-			for (PowerUp* p : aventadorData.powerHeld) {
-				delete p;
-			}
-			aventadorData.powerHeld.clear();
-			aventadorData.powerStatus = false;
-		}
-	}
-	if (Keyboard::keyDown(aventadorId ? GLFW_KEY_END : GLFW_KEY_T)) {
-		cout << "throwing away powerup" << endl;
-		for (PowerUp* p : aventadorData.powerHeld) {
-			delete p;
-		}
-		aventadorData.powerStatus = false;
-	}
-	if (aventadorId == 0) {
-		if (controller1.GetButtonPressed(3)) {
-			cout << "throwing away powerup" << endl;
-			for (PowerUp* p : aventadorData.powerHeld) {
-				delete p;
-			}
-			aventadorData.powerHeld.clear();
-			aventadorData.powerStatus = false;
-		}
-	}
-	if (aventadorId == 1) {
-		if (controller2.GetButtonPressed(3)) {
-			cout << "throwing away powerup" << endl;
 			for (PowerUp* p : aventadorData.powerHeld) {
 				delete p;
 			}
