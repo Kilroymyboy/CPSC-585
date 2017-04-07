@@ -56,12 +56,12 @@ Aventador::Aventador(int id) {
 	if (aventadorId == 0) {
 		actor->setGlobalPose(PxTransform(0, 0, -10.0), true);
 		if (VS_AI) {	//If the player is versing AI
-			aventadorData.isFront = false;
+			aventadorData.isFront = true;
 			AiManager::aiInit(aventadorData.isAI);
 		}
 	}
 	else {
-		aventadorData.isFront = true;
+		aventadorData.isFront = false;
 	}
 
 	fullHealthColor = vec3(1.8, 4.8, 12.6);
@@ -88,7 +88,7 @@ void Aventador::update(glm::mat4 parentTransform) {
 	updateDrift();
 	updateBraking();
 
-	if (max(aventadorData.fuel, 0) * 5 < aventadorData.tankSize) {
+	if (max(aventadorData.fuel, 0) * 4 < aventadorData.tankSize) {
 		if (Time::time > nextFlashTime) {
 			nextFlashTime = max(flashCooldown*(double)max(aventadorData.fuel, 0), 0.05) / aventadorData.tankSize + Time::time;
 			if (material.emmisiveColor == vec3(0)) {
@@ -102,7 +102,7 @@ void Aventador::update(glm::mat4 parentTransform) {
 	else {
 		material.emmisiveColor = mix(noHealthColor, fullHealthColor, (double)max(aventadorData.fuel, 0) / aventadorData.tankSize);
 	}
-	if (aventadorData.fuel< 0) {
+	if (aventadorData.fuel < 0) {
 		material.emmisiveColor = vec3(0);
 	}
 
@@ -121,9 +121,9 @@ void Aventador::update(glm::mat4 parentTransform) {
 void Aventador::updateLightCamera() {
 	vec3 pos = Util::p2g(actor->getGlobalPose().p);
 
-	float positionTightness = .3, targetTightness = .9;
-
-	Viewport::position[aventadorId] = mix(Viewport::position[aventadorId], vec3(transform* vec4(0, 1.25f, -5.5f, 1)), positionTightness);
+	vec3 targetViewportPos = vec3(transform* vec4(0, 1.25f, -5.5f, 1));
+	targetViewportPos.y = 1.3;
+	Viewport::position[aventadorId] = mix(Viewport::position[aventadorId], targetViewportPos, positionTightness);
 	Viewport::target[aventadorId] = mix(Viewport::target[aventadorId], vec3(transform* vec4(0, 1.25f, 0, 1)), targetTightness);
 	if (Keyboard::keyDown(GLFW_KEY_Q)) {
 		Viewport::position[aventadorId] = transform* vec4(5.5f, 1.25f, 0.0f, 1);
@@ -364,13 +364,21 @@ void Aventador::updateFuel() {
 	bool onPath = Game::path->pointInPath(actor->getGlobalPose().p.x, actor->getGlobalPose().p.z);
 	if (!onPath) {
 		aventadorData.fuel--;
+		PxVec3 dir;
 		if (aventadorData.fuel == 0) {
+			actor->addForce(PxVec3(0, 30, 0), PxForceMode::eIMPULSE);
+			dir = PxVec3(rand() % 250, 5, rand() % 250);
 			PxRigidBodyExt::addLocalForceAtLocalPos(*actor,
-				PxVec3(100, 50, 0), PxVec3(-0.5, 0, 0), PxForceMode::eIMPULSE);
+				dir, PxVec3(-0.5, 0, 0), PxForceMode::eIMPULSE);
 			PxRigidBodyExt::addLocalForceAtLocalPos(*actor,
-				PxVec3(0, -20, 0), PxVec3(0.5, 1, 0), PxForceMode::eIMPULSE);
+				PxVec3(0, -5, 0), PxVec3(0.5, 0, 0), PxForceMode::eIMPULSE);
+			positionTightness *= .1; targetTightness *= .08;
+		}
+		if (aventadorData.fuel <= 0 && aventadorData.fuel > -120) {
+
+			actor->addTorque(dir, PxForceMode::eIMPULSE);
 			//game over flag
-			if (aventadorData.fuel < -10)
+			if (aventadorData.fuel < -10000)
 				Game::setGameOverFlag(true);
 		}
 	}

@@ -9,7 +9,7 @@ class Path :public Entity {
 	std::vector<glm::vec3> normals;
 	std::vector<glm::vec2> uvs;
 
-	float offset;
+	float offset=1;
 	int size;
 	double cooldown;
 	double nextGenTime;

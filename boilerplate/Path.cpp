@@ -44,11 +44,22 @@ void Path::generate() {
 	for (int i = 0; i < positions.size() - 6; i ++) {
 		positions[i] = positions[i + 6];
 	}
+	for (int i = 0; i < positions.size(); i += 6) {
+		vec3 diff12 = positions[i + 1] - positions[i + 2];
+		positions[i + 1] += normalize(diff12)*0.02f;
+		positions[i + 2] -= normalize(diff12)*0.02f;
+		vec3 diff34 = positions[i + 3] - positions[i + 4];
+		positions[i + 3] += normalize(diff34)*0.02f;
+		positions[i + 4] -= normalize(diff34)*0.02f;
+
+		positions[i]+= normalize(diff34)*0.02f;
+		positions[i+5] += normalize(diff12)*0.02f;
+	}
 }
 
 void Path::updateOffset(float &offset) {
 	if (Game::didSwitchOccur()) {
-		offset = 0;
+		offset = 1;
 	}
 	else {
 		offset += 0.001;

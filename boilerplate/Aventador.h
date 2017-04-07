@@ -95,6 +95,7 @@ class Aventador : public Entity {
 	Graphics::Material material;
 
 	float flashCooldown = 2.5, nextFlashTime=0;
+	float positionTightness = .3, targetTightness = .9;
 
 public:
 	physx::PxRigidDynamic *actor;
