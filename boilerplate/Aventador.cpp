@@ -54,13 +54,13 @@ Aventador::Aventador(int id) {
 
 	if (aventadorId == 0) {
 		actor->setGlobalPose(PxTransform(0, 0, 15.0), true);
-		aventadorData.isFront = false;
+		aventadorData.isFront = true;
 		if (VS_AI) {	//If the player is versing AI
 			AiManager::aiInit(aventadorData.isAI);
 		}
 	}
 	else {
-		aventadorData.isFront = true;
+		aventadorData.isFront = false;
 	}
 
 	fullHealthColor = vec3(1.8, 4.8, 12.6);
@@ -86,24 +86,7 @@ void Aventador::update(glm::mat4 parentTransform) {
 	updateTopSpeed();
 	updateDrift();
 	updateBraking();
-
-	if (max(aventadorData.fuel, 0) * 4 < aventadorData.tankSize) {
-		if (Time::time > nextFlashTime) {
-			nextFlashTime = max(flashCooldown*(double)max(aventadorData.fuel, 0), 0.05) / aventadorData.tankSize + Time::time;
-			if (material.emmisiveColor == vec3(0)) {
-				material.emmisiveColor = mix(noHealthColor, fullHealthColor, (double)max(aventadorData.fuel, 0) / aventadorData.tankSize);
-			}
-			else {
-				material.emmisiveColor = vec3(0);
-			}
-		}
-	}
-	else {
-		material.emmisiveColor = mix(noHealthColor, fullHealthColor, (double)max(aventadorData.fuel, 0) / aventadorData.tankSize);
-	}
-	if (aventadorData.fuel < 0) {
-		material.emmisiveColor = vec3(0);
-	}
+	updateColour();
 
 	if (!aventadorData.isFront)
 		updateFuel();
@@ -143,6 +126,26 @@ void Aventador::renderShadowMap(glm::mat4 parentTransform) {
 
 	for (int i = 0; i < wheel.size(); i++) {
 		wheel[i].get()->renderShadowMap(tempTransform);
+	}
+}
+
+void Aventador::updateColour() {
+	if (max(aventadorData.fuel, 0) * 4 < aventadorData.tankSize) {
+		if (Time::time > nextFlashTime) {
+			nextFlashTime = max(flashCooldown*(double)max(aventadorData.fuel, 0), 0.05) / aventadorData.tankSize + Time::time;
+			if (material.emmisiveColor == vec3(0)) {
+				material.emmisiveColor = mix(noHealthColor, fullHealthColor, (double)max(aventadorData.fuel, 0) / aventadorData.tankSize);
+			}
+			else {
+				material.emmisiveColor = vec3(0);
+			}
+		}
+	}
+	else {
+		material.emmisiveColor = mix(noHealthColor, fullHealthColor, (double)max(aventadorData.fuel, 0) / aventadorData.tankSize);
+	}
+	if (aventadorData.fuel < 0) {
+		material.emmisiveColor = vec3(0);
 	}
 }
 

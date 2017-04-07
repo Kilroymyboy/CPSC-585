@@ -80,6 +80,7 @@ class Aventador : public Entity {
 	void updateTopSpeed();
 	void updateDrift();
 	void updateBraking();
+	void updateColour();
 	void updateFuel();
 
 	void updateLightCamera();
