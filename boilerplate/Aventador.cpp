@@ -71,7 +71,6 @@ Aventador::Aventador(int id) {
 		aventadorData.isFront = false;
 		aventadorData.force = 35;
 	}
-
 }
 
 void Aventador::update(glm::mat4 parentTransform) {
@@ -92,9 +91,17 @@ void Aventador::update(glm::mat4 parentTransform) {
 	updateDrift();
 	updateBraking();
 
-	if (!aventadorData.isFront)
+	/*if (!aventadorData.isFront)
 		updateFuel();
+		*/
+	if ((aventadorData.slipActive == true) && (Time::time < aventadorData.powerDuration)) {
+		setTireHeat(1000000);
+		cout << "current time " << Time::time << endl;
+	}
 
+	else if (Time::time >= aventadorData.powerDuration) {
+		aventadorData.slipActive = false;
+	}
 
 	updateLightCamera();
 	usePowerUp();
@@ -121,7 +128,7 @@ void Aventador::updateLightCamera() {
 	if (Keyboard::keyDown(GLFW_KEY_Q)) {
 		Viewport::position[aventadorId] = transform* vec4(5.5f, 1.25f, 0.0f, 1);
 	}
-	else	if (Keyboard::keyDown(GLFW_KEY_E)) {
+	else if (Keyboard::keyDown(GLFW_KEY_E)) {
 		Viewport::position[aventadorId] = transform* vec4(-5.5f, 1.25f, 0.0f, 1);
 	}
 
@@ -331,11 +338,12 @@ void Aventador::updateDrift() {
 		for (int i = 0; i < tireHeat.size(); i++)tireHeat[i] *= aventadorData.tireHeatFastDecrease;
 }
 
+void Aventador::settingTireHeat(bool val) {
+	aventadorData.slipActive = val;
+}
 
 void Aventador::setTireHeat(int heat) {
-	for (int i = 0; i < tireHeat.size(); i++) {
-		tireHeat[i] += aventadorData.tireHeatIncrease[i];
-	}
+	tireHeat.assign(4, heat);
 }
 
 void Aventador::updateBraking() {
@@ -422,14 +430,10 @@ void Aventador::setPowerUpStatus(int status) {
 		aventadorData.powerHeld.push_back(power);
 		cout << "pushing boost back" << endl;
 	}
-	else {
-		cout << "not pushing " << endl;
-	}
-	cout << "SIZE OF ARRAY " << aventadorData.powerHeld.size() << endl;
 }
 
 void Aventador::usePowerUp() {
-	if (Keyboard::keyDown(aventadorId ? GLFW_KEY_RIGHT_SHIFT : GLFW_KEY_F)) {
+	if (Keyboard::keyDown(aventadorId ? GLFW_KEY_END : GLFW_KEY_F)) {
 		if (aventadorData.powerStatus == true) {
 			aventadorData.powerHeld[0]->use();
 			for (PowerUp* p : aventadorData.powerHeld) {
@@ -481,6 +485,11 @@ void Aventador::usePowerUp() {
 			aventadorData.powerStatus = false;
 		}
 	}
+}
+
+void Aventador::setPowerDuration(double val) {
+	aventadorData.powerDuration = Time::time + val;
+	cout << "TIME OF POWER " << endl;
 }
 
 void Aventador::changeRole() {

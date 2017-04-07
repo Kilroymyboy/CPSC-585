@@ -50,6 +50,9 @@ public:
 
 	bool isFront;
 	std::vector<PowerUp*> powerHeld;
+	bool slipActive;
+	bool autoActive;
+	double powerDuration;
 };
 
 class AventadorWheel :public Entity {
@@ -107,6 +110,9 @@ public:
 	bool isFront();
 
 	void setFuel(int increase);
+	void settingTireHeat(bool val);
+	void settingAutoPilot(bool val);
 	void setTireHeat(int heat);
+	void setPowerDuration(double val);
 	Aventador(int);
 };

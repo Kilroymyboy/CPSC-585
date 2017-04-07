@@ -46,7 +46,6 @@ void PowerUp::update(mat4 parentTransform) {
 		alive = false;
 		actor->setName("erased");
 	}
-	
 }
 
 void PowerUp::render(mat4 parentTransform) {

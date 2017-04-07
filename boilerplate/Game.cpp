@@ -12,7 +12,6 @@ using namespace physx;
 
 namespace Game {
 	list<shared_ptr<Entity> > entities;
-	list<shared_ptr<Entity> > startGameEntities;
 
 	shared_ptr<Aventador> aventador0;
 	shared_ptr<Aventador> aventador1;
@@ -61,8 +60,8 @@ namespace Game {
 		if (PRINT_ENTITIES) {
 			cout << entities.size() << endl;
 		}
+	
 		//This is where a restart function would go
-		//currently doing something wrong as restarting must not actually delete as the program slows down after each restart
 		if ((controller1.GetButtonPressed(13)) || (Keyboard::keyPressed(GLFW_KEY_ENTER))) {
 			entities.clear();
 			init();
@@ -101,27 +100,13 @@ namespace Game {
 		aventador1->changeRole();
 	}
 
-	/*
-	//this is the start screen loop objects or place an image
-	int startScreen() {
-		//initialization of whatever we want in here for now just a print statement
-		//currently can only go to the main game loop because of how i set up loops in the main file
-
-		cout << "In Start Screen" << endl;		
-
-		if ((controller1.GetButtonPressed(12)) || (Keyboard::keyPressed(GLFW_KEY_ENTER))) {
-			cout << "ENTERED GAME LOOP" << endl;
-			entities.clear();
-			init();
-			return 1;
+	void createWall() {
+		for (int i = 0; i < 4; i++) {
+			for (int j = 0; j < 20; j++) {
+				entities.push_back(unique_ptr<Entity>(new CenteredCube(glm::vec3(j-10, i-2, 0))));
+			}
 		}
 	}
-
-	//same as start screen but just after the race is over
-	void endScreen() {
-		
-	}*/
-
 
 	double getDist() {
 		PxTransform pos0 = aventador0->actor->getGlobalPose();

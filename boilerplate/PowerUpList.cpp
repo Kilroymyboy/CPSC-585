@@ -7,14 +7,15 @@ using namespace std;
 //FRONT no idea status will be 1
 void Blind::use()
 {
-
+	Game::createWall();
 	cout << "I am blind" << endl;
 }
 
 //FRONT Status value will be 2
 void BlackIce::use()
 {
-	Game::getBack()->Aventador::setTireHeat(10000);
+	Game::getBack()->Aventador::setPowerDuration(5);
+	Game::getBack()->Aventador::settingTireHeat(true);
 	cout << "slipping " << endl;
 }
 
@@ -26,19 +27,20 @@ void BoostFront::use()
 	cout << "boosting front" << endl;
 }
 
-//BACK
-//status value will be 4
-void AutoPilot::use()
-{
-
-	cout << "autopilot" << endl;
-}
-
-//BACK status will be 5
+//BACK status will be 4
 void Restore::use()
 {
 	Game::getBack()->Aventador::setFuel(250);
 	cout << "fuel restored " << endl;
+}
+
+//BACK
+//status value will be 5
+void AutoPilot::use()
+{
+	/*Game::getBack()->Aventador::setPowerDuration(5);
+	Game::getBack()->Aventador::settingAutoPilot(true);*/
+	cout << "autopilot" << endl;
 }
 
 //Back 6 boost back player

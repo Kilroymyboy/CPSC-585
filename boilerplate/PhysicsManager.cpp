@@ -249,12 +249,10 @@ void ContactBehaviourCallback::onContact(const PxContactPairHeader& pairHeader, 
 					if ((a->isFront()) == true) {
 						int random = rand() % 3 + 1;
 						a->setPowerUpStatus(random);
-						std::cout << "Front Powerup value " << random << std::endl;
 					}
 					else if ((a->isFront()) == false) {
 						int random = rand() % 3 + 4;
 						a->setPowerUpStatus(random);
-						std::cout << "Back Powerup value " << random << std::endl;
 					}
 				}
 				break;

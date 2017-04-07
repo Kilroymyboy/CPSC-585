@@ -3,8 +3,6 @@
 #include "Aventador.h"
 #include <iostream>
 
-
-
 // BACK index 1
 class AutoPilot : public PowerUp
 {

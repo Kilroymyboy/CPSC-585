@@ -35,6 +35,7 @@ namespace Game {
 	//void endScreen();
 
 	void addPowerUp();
+	void createWall();
 	void checkDistance();
 	double getDist();
 	Aventador * getFront();
