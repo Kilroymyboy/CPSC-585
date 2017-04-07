@@ -22,7 +22,10 @@ namespace Game {
 	double spawnCoolDown = 2;
 	double powerUpSpawnTime = Time::time += spawnCoolDown;
 
+	double wallDespawn = Time::time;
+
 	float impulse = 100;
+	float wallCount = 0;
 	double switchRange = 10.0;
 	bool inSwtichRange = false;
 	bool isGameOver = false;
@@ -60,7 +63,11 @@ namespace Game {
 		if (PRINT_ENTITIES) {
 			cout << entities.size() << endl;
 		}
-	
+
+		/*if (Time::time > wallDespawn) {
+
+		}*/
+
 		//This is where a restart function would go
 		if ((controller1.GetButtonPressed(13)) || (Keyboard::keyPressed(GLFW_KEY_ENTER))) {
 			entities.clear();
@@ -100,12 +107,14 @@ namespace Game {
 		aventador1->changeRole();
 	}
 
-	void createWall() {
-		for (int i = 0; i < 4; i++) {
-			for (int j = 0; j < 20; j++) {
-				entities.push_back(unique_ptr<Entity>(new CenteredCube(glm::vec3(j-10, i-2, 0))));
+	void createWall(glm::vec3 pos, double t) {
+		for (int i = 0; i < 2; i++) {
+			for (int j = 0; j < 10; j++) {
+				entities.push_front(unique_ptr<Entity>(new CenteredCube(glm::vec3(pos.x + (j-5), i, pos.z+5))));
+				wallCount += 1;
 			}
 		}
+		wallDespawn = Time::time + t;
 	}
 
 	double getDist() {

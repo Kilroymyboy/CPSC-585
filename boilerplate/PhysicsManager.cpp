@@ -248,7 +248,7 @@ void ContactBehaviourCallback::onContact(const PxContactPairHeader& pairHeader, 
 				if ((a->hasPowerUp()) == false) {
 					if ((a->isFront()) == true) {
 						int random = rand() % 3 + 1;
-						a->setPowerUpStatus(random);
+						a->setPowerUpStatus(1);
 					}
 					else if ((a->isFront()) == false) {
 						int random1 = rand() % 3 + 4;

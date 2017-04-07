@@ -4,11 +4,12 @@
 
 using namespace std;
 
-//FRONT no idea status will be 1
+//FRONT status value will be 1
 void Blind::use()
 {
-	//Game::createWall();
-	cout << "I am blind" << endl;
+	//glm::vec3 pos = Util::p2g(Game::getBack()->actor->getGlobalPose().p);
+	//Game::createWall(pos , 4);
+	cout << "TRUMP WALL" << endl;
 }
 
 //FRONT Status value will be 2
@@ -19,7 +20,7 @@ void BlackIce::use()
 	cout << "slipping " << endl;
 }
 
-//It's status value will be 3
+//FRONT status value will be 3
 void BoostFront::use()
 {
 	PxRigidBodyExt::addLocalForceAtLocalPos(*Game::getFront()->actor,
@@ -34,8 +35,7 @@ void Restore::use()
 	cout << "fuel restored " << endl;
 }
 
-//BACK
-//status value will be 5
+//BACK status value will be 5
 void AutoPilot::use()
 {
 	Game::getBack()->Aventador::setPowerDuration(5);
@@ -43,7 +43,7 @@ void AutoPilot::use()
 	cout << "autopilot" << endl;
 }
 
-//Back 6 boost back player
+//BACK status value will be 6
 void BoostBack::use()
 {
 	PxRigidBodyExt::addLocalForceAtLocalPos(*Game::getBack()->actor,
