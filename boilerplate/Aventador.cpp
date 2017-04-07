@@ -65,6 +65,7 @@ Aventador::Aventador(int id) {
 		if (VS_AI) {
 			//If the player is versing AI
 			AiManager::aiInit(aventadorData.isAI, aventadorData.isFront);
+			aventadorData.playerAI = true;
 		}
 	}
 	else {
@@ -96,11 +97,16 @@ void Aventador::update(glm::mat4 parentTransform) {
 		*/
 	if ((aventadorData.slipActive == true) && (Time::time < aventadorData.powerDuration)) {
 		setTireHeat(1000000);
-		cout << "current time " << Time::time << endl;
+	}
+
+	else if ((aventadorData.autoActive == true) && (Time::time < aventadorData.powerDuration)) {
+		settingAutoPilot(true);
 	}
 
 	else if (Time::time >= aventadorData.powerDuration) {
 		aventadorData.slipActive = false;
+		aventadorData.autoActive = false;
+		aventadorData.isAI = false;
 	}
 
 	updateLightCamera();
@@ -326,9 +332,9 @@ void Aventador::updateDrift() {
 	}
 	if (aventadorId == 1) {
 		if (controller2.GetButtonPressed(1)) {
-			PxVec3 v = actor->getLinearVelocity();
-			tireHeat[2] += aventadorData.manualTireHeatIncrease*v.magnitude()*2;
-			tireHeat[3] += aventadorData.manualTireHeatIncrease*v.magnitude()*2;
+			PxVec3 vX = actor->getLinearVelocity();
+			tireHeat[2] += aventadorData.manualTireHeatIncrease*vX.magnitude()*2;
+			tireHeat[3] += aventadorData.manualTireHeatIncrease*vX.magnitude()*2;
 		}
 	}
 
@@ -340,6 +346,10 @@ void Aventador::updateDrift() {
 
 void Aventador::settingTireHeat(bool val) {
 	aventadorData.slipActive = val;
+}
+
+void Aventador::settingAutoPilot(bool val) {
+	aventadorData.isAI = val;
 }
 
 void Aventador::setTireHeat(int heat) {
@@ -416,9 +426,14 @@ void Aventador::setPowerUpStatus(int status) {
 		cout << "pushing boost front" << endl;
 	}
 	else if (status == 4) {
-		AutoPilot *power = new AutoPilot();
-		aventadorData.powerHeld.push_back(power);
-		cout << "pushing auto pilot" << endl;
+		if (aventadorData.playerAI == true) {
+			aventadorData.powerStatus = false;
+		}
+		else {
+			AutoPilot *power = new AutoPilot();
+			aventadorData.powerHeld.push_back(power);
+			cout << "pushing auto pilot" << endl;
+		}
 	}
 	else if (status == 5) {
 		Restore *power = new Restore();
@@ -454,6 +469,14 @@ void Aventador::usePowerUp() {
 				aventadorData.powerStatus = false;
 			}
 		}
+		else if (controller1.GetButtonPressed(3)) {
+			for (PowerUp* p : aventadorData.powerHeld) {
+				delete p;
+			}
+			cout << "throwing away power" << endl;
+			aventadorData.powerHeld.clear();
+			aventadorData.powerStatus = false;
+		}
 		//ai uses power if he has it
 		else if ((aventadorData.isAI) && (aventadorData.powerStatus == true)) {
 			aventadorData.powerHeld[0]->use();
@@ -474,6 +497,14 @@ void Aventador::usePowerUp() {
 				aventadorData.powerHeld.clear();
 				aventadorData.powerStatus = false;
 			}
+		}
+		else if (controller2.GetButtonPressed(3)) {
+			for (PowerUp* p : aventadorData.powerHeld) {
+				delete p;
+			}
+			cout << "throwing away power" << endl;
+			aventadorData.powerHeld.clear();
+			aventadorData.powerStatus = false;
 		}
 		//ai uses power if he has it
 		else if ((aventadorData.isAI) && (aventadorData.powerStatus == true)) {

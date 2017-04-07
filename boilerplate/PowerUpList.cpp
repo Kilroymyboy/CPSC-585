@@ -7,7 +7,7 @@ using namespace std;
 //FRONT no idea status will be 1
 void Blind::use()
 {
-	Game::createWall();
+	//Game::createWall();
 	cout << "I am blind" << endl;
 }
 
@@ -38,8 +38,8 @@ void Restore::use()
 //status value will be 5
 void AutoPilot::use()
 {
-	/*Game::getBack()->Aventador::setPowerDuration(5);
-	Game::getBack()->Aventador::settingAutoPilot(true);*/
+	Game::getBack()->Aventador::setPowerDuration(5);
+	Game::getBack()->Aventador::settingAutoPilot(true);
 	cout << "autopilot" << endl;
 }
 

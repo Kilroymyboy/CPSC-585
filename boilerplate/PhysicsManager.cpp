@@ -251,8 +251,9 @@ void ContactBehaviourCallback::onContact(const PxContactPairHeader& pairHeader, 
 						a->setPowerUpStatus(random);
 					}
 					else if ((a->isFront()) == false) {
-						int random = rand() % 3 + 4;
-						a->setPowerUpStatus(random);
+						int random1 = rand() % 3 + 4;
+						std::cout << "player power " << random1 << std::endl;
+						a->setPowerUpStatus(random1);
 					}
 				}
 				break;
@@ -291,9 +292,9 @@ void ContactBehaviourCallback::onContact(const PxContactPairHeader& pairHeader, 
 						std::cout << "Front Powerup value " << random << std::endl;
 					}
 					else if ((a->isFront()) == false) {
-						int random = rand() % 3 + 3;
-						a->setPowerUpStatus(random);
-						std::cout << "Back Powerup value " << random << std::endl;
+						int random1 = rand() % 3 + 4;
+						a->setPowerUpStatus(random1);
+						std::cout << "Back Powerup value " << random1 << std::endl;
 					}
 				}
 				break;
