@@ -40,7 +40,7 @@ public:
 
 
 	int powerStatus = 0;
-	int tankSize = 1000;
+	int tankSize = 300;
 	int fuel = tankSize;
 
 	bool isAI = false;

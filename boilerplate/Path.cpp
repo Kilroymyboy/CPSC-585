@@ -143,18 +143,23 @@ float getCenter(float a, float b) {
 void Path::setCenterPoints() {
 	centerPoints.clear();
 	PxVec3 point;
-	for (int i = 0; i < positions.size() - 1; i += 6) {
-		//point.x = getCenter(positions[i].x, positions[i + 1].x, positions[i + 2].x);
+	for (int i = 0; i < positions.size() - 1; i += 3) {
+
+		//get the center of the triangle
+		point.x = getCenter(positions[i].x, positions[i + 1].x, positions[i + 2].x);
+		point.y = 0.0f;
+		point.z = getCenter(positions[i].z, positions[i + 1].z, positions[i + 2].z);
+		centerPoints.push_back(point);
+
+		//get the center of the path
+		//point.x = getCenter(positions[i + 1].x, positions[i + 2].x);
 		//point.y = 0.0f;
-		//point.z = getCenter(positions[i].z, positions[i + 1].z, positions[i + 2].z);
-		point.x = getCenter(positions[i + 1].x, positions[i + 2].x);
-		point.y = 0.0f;
-		point.z = getCenter(positions[i + 1].z, positions[i + 2].z);
-		centerPoints.push_back(point);
-		point.x = getCenter(positions[i + 3].x, positions[i + 4].x);
-		point.y = 0.0f;
-		point.z = getCenter(positions[i + 3].z, positions[i + 4].z);
-		centerPoints.push_back(point);
+		//point.z = getCenter(positions[i + 1].z, positions[i + 2].z);
+		//centerPoints.push_back(point);
+		//point.x = getCenter(positions[i + 3].x, positions[i + 4].x);
+		//point.y = 0.0f;
+		//point.z = getCenter(positions[i + 3].z, positions[i + 4].z);
+		//centerPoints.push_back(point);
 	}
 }
 

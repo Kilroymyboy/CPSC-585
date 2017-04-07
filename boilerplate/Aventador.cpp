@@ -53,7 +53,7 @@ Aventador::Aventador(int id) {
 	PhysicsManager::setContactFilter(actor, FilterGroup::eAventador, FilterGroup::eAventador | FilterGroup::ePowerUp);
 
 	if (aventadorId == 0) {
-		actor->setGlobalPose(PxTransform(0, 0, 10.0), true);
+		actor->setGlobalPose(PxTransform(0, 0, 15.0), true);
 		aventadorData.isFront = false;
 		if (VS_AI) {	//If the player is versing AI
 			AiManager::aiInit(aventadorData.isAI);
