@@ -42,7 +42,7 @@ namespace AiManager {
 			float pointDistToFront;				//distance between the point in the path and tthe front car
 			float prevDistToPoint = 0;			//the furthest point within maxDist
 			float ClosestPointToFront = 1000;	//closest point towards the front car
-			float maxDist = 20.0f;				//max range
+			float maxDist = 30.0f;				//max range
 
 			if (distance < 20) {	//if the front is nearby, predict where the front is heading and move there
 				PxTransform predict = frontPos;

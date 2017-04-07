@@ -59,7 +59,7 @@ void Path::generate() {
 
 void Path::updateOffset(float &offset) {
 	if (Game::didSwitchOccur()) {
-		offset = 1;
+		offset = 0;
 	}
 	else {
 		offset += 0.001;
@@ -132,17 +132,28 @@ bool Path::pointInPath(float x, float y) {
 	return false;
 }
 
-float getcenter(float A, float B, float C) {
-	return (A + B + C) / 3;
+float getCenter(float a, float b, float c) {
+	return (a + b + c) / 3;
+}
+
+float getCenter(float a, float b) {
+	return (a + b) / 2;
 }
 
 void Path::setCenterPoints() {
 	centerPoints.clear();
 	PxVec3 point;
-	for (int i = 0; i < positions.size() - 1; i += 3) {
-		point.x = getcenter(positions[i].x, positions[i + 1].x, positions[i + 2].x);
+	for (int i = 0; i < positions.size() - 1; i += 6) {
+		//point.x = getCenter(positions[i].x, positions[i + 1].x, positions[i + 2].x);
+		//point.y = 0.0f;
+		//point.z = getCenter(positions[i].z, positions[i + 1].z, positions[i + 2].z);
+		point.x = getCenter(positions[i + 1].x, positions[i + 2].x);
 		point.y = 0.0f;
-		point.z = getcenter(positions[i].z, positions[i + 1].z, positions[i + 2].z);
+		point.z = getCenter(positions[i + 1].z, positions[i + 2].z);
+		centerPoints.push_back(point);
+		point.x = getCenter(positions[i + 3].x, positions[i + 4].x);
+		point.y = 0.0f;
+		point.z = getCenter(positions[i + 3].z, positions[i + 4].z);
 		centerPoints.push_back(point);
 	}
 }

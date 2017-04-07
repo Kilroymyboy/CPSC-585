@@ -9,7 +9,6 @@ using namespace physx;
 
 Aventador::Aventador(int id) {
 	aventadorId = id;
-	aventadorData.fuel = aventadorData.tankSize;
 
 	wheel.resize(4);
 	wheelPos.resize(4);
@@ -54,14 +53,14 @@ Aventador::Aventador(int id) {
 	PhysicsManager::setContactFilter(actor, FilterGroup::eAventador, FilterGroup::eAventador | FilterGroup::ePowerUp);
 
 	if (aventadorId == 0) {
-		actor->setGlobalPose(PxTransform(0, 0, -10.0), true);
+		actor->setGlobalPose(PxTransform(0, 0, 10.0), true);
+		aventadorData.isFront = false;
 		if (VS_AI) {	//If the player is versing AI
-			aventadorData.isFront = true;
 			AiManager::aiInit(aventadorData.isAI);
 		}
 	}
 	else {
-		aventadorData.isFront = false;
+		aventadorData.isFront = true;
 	}
 
 	fullHealthColor = vec3(1.8, 4.8, 12.6);
@@ -378,8 +377,9 @@ void Aventador::updateFuel() {
 
 			actor->addTorque(dir, PxForceMode::eIMPULSE);
 			//game over flag
-			if (aventadorData.fuel < -10000)
+			if (aventadorData.fuel < -100) {
 				Game::setGameOverFlag(true);
+			}
 		}
 	}
 	else {
