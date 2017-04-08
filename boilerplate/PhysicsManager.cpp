@@ -218,18 +218,13 @@ void ContactBehaviourCallback::onContact(const PxContactPairHeader& pairHeader, 
 			bool isPowerUp0 = pairHeader.actors[0]->getName() == name0 || pairHeader.actors[1]->getName() == name0;
 			bool isPowerUp1 = pairHeader.actors[0]->getName() == name1 || pairHeader.actors[1]->getName() == name1;
 
-			if (isAventador0 && isAventador1) {
-				//Role swtiching is determined in Game.cpp
-				//Game::switchRole();
-				break;
-			}
-			else if (isPowerUp0 && isAventador0) {
+			if (isPowerUp0 && isAventador0) {
 				Aventador* a = Game::aventador0.get();
 				//remove the power up from the scene
 				PxRigidActor* pickedUp = (pairHeader.actors[0]->getName() == name0) ? pairHeader.actors[0] : pairHeader.actors[1];
 
 				if (VS_AI) { //aventador0 is hardcoded to be the front ai
-					for (int i = 0; i < Game::aiPowerUps.size()-1; i++) {
+					for (int i = 0; i < Game::aiPowerUps.size(); i++) {
 						if (pickedUp == Game::aiPowerUps[i]->getActor()) {
 							Game::aiPowerUps.erase(Game::aiPowerUps.begin() + i);
 							break;

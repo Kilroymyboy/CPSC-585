@@ -20,7 +20,6 @@ namespace AiManager {
 		if (isFront) {
 			if (isNearPowerUp(thisPos, powerLoc, 40)) {
 				moveTo(thisPos, powerLoc, wheelAngle);
-				std::cout << powerLoc.p.x << "\n";
 			}
 			else {
 				float turnRate = rand() % 2;
@@ -108,10 +107,10 @@ namespace AiManager {
 
 	bool isNearPowerUp(PxTransform origin, PxTransform &powerUpLoc, float d) {
 		//this function needs to be debugged
-		return false;
+		//return false;
 
 		float maxDist = d;
-		for (int i = 1; i < Game::aiPowerUps.size(); i++) {
+		for (int i = 0; i < Game::aiPowerUps.size(); i++) {
 			std::cout << "vector size: " << Game::aiPowerUps.size() << "\tindex i: "<< i<<"\n";
 			powerUpLoc = Game::aiPowerUps[i]->getActor()->getGlobalPose();	//randomly gets an error after +5 minutes here
 			float distance = getDist(origin.p, powerUpLoc.p);
