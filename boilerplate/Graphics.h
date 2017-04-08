@@ -39,7 +39,7 @@
 #define WINDOW_WIDTH 1280
 #define WINDOW_HEIGHT 720
 
-#define MSAA 2
+#define MSAA 1
 #define VSYNC 1
 #define SHADOWMAP_SIZE 1600
 
@@ -60,7 +60,7 @@ namespace Graphics {
 	extern int SOFT_SHADOW;
 
 	int init();
-	int shouldClose();
+	int shouldClose(); 
 	void update();
 	void destroy();
 
@@ -147,7 +147,7 @@ namespace Graphics {
 
 namespace Viewport {
 	extern std::vector<glm::mat4> projection;
-
+	extern std::vector<glm::mat4> transform;
 	extern std::vector<glm::vec3> position, target;
 
 	void init(int);

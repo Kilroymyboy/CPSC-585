@@ -150,7 +150,6 @@ float Gamepad::LeftStick_X()
 {
 	// Obtain X axis of left stick
 	short sX = m_State.Gamepad.sThumbLX;
-	cout << "left stick x" << endl;
 	// Return axis value, converted to a float
 	return (static_cast<float>(sX) / 32768.0f);
 }
@@ -160,7 +159,6 @@ float Gamepad::LeftStick_Y()
 {
 	// Obtain Y axis of left stick
 	short sY = m_State.Gamepad.sThumbLY;
-	cout << "left stick y" << endl;
 	// Return axis value, converted to a float
 	return (static_cast<float>(sY) / 32768.0f);
 }
@@ -170,7 +168,6 @@ float Gamepad::RightStick_X()
 {
 	// Obtain X axis of right stick
 	short sX = m_State.Gamepad.sThumbRX;
-	cout << "right stick x: " << static_cast<float>(sX) / 32768.0f << endl;
 	// Return axis value, converted to a float
 	return (static_cast<float>(sX) / 32768.0f);
 }
@@ -180,7 +177,6 @@ float Gamepad::RightStick_Y()
 {
 	// Obtain the Y axis of the left stick
 	short sY = m_State.Gamepad.sThumbRY;
-	cout << "right stick y" << endl;
 	// Return axis value, converted to a float
 	return (static_cast<float>(sY) / 32768.0f);
 }
@@ -193,7 +189,6 @@ float Gamepad::LeftTrigger()
 	BYTE Trigger = m_State.Gamepad.bLeftTrigger;
 
 	if (Trigger > XINPUT_GAMEPAD_TRIGGER_THRESHOLD)
-		cout << "Left trigger" << Trigger / 255.0f << endl;
 		return Trigger / 255.0f;
 
 	return 0.0f; // Trigger was not pressed
@@ -206,7 +201,6 @@ float Gamepad::RightTrigger()
 	BYTE Trigger = m_State.Gamepad.bRightTrigger;
 
 	if (Trigger > XINPUT_GAMEPAD_TRIGGER_THRESHOLD)
-		cout << "Right trigger" << Trigger / 255.0f << endl;
 		return Trigger / 255.0f;
 
 	return 0.0f; // Trigger was not pressed

@@ -5,6 +5,9 @@
 #include "InputManager.h"
 #include "Graphics.h"
 #include "FilterGroup.h"
+#include "PowerUp.h"
+#include "PowerUpList.h"
+#include "AiManager.h"
 #include <vector>
 #include <list>
 #include <memory>
@@ -15,11 +18,13 @@ public:
 	float damperForce = 12;
 	float maxWheelAngle = PI / 5;
 	float dimensionHeight = 0.45;
+	float dimensionWidth = 1;
+	float dimensionLength = 2.5;
 	float maxWheelDist = 0.46;
-	float wheelTurnRate = 0.01;
+	float wheelTurnRate = 0.5;
 	float wheelReurnRate = 0.85;
 
-	float force = 45;
+	float force = 30;
 	float wheelSideFriction = 6.25;
 	float wheelSideMaxFriction = 25;
 	float topSpeedFriction = 0.8;
@@ -30,10 +35,19 @@ public:
 	std::vector<float> tireHeatIncrease{ 0.00f,0.00f,0.0f,0.0f };
 	float tireHeatDecrease = 0.45;
 	float tireHeatFastDecrease = 0.1;
-	float manualTireHeatIncrease = 0.15;
+	float manualTireHeatIncrease = 0.5;
 
-	bool powerStatus = false;
+
+	int powerStatus = 0;
+	int fuel;
+	int tankSize = 1000;
+
+
 	bool isAI = false;
+	bool hasLost = false;
+
+	bool isFront;
+
 };
 
 class AventadorWheel :public Entity {
@@ -66,18 +80,16 @@ class Aventador : public Entity {
 	void updateTopSpeed();
 	void updateDrift();
 	void updateBraking();
+	void updateFuel();
 
 	void updateLightCamera();
 
 	VehicleData aventadorData;
+	void usePowerUp();
 
 	float wheelAngle;
 	float brakeForce;
 	std::vector<float> tireHeat;
-
-	double dCoolDown = 0.25;
-	double dChangeTime;
-	int randDirection;
 
 public:
 	physx::PxRigidDynamic *actor;
@@ -88,7 +100,9 @@ public:
 	void renderShadowMap(glm::mat4 parentTransform)override;
 	void render(glm::mat4 parentTransform)override;
 	bool hasPowerUp();
-	void setPowerUpStatus(bool status);
+	void setPowerUpStatus(int status);
+	void changeRole();
+	bool isFront();
 	Aventador(int);
 
 	int Aventador::pseudoRand();
