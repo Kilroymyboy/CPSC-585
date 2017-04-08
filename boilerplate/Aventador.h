@@ -99,7 +99,7 @@ class Aventador : public Entity {
 	float positionTightness = .3, targetTightness = .9;
 
 	float forceFront = 45;
-	float forceBack = 50;
+	float forceBack = 55;
 
 public:
 	physx::PxRigidDynamic *actor;

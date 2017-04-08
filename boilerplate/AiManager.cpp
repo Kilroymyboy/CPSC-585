@@ -48,7 +48,7 @@ namespace AiManager {
 			float pointDistToFront;				//distance between the point in the path and tthe front car
 			float prevDistToPoint = 0;			//the furthest point within maxDist
 			float ClosestPointToFront = 1000;	//closest point towards the front car
-			float maxDist = 30.0f;				//max range
+			float maxDist = 40.0f;				//max range
 
 			if (distance < 15) {	//if the front is nearby, predict where the front is heading and move there
 				PxTransform predict = frontPos;
@@ -56,7 +56,7 @@ namespace AiManager {
 				predict.operator*(ahead);
 				moveTo(thisPos, predict, wheelAngle);
 			}
-			else if (Game::path->pointInPath(thisPos.p.x, thisPos.p.z) && isNearPowerUp(thisPos, powerLoc, 10)) { //attempt to pick up a power point
+			else if (Game::path->pointInPath(thisPos.p.x, thisPos.p.z)/*distance < 150*/ && isNearPowerUp(thisPos, powerLoc, 10)) { //attempt to pick up a power point
 				moveTo(thisPos, powerLoc, wheelAngle);
 			}
 			else if (distance < 150) {	//find a point that is closest to the front car and near the back car
@@ -67,7 +67,6 @@ namespace AiManager {
 						prevDistToPoint = thisDistToPoint;
 						ClosestPointToFront = pointDistToFront;
 						goToPoint = pathPoints[i];
-						//std::cout << "goToPoint Updated " << i << "\n";
 					}
 				}
 				PxTransform goToLoc(goToPoint, PxQuat::createIdentity());
@@ -87,7 +86,6 @@ namespace AiManager {
 		//get the angle
 		PxVec3 crossProd = originDirection.cross(dirToTarget);
 		float angle = crossProd.magnitude();
-		//std::cout << "angle: " << angle << "\n";
 
 		if (crossProd.y < 1.5f && crossProd.y > -1.5f) {
 			wheelAngle = 0;
@@ -105,14 +103,14 @@ namespace AiManager {
 		return direction.magnitude();
 	}
 
+	/*	checks if there is a power up within the distance d
+		returns true is yes
+		returns the location of the nearby power up in powerUpLoc
+	*/
 	bool isNearPowerUp(PxTransform origin, PxTransform &powerUpLoc, float d) {
-		//this function needs to be debugged
-		//return false;
-
 		float maxDist = d;
 		for (int i = 0; i < Game::aiPowerUps.size(); i++) {
-			std::cout << "vector size: " << Game::aiPowerUps.size() << "\tindex i: "<< i<<"\n";
-			powerUpLoc = Game::aiPowerUps[i]->getActor()->getGlobalPose();	//randomly gets an error after +5 minutes here
+			powerUpLoc = Game::aiPowerUps[i]->getActor()->getGlobalPose();
 			float distance = getDist(origin.p, powerUpLoc.p);
 			if (distance < maxDist) {
 				return true;

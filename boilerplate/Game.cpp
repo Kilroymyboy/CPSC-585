@@ -60,6 +60,7 @@ namespace Game {
 		//currently doing something wrong as restarting must not actually delete as the program slows down after each restart
 		if ((controller1.GetButtonPressed(13)) || (Keyboard::keyPressed(GLFW_KEY_ENTER))) {
 			entities.clear();
+			aiPowerUps.clear();
 			init();
 		}
 		addPowerUp();
