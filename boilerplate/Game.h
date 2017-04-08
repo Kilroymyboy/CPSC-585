@@ -17,7 +17,7 @@
 
 #define PRINT_FPS 0
 #define PRINT_ENTITIES 0
-#define VS_AI 0
+#define VS_AI 1
 
 namespace Game {
 	extern std::list<std::shared_ptr<Entity> > entities;
@@ -25,6 +25,7 @@ namespace Game {
 	extern std::shared_ptr<Aventador> aventador1;
 	extern std::shared_ptr<Path> path;
 	extern std::shared_ptr<HUDobj> hud;
+	extern std::vector<PowerUp*> aiPowerUps;
 	extern bool isGameOver;
 
 	void init();
@@ -37,10 +38,12 @@ namespace Game {
 	void addPowerUp();
 	void createWall(glm::vec3);
 	void checkDistance();
+	void checkForSwap();
 	double getDist();
 	Aventador * getFront();
 	Aventador * getBack();
 	void setGameOverFlag(bool flag);
+	bool didSwitchOccur();
 
 }
 

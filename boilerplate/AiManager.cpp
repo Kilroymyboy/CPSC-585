@@ -6,136 +6,122 @@ using namespace glm;
 
 namespace AiManager {
 
-	double dCoolDown = 2;
+	double dCoolDown = 1;
 	double dChangeTime = Time::time += dCoolDown;
 
-	void aiInit(bool &setIsAi, bool &setIsFront) {
+	void aiInit(bool &setIsAi) {
 		setIsAi = true;
-		setIsFront = true;
 	}
 
 	void aiSteering(float &wheelAngle, bool isFront, PxTransform globalPos) {
+		PxTransform thisPos = globalPos;
+		PxTransform powerLoc = PxTransform(PxIdentity);
 
 		if (isFront) {
-			float turnRate = rand() % 2;
-			if (Time::time > dChangeTime) {
-				dChangeTime += dCoolDown;
-				int randDirection = rand() % 3;
-				if (randDirection == 0) {
-					wheelAngle += turnRate;
-				}
-				else if (randDirection == 1) {
-					wheelAngle -= turnRate;
-				}
-				else if (randDirection == 2) {
-					wheelAngle *= turnRate;
+			if (isNearPowerUp(thisPos, powerLoc, 40)) {
+				moveTo(thisPos, powerLoc, wheelAngle);
+			}
+			else {
+				float turnRate = rand() % 2;
+				if (Time::time > dChangeTime) {
+					dChangeTime += dCoolDown;
+					int randDirection = rand() % 3;
+					if (randDirection == 0) {
+						wheelAngle += turnRate;
+					}
+					else if (randDirection == 1) {
+						wheelAngle -= turnRate;
+					}
+					else if (randDirection == 2) {
+						wheelAngle *= turnRate;
+					}
 				}
 			}
 		}
 
 		if (!isFront) {
-			//left when x increases
 			PxTransform frontPos = Game::getFront()->actor->getGlobalPose();
-			PxVec3 direction = frontPos.p - globalPos.p;
-			float distance = direction.magnitude();
-			float turnRate = 0.01;
+			float distance = getDist(frontPos.p, globalPos.p);
+			std::vector<PxVec3> pathPoints = Game::path->centerPoints;
+			PxVec3 goToPoint = frontPos.p;
+			float thisDistToPoint;				//distance between the current poition and a point in the path
+			float pointDistToFront;				//distance between the point in the path and tthe front car
+			float prevDistToPoint = 0;			//the furthest point within maxDist
+			float ClosestPointToFront = 1000;	//closest point towards the front car
+			float maxDist = 40.0f;				//max range
 
-			vec2 frontPos2D = vec2(frontPos.p.x, frontPos.p.z);
-			vec2 currPos2D = vec2(globalPos.p.x, globalPos.p.z);
-
-			if (distance < 150) { //if the car isn't that far behing the front, look for the path
-				for (float i = 0.5; i < 1.5; i += 0.5) { //assign y axis of point
-					float yCoordAhead = globalPos.p.z + i;
-					for (float j = -1; j <= 1; j += 0.5) {
-						if (Game::path->pointInPath(globalPos.p.x+j, yCoordAhead)) {	//check if the path is ahead of the car
-							//std::cout << "up ahead\n";
-							wheelAngle *= 0;
-							return;
-						}
-					}
-					for (float j = 1; j < 4; j += 1.5) { //assign x axis of point
-
-						float xCoordLeft = globalPos.p.x + j;
-						float xCoordRight = globalPos.p.x - j;
-						vec2 pointLeft = vec2(xCoordLeft, yCoordAhead);
-						vec2 pointRight = vec2(xCoordRight, yCoordAhead);
-						if (Game::path->pointInPath(pointRight.x, pointRight.y)) {	//check if the path is to the right of the car
-							//std::cout << "to the right\n";
-							if (wheelAngle > -2)
-								wheelAngle -= turnRate;
-							return;
-						}
-						if (Game::path->pointInPath(pointLeft.x, pointLeft.y)) {	//check if the path is to the left of the car
-							//std::cout << "to the left\n";
-							if (wheelAngle < 2)
-								wheelAngle += turnRate;
-							return;
-						}
-						else {	//the path is not nearby, turn towards the front car
-							//move towards the front car
-							//std::cout << "where's the path?\n";
-							//findFront(direction, wheelAngle, turnRate);
-							moveTo(currPos2D, frontPos2D, wheelAngle, turnRate);
-						}
+			if (distance < 15) {	//if the front is nearby, predict where the front is heading and move there
+				PxTransform predict = frontPos;
+				PxTransform ahead(PxVec3(0, 0, 5), PxQuat::createIdentity()); //look ahead by 5 units
+				predict.operator*(ahead);
+				moveTo(thisPos, predict, wheelAngle);
+			}
+			else if (Game::path->pointInPath(thisPos.p.x, thisPos.p.z)/*distance < 150*/ && isNearPowerUp(thisPos, powerLoc, 10)) { //attempt to pick up a power point
+				moveTo(thisPos, powerLoc, wheelAngle);
+			}
+			else if (distance < 150) {	//find a point that is closest to the front car and near the back car
+				for (int i = 0; i < pathPoints.size() - 1; i++) {
+					thisDistToPoint = getDist(pathPoints[i], thisPos.p);
+					pointDistToFront = getDist(frontPos.p, pathPoints[i]);
+					if (thisDistToPoint > prevDistToPoint && thisDistToPoint < maxDist && ClosestPointToFront > pointDistToFront) {
+						prevDistToPoint = thisDistToPoint;
+						ClosestPointToFront = pointDistToFront;
+						goToPoint = pathPoints[i];
 					}
 				}
+				PxTransform goToLoc(goToPoint, PxQuat::createIdentity());
+				moveTo(thisPos, goToLoc, wheelAngle);
 			}
-			else {	//the front car is far away, move closer
-				//std::cout << "so far away\n";
-				//findFront(direction, wheelAngle, turnRate);
-				moveTo(currPos2D, frontPos2D, wheelAngle, turnRate);
+			else {	//to straight to the front car
+				moveTo(thisPos, frontPos, wheelAngle);
 			}
 		}
 
 	}
 
+	void moveTo(PxTransform origin, PxTransform target, float &wheelAngle) {
+
+		PxVec3 originDirection = origin.q.rotate(PxVec3(0,0,1));	//current direction of the origin
+		PxVec3 dirToTarget = target.p - origin.p;	//direction to move to
+		//get the angle
+		PxVec3 crossProd = originDirection.cross(dirToTarget);
+		float angle = crossProd.magnitude();
+
+		if (crossProd.y < 1.5f && crossProd.y > -1.5f) {
+			wheelAngle = 0;
+		}
+		else if (crossProd.y > 2.0f) { //to the left
+			wheelAngle = angle;
+		}
+		else if (crossProd.y < -2.0f) { //to the right
+			wheelAngle = angle*-1;
+		}
+	}
+
+	float getDist(PxVec3 a, PxVec3 b) {
+		PxVec3 direction = a - b;
+		return direction.magnitude();
+	}
+
+	/*	checks if there is a power up within the distance d
+		returns true is yes
+		returns the location of the nearby power up in powerUpLoc
+	*/
+	bool isNearPowerUp(PxTransform origin, PxTransform &powerUpLoc, float d) {
+		float maxDist = d;
+		for (int i = 0; i < Game::aiPowerUps.size(); i++) {
+			powerUpLoc = Game::aiPowerUps[i]->getActor()->getGlobalPose();
+			float distance = getDist(origin.p, powerUpLoc.p);
+			if (distance < maxDist) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	//I don't think I need this anymore. to be removed
 	float cross2D(vec2 point1, vec2 point2) {
 		return (point1.x*point2.y) - (point1.y*point2.x);
 	}
 
-	vec2 normalize2D(vec2 v) {
-		float magnitude = sqrt(v.x*v.x + v.y*v.y);
-		return vec2(v.x/magnitude, v.y/magnitude);
-	}
-
-	void moveTo(vec2 origin, vec2 target, float &wheelAngle, float turnRate) {
-
-		//not an improvement
-		/*
-		 float cross = cross2D(origin, target);
-
-		if (cross == 0.0f) {
-			std::cout << "move ahead\n";
-			wheelAngle *= 0;
-		}
-		else if (cross < 0.0f) {
-			std::cout << "move left\n";
-			if (wheelAngle < 2)
-				wheelAngle += turnRate;
-		}
-		else if (cross > 0.0f) {
-			std::cout << "move right\n";
-			if (wheelAngle > -2)
-				wheelAngle -= turnRate;
-		}
-		*/
-
-		vec2 direction = origin - target;
-		vec2 move = normalize(direction);
-		if (move.x == 0) {
-			//std::cout << "move ahead\n";
-			wheelAngle *= 0;
-		}
-		else if (move.x < 0) {
-			//std::cout << "move left\n";
-			if (wheelAngle < 1)
-				wheelAngle += turnRate;
-		}
-		else if (move.x > 0) {
-			//std::cout << "move right\n";
-			if (wheelAngle > -1)
-				wheelAngle -= turnRate;
-		}
-
-	}
 }

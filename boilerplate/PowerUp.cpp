@@ -1,24 +1,29 @@
 #include "PowerUp.h"
 #include "Game.h"
+#include <algorithm>
+
 using namespace std;
 using namespace glm;
 using namespace physx;
 
 PowerUp::PowerUp() {
-	powerId = pseudoRand() % 2; //0 or 1;
-	deleteTime = Time::time += countDown+15;
+	powerId = (int)pseudoRand() % 2; //0 or 1;
+	deleteTime = Time::time += countDown;
 	PxVec3 dimensions(0.5f, 0.5f, 0.5f);
 	
 	if (powerId == 0) {
-		t = PxTransform(Game::aventador0->actor->getGlobalPose());
+		t = Game::aventador0->actor->getGlobalPose();
+		if (VS_AI) {
+			Game::aiPowerUps.push_back(this);
+		}
 	}
 	else {
-		t = PxTransform(Game::aventador1->actor->getGlobalPose());
+		t = Game::aventador1->actor->getGlobalPose();
 	}
 
 	PxTransform r(getRandLocation(), PxQuat::createIdentity());
 	t.operator*=(r);
-	actor = PhysicsManager::createDynamic(t, dimensions);
+	actor = PhysicsManager::createDynamic2(t, dimensions);
 	actor->userData = (void*)ContactModFlags::eIGNORE_CONTACT;
 	PhysicsManager::attachSimulationShape(actor, dimensions, 0);
 	PhysicsManager::setContactFilter(actor, FilterGroup::ePowerUp, FilterGroup::eAventador);
@@ -41,8 +46,10 @@ void PowerUp::update(mat4 parentTransform) {
 
 	Light::renderShadowMap(&Resources::centeredCube, transform);
 
-	// power up time out
 	if (Time::time > deleteTime) {
+		if (powerId == 0 && VS_AI) {
+			Game::aiPowerUps.erase(remove(Game::aiPowerUps.begin(), Game::aiPowerUps.end(), this), Game::aiPowerUps.end());
+		}
 		alive = false;
 		actor->setName("erased");
 	}

@@ -30,16 +30,32 @@ int main(int argc, char *argv[])
 	//Game::startScreen();
 	Game::init();
 
-	Sound::init();
+	//Sound::init();
 	
 //	Sound::list_audio_devices(Sound::device);
 
 	while (!Graphics::shouldClose()) {
 		
-		//Sound::playSound(1);
-		//Sound::playSound(2);
-		//Sound::updateSources();
-		//Sound::updateListener();
+
+		/*if (mode == 0) {
+			cout << "In start screen" << endl;
+			mode = Game::startScreen();
+		}
+		else if (mode == 1) {
+			Time::update();
+			Game::update();
+			Graphics::update();
+
+			hud->update();
+			PhysicsManager::update(1);
+		}*/
+		/*
+		Sound::playSound(1);
+		Sound::playSound(2);
+		Sound::updateSources();
+		Sound::updateListener();
+		*/
+
 
 		Time::update();
 		Game::update();

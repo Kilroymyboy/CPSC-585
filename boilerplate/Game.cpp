@@ -12,12 +12,13 @@ using namespace physx;
 
 namespace Game {
 	list<shared_ptr<Entity> > entities;
-
+	list<shared_ptr<Entity> > startGameEntities;
 	shared_ptr<Aventador> aventador0;
 	shared_ptr<Aventador> aventador1;
 	shared_ptr<Path> path;
-
 	shared_ptr<HUDobj> hud;
+	vector<PowerUp*> aiPowerUps;
+
 
 	double spawnCoolDown = 2;
 	double powerUpSpawnTime = Time::time += spawnCoolDown;
@@ -39,11 +40,6 @@ namespace Game {
 		entities.push_back(aventador1);
 		entities.push_back(path);	//the path that gets drawn under the car
 
-
-	//	entities.push_back(shared_ptr<Path>(new Path(100, aventador0)));	//the path that gets drawn under the car
-
-		//entities.push_back(unique_ptr<Cube>(new Cube));
-		//entities.push_back(unique_ptr<CenteredCube>(new CenteredCube(vec3(0, 3, 0))));
 		entities.push_back(unique_ptr<Plane>(new Plane));
 		entities.push_back(unique_ptr<Skybox>(new Skybox(1000)));
 	}
@@ -71,10 +67,11 @@ namespace Game {
 		//This is where a restart function would go
 		if ((controller1.GetButtonPressed(13)) || (Keyboard::keyPressed(GLFW_KEY_ENTER))) {
 			entities.clear();
+			aiPowerUps.clear();
 			init();
 		}
 		addPowerUp();
-		checkDistance();
+		checkForSwap();
 	}
 
 	//adding more power ups into the scene
@@ -87,8 +84,8 @@ namespace Game {
 		}
 	}
 
-	//check the distance between the aventators
-	void checkDistance() {
+	//swaps the roles if they are withing range
+	void checkForSwap() {
 		double dist = getDist();
 		if (dist < switchRange && !inSwtichRange) {
 			PxRigidBodyExt::addLocalForceAtLocalPos(*getBack()->actor,
@@ -117,10 +114,19 @@ namespace Game {
 		wallDespawn = Time::time + t;
 	}
 
+	//same as start screen but just after the race is over
+	void endScreen() {
+		
+	}
+
 	double getDist() {
 		PxTransform pos0 = aventador0->actor->getGlobalPose();
 		PxTransform pos1 = aventador1->actor->getGlobalPose();
 		return sqrt(pow((pos0.p.x - pos1.p.x), 2) + pow((pos0.p.z - pos1.p.z), 2));
+	}
+
+	bool didSwitchOccur() {
+		return inSwtichRange;
 	}
 
 	Aventador* getFront() {

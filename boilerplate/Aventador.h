@@ -24,7 +24,7 @@ public:
 	float wheelTurnRate = 0.5;
 	float wheelReurnRate = 0.85;
 
-	float force = 30;
+	float force = 45;
 	float wheelSideFriction = 6.25;
 	float wheelSideMaxFriction = 25;
 	float topSpeedFriction = 0.8;
@@ -39,12 +39,13 @@ public:
 	float manualTireHeatIncrease = 0.5;
 
 	bool powerStatus = false; //if car has a powerup or not
+	int tankSize = 500;
+	int fuel = tankSize;
 
-	int fuel;
-	int tankSize = 1000;
 
 	bool playerAI = false; //is true if the aventador is the starting AI
-	bool isAI = false; //is ai controlled
+	bool isAI = false;
+
 	bool hasLost = false;
 
 	bool isFront;
@@ -84,6 +85,7 @@ class Aventador : public Entity {
 	void updateTopSpeed();
 	void updateDrift();
 	void updateBraking();
+	void updateColour();
 	void updateFuel();
 
 	void updateLightCamera();
@@ -94,6 +96,15 @@ class Aventador : public Entity {
 	float wheelAngle;
 	float brakeForce;
 	std::vector<float> tireHeat;
+
+	glm::vec3 fullHealthColor;
+	glm::vec3 noHealthColor;
+	Graphics::Material material;
+	float flashCooldown = 2.5, nextFlashTime=0;
+	float positionTightness = .3, targetTightness = .9;
+
+	float forceFront = 45;
+	float forceBack = 55;
 
 public:
 	physx::PxRigidDynamic *actor;
