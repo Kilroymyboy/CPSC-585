@@ -11,5 +11,5 @@ namespace AiManager
 	void aiSteering(float &wheelAngle, bool isFront, PxTransform globalPos);
 	void moveTo(PxTransform origin, PxTransform target, float &wheelAngle);
 	float getDist(PxVec3 a, PxVec3 b);
-	bool isNearPowerUp();
+	bool isNearPowerUp(PxTransform origin, PxTransform &powerUpLoc, float d);
 };

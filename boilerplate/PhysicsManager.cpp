@@ -228,6 +228,15 @@ void ContactBehaviourCallback::onContact(const PxContactPairHeader& pairHeader, 
 				//remove the power up from the scene
 				PxRigidActor* pickedUp = (pairHeader.actors[0]->getName() == name0) ? pairHeader.actors[0] : pairHeader.actors[1];
 
+				if (VS_AI) { //aventador0 is hardcoded to be the front ai
+					for (int i = 0; i < Game::aiPowerUps.size()-1; i++) {
+						if (pickedUp == Game::aiPowerUps[i]->getActor()) {
+							Game::aiPowerUps.erase(Game::aiPowerUps.begin() + i);
+							break;
+						}
+					}
+				}
+
 				for (std::list<std::shared_ptr<Entity>>::iterator itr = Game::entities.begin(); itr != Game::entities.end(); ++itr) {
 					if (static_cast<PowerUp*>(itr->get())->getActor() == pickedUp) {
 						if (a->isFront()) { //change powerUp to the other type
@@ -270,6 +279,7 @@ void ContactBehaviourCallback::onContact(const PxContactPairHeader& pairHeader, 
 						if (a->isFront()) { //change powerUp to the other type
 							static_cast<PowerUp*>(itr->get())->powerId = 0;
 							pickedUp->setName(name0);	//may cause some issues
+							Game::aiPowerUps.push_back(static_cast<PowerUp*>(itr->get()));
 							break;
 						}
 						else {

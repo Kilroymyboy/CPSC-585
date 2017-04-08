@@ -55,12 +55,14 @@ Aventador::Aventador(int id) {
 	if (aventadorId == 0) {
 		actor->setGlobalPose(PxTransform(0, 0, 15.0), true);
 		aventadorData.isFront = true;
+		aventadorData.force = forceFront;
 		if (VS_AI) {	//If the player is versing AI
 			AiManager::aiInit(aventadorData.isAI);
 		}
 	}
 	else {
 		aventadorData.isFront = false;
+		aventadorData.force = forceBack;
 	}
 
 	fullHealthColor = vec3(1.8, 4.8, 12.6);
@@ -110,7 +112,7 @@ void Aventador::updateLightCamera() {
 	if (Keyboard::keyDown(GLFW_KEY_Q)) {
 		Viewport::position[aventadorId] = transform* vec4(5.5f, 1.25f, 0.0f, 1);
 	}
-	else	if (Keyboard::keyDown(GLFW_KEY_E)) {
+	else if (Keyboard::keyDown(GLFW_KEY_E)) {
 		Viewport::position[aventadorId] = transform* vec4(-5.5f, 1.25f, 0.0f, 1);
 	}
 
@@ -266,7 +268,6 @@ void Aventador::updateFriction() {
 void Aventador::updateSteering() {
 	//actor->setAngularDamping(actor->getAngularVelocity().y );	//invalid parameter : RigidDynamic::setAngularDamping: The angular damping must be nonnegative!
 	actor->addTorque(-actor->getAngularVelocity() * 20);
-
 	if (aventadorData.isAI) {
 		AiManager::aiSteering(wheelAngle, aventadorData.isFront, actor->getGlobalPose());
 	}
@@ -523,6 +524,13 @@ void Aventador::usePowerUp() {
 void Aventador::changeRole() {
 	aventadorData.isFront = !aventadorData.isFront;
 	aventadorData.fuel = aventadorData.tankSize;
+	//jeremy changed the force speed too but i'm not sure where he puts it
+	if (aventadorData.isFront) {
+		aventadorData.force = forceFront;
+	}
+	else {
+		aventadorData.force = forceBack;
+	}
 }
 
 bool Aventador::isFront() {

@@ -14,27 +14,34 @@ namespace AiManager {
 	}
 
 	void aiSteering(float &wheelAngle, bool isFront, PxTransform globalPos) {
+		PxTransform thisPos = globalPos;
+		PxTransform powerLoc = PxTransform(PxIdentity);
 
 		if (isFront) {
-		float turnRate = rand() % 2;
-			if (Time::time > dChangeTime) {
-				dChangeTime += dCoolDown;
-				int randDirection = rand() % 3;
-				if (randDirection == 0) {
-					wheelAngle += turnRate;
-				}
-				else if (randDirection == 1) {
-					wheelAngle -= turnRate;
-				}
-				else if (randDirection == 2) {
-					wheelAngle *= turnRate;
+			if (isNearPowerUp(thisPos, powerLoc, 40)) {
+				moveTo(thisPos, powerLoc, wheelAngle);
+				std::cout << powerLoc.p.x << "\n";
+			}
+			else {
+				float turnRate = rand() % 2;
+				if (Time::time > dChangeTime) {
+					dChangeTime += dCoolDown;
+					int randDirection = rand() % 3;
+					if (randDirection == 0) {
+						wheelAngle += turnRate;
+					}
+					else if (randDirection == 1) {
+						wheelAngle -= turnRate;
+					}
+					else if (randDirection == 2) {
+						wheelAngle *= turnRate;
+					}
 				}
 			}
 		}
 
 		if (!isFront) {
 			PxTransform frontPos = Game::getFront()->actor->getGlobalPose();
-			PxTransform thisPos = globalPos;
 			float distance = getDist(frontPos.p, globalPos.p);
 			std::vector<PxVec3> pathPoints = Game::path->centerPoints;
 			PxVec3 goToPoint = frontPos.p;
@@ -44,14 +51,14 @@ namespace AiManager {
 			float ClosestPointToFront = 1000;	//closest point towards the front car
 			float maxDist = 30.0f;				//max range
 
-			if (distance < 20) {	//if the front is nearby, predict where the front is heading and move there
+			if (distance < 15) {	//if the front is nearby, predict where the front is heading and move there
 				PxTransform predict = frontPos;
-				PxTransform ahead(PxVec3(0, 0, 5), PxQuat::createIdentity());
+				PxTransform ahead(PxVec3(0, 0, 5), PxQuat::createIdentity()); //look ahead by 5 units
 				predict.operator*(ahead);
 				moveTo(thisPos, predict, wheelAngle);
 			}
-			else if (distance < 150 && isNearPowerUp()) { //attempt to pick up a power point
-
+			else if (Game::path->pointInPath(thisPos.p.x, thisPos.p.z) && isNearPowerUp(thisPos, powerLoc, 10)) { //attempt to pick up a power point
+				moveTo(thisPos, powerLoc, wheelAngle);
 			}
 			else if (distance < 150) {	//find a point that is closest to the front car and near the back car
 				for (int i = 0; i < pathPoints.size() - 1; i++) {
@@ -99,10 +106,23 @@ namespace AiManager {
 		return direction.magnitude();
 	}
 
-	bool isNearPowerUp() {
+	bool isNearPowerUp(PxTransform origin, PxTransform &powerUpLoc, float d) {
+		//this function needs to be debugged
+		return false;
+
+		float maxDist = d;
+		for (int i = 1; i < Game::aiPowerUps.size(); i++) {
+			std::cout << "vector size: " << Game::aiPowerUps.size() << "\tindex i: "<< i<<"\n";
+			powerUpLoc = Game::aiPowerUps[i]->getActor()->getGlobalPose();	//randomly gets an error after +5 minutes here
+			float distance = getDist(origin.p, powerUpLoc.p);
+			if (distance < maxDist) {
+				return true;
+			}
+		}
 		return false;
 	}
 
+	//I don't think I need this anymore. to be removed
 	float cross2D(vec2 point1, vec2 point2) {
 		return (point1.x*point2.y) - (point1.y*point2.x);
 	}

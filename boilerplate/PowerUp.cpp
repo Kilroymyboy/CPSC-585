@@ -1,18 +1,20 @@
 #include "PowerUp.h"
 #include "Game.h"
+#include <algorithm>
+
 using namespace std;
 using namespace glm;
 using namespace physx;
 
 PowerUp::PowerUp() {
-	powerId = pseudoRand() % 2; //0 or 1;
+	powerId = (int)pseudoRand() % 2; //0 or 1;
 	deleteTime = Time::time += countDown+15;
 	PxVec3 dimensions(0.5f, 0.5f, 0.5f);
 	
 	if (powerId == 0) {
 		t = Game::aventador0->actor->getGlobalPose();
 		if (VS_AI) {
-
+			Game::aiPowerUps.push_back(this);
 		}
 	}
 	else {
@@ -44,8 +46,16 @@ void PowerUp::update(mat4 parentTransform) {
 
 	Light::renderShadowMap(&Resources::centeredCube, transform);
 
-	// power up time out
 	if (Time::time > deleteTime) {
+		if (powerId == 0 && VS_AI) {
+			for (int i = 0; i < Game::aiPowerUps.size(); i++) {
+				//Game::aiPowerUps.erase(remove(Game::aiPowerUps.begin(), Game::aiPowerUps.end(), this), Game::aiPowerUps.end());
+				if (Game::aiPowerUps[i] == this) {
+					Game::aiPowerUps.erase(Game::aiPowerUps.begin() + i);
+					//std::cout << "power up index: "<< i<< " timed out and removed\n";
+				}
+			}
+		}
 		alive = false;
 		actor->setName("erased");
 	}

@@ -113,7 +113,7 @@ bool Path::pointInPath(float x, float y) {
 
 	check = vec2(x, y);
 
-	for (int i = 0; i < positions.size() - 1; i += 3) {
+	for (int i = 0; i < positions.size(); i += 3) {
 		p1.x = positions[i].x;
 		p1.y = positions[i].z;
 		p2.x = positions[i + 1].x;
@@ -143,12 +143,16 @@ float getCenter(float a, float b) {
 void Path::setCenterPoints() {
 	centerPoints.clear();
 	PxVec3 point;
-	for (int i = 0; i < positions.size() - 1; i += 3) {
+	for (int i = 0; i < positions.size(); i += 6) {
 
 		//get the center of the triangle
 		point.x = getCenter(positions[i].x, positions[i + 1].x, positions[i + 2].x);
 		point.y = 0.0f;
 		point.z = getCenter(positions[i].z, positions[i + 1].z, positions[i + 2].z);
+		centerPoints.push_back(point);
+		point.x = getCenter(positions[i+3].x, positions[i + 4].x, positions[i + 5].x);
+		point.y = 0.0f;
+		point.z = getCenter(positions[i+3].z, positions[i + 4].z, positions[i + 5].z);
 		centerPoints.push_back(point);
 
 		//get the center of the path
