@@ -105,7 +105,7 @@ void Aventador::update(glm::mat4 parentTransform) {
 	else if (Time::time >= aventadorData.powerDuration) {
 		aventadorData.slipActive = false;
 		aventadorData.autoActive = false;
-		aventadorData.isAI = false;
+		settingAutoPilot(false);
 	}
 
 	updateLightCamera();
@@ -368,6 +368,9 @@ void Aventador::settingTireHeat(bool val) {
 }
 
 void Aventador::settingAutoPilot(bool val) {
+	if (aventadorData.isFront == true) {
+		aventadorData.isAI = false;
+	}
 	aventadorData.isAI = val;
 }
 
@@ -548,7 +551,6 @@ void Aventador::usePowerUp() {
 
 void Aventador::setPowerDuration(double val) {
 	aventadorData.powerDuration = Time::time + val;
-	cout << "TIME OF POWER " << endl;
 }
 
 void Aventador::changeRole() {
