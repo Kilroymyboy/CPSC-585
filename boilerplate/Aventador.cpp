@@ -89,6 +89,7 @@ void Aventador::update(glm::mat4 parentTransform) {
 	updateDrift();
 	updateBraking();
 	updateColour();
+	updateCurrentPowerUp();
 
 	if (!aventadorData.isFront)
 		updateFuel();
@@ -99,6 +100,9 @@ void Aventador::update(glm::mat4 parentTransform) {
 
 	for (int i = 0; i < wheel.size(); i++) {
 		wheel[i].get()->update(tempTransform);
+	}
+	if (hasPowerUp()) {
+		currentPowerUp[0].get()->update(tempTransform);
 	}
 }
 
@@ -158,6 +162,9 @@ void Aventador::render(glm::mat4 parentTransform) {
 
 	for (int i = 0; i < wheel.size(); i++) {
 		wheel[i].get()->render(tempTransform);
+	}
+	if (hasPowerUp()) {
+		currentPowerUp[0].get()->render(tempTransform);
 	}
 }
 
@@ -521,6 +528,16 @@ void Aventador::usePowerUp() {
 	}
 }
 
+void Aventador::updateCurrentPowerUp() {
+	if (genPowerUp) {
+		currentPowerUp.push_back(std::unique_ptr<PowerUpBubble>(new PowerUpBubble));
+		genPowerUp = false;
+	}
+	if (!hasPowerUp()) {
+		currentPowerUp.clear();
+	}
+}
+
 void Aventador::changeRole() {
 	aventadorData.isFront = !aventadorData.isFront;
 	aventadorData.fuel = aventadorData.tankSize;
@@ -553,4 +570,12 @@ void AventadorWheel::renderShadowMap(glm::mat4 parentTransform) {
 void AventadorWheel::render(glm::mat4 parentTransform) {
 	Graphics::RenderInstanced(&Resources::aventadorWheel, &Resources::darkGreyMaterial, parentTransform*tempTransform);
 	Graphics::RenderInstanced(&Resources::aventadorWheelGlow, &Resources::emmisiveMaterial, parentTransform*tempTransform);
+}
+
+void PowerUpBubble::update(glm::mat4 parentTransform) {
+	tempTransform = translate(transform, vec3(0.0f, 2.0, 0.0f));
+}
+
+void PowerUpBubble::render(glm::mat4 parentTransform) {
+	Graphics::RenderInstanced(&Resources::centeredCube, &Resources::darkGreyMaterial, parentTransform*tempTransform);
 }

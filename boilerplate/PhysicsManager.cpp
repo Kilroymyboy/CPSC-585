@@ -250,6 +250,7 @@ void ContactBehaviourCallback::onContact(const PxContactPairHeader& pairHeader, 
 				}
 				//have aventador hold the power up. Holds one power up at a time
 				if (!a->hasPowerUp()) {
+					a->genPowerUp = true;
 					if((a->isFront()) == true){
 						int random = rand() % 3 + 1;
 						a->setPowerUpStatus(random);
@@ -291,6 +292,7 @@ void ContactBehaviourCallback::onContact(const PxContactPairHeader& pairHeader, 
 
 				//have aventador hold the power up. Holds one power up at a time
 				if (!a->hasPowerUp()) {
+					a->genPowerUp = true;
 					if ((a->isFront()) == true) {
 						int random = rand() % 3 + 1;
 						a->setPowerUpStatus(random);
