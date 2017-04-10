@@ -577,5 +577,5 @@ void PowerUpBubble::update(glm::mat4 parentTransform) {
 }
 
 void PowerUpBubble::render(glm::mat4 parentTransform) {
-	Graphics::RenderInstanced(&Resources::centeredCube, &Resources::darkGreyMaterial, parentTransform*tempTransform);
+	Graphics::RenderInstanced(&Resources::powerUpBubble, &Resources::coralMaterial, parentTransform*tempTransform);
 }

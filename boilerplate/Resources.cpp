@@ -5,7 +5,7 @@
 
 namespace Resources {
 	Graphics::MyGeometry aventadorBody, aventadorBodyGlow, aventadorUnder, aventadorWheel, aventadorWheelGlow;
-	Graphics::MyGeometry plane, cube, centeredCube, powerup;
+	Graphics::MyGeometry plane, centeredCube, powerUpBubble;
 	Graphics::MyShader standardShader;
 	Graphics::MyGeometry gridLines;
 	Graphics::MyTexture gridTexture;
@@ -18,8 +18,10 @@ namespace Resources {
 		Graphics::loadGeometry(&aventadorWheel, "models/aventador_wheel.obj");
 		Graphics::loadGeometry(&aventadorWheelGlow, "models/aventador_wheel_glow.obj");
 		Graphics::loadGeometry(&plane, "models/planea.obj");
-		Graphics::loadGeometry(&cube, "models/cube.obj");
-		Graphics::loadGeometry(&centeredCube, "models/cube_center.obj");
+		//Graphics::loadGeometry(&cube, "models/cube.obj");
+		Graphics::loadGeometry(&centeredCube, "models/smallSphere.obj");
+		Graphics::loadGeometry(&powerUpBubble, "models/smallSphere.obj");
+
 
 
 		Geometry::initPlaneGeometry(&gridLines, 1000, 1000, 500);
