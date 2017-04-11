@@ -293,13 +293,17 @@ namespace Sound
 	void updateSources()
 	{
 		PxTransform frontPos = Game::aventador0->actor->getGlobalPose();
-		alSource3f(1, AL_POSITION, frontPos.p.x, frontPos.p.y, frontPos.p.z);
+		alSource3f(1, AL_POSITION, (ALfloat)frontPos.p.x, (ALfloat)frontPos.p.y, (ALfloat)frontPos.p.z);
 
 		float dist = glm::distance(glm::vec3(frontPos.p.x, frontPos.p.y, frontPos.p.z), glm::vec3(1));
 
 		alDistanceModel(AL_INVERSE_DISTANCE);
-		float vol = 4 / (4 +  2  * (dist)-4);
+		ALfloat vol = 4 / (4 +  2  * (dist)-4);
 
+
+
+		alGetSourcef(1, AL_GAIN, &vol);
+		alSourcef(1, AL_GAIN, vol + .6);
 
 
 
@@ -307,11 +311,11 @@ namespace Sound
 		//checkError();
 
 
-		alSourcef(1, AL_GAIN, .2);
-		checkError();
+		//alSourcef(1, AL_GAIN, .2);
+		//checkError();
 
-		alSourcef(2, AL_GAIN, 2);
-		checkError();
+		//alSourcef(2, AL_GAIN, 2);
+		//checkError();
 
 
 
@@ -344,8 +348,9 @@ namespace Sound
 
 		}
 
-
 		ALint source_state;
+
+
 
 		alGetSourcei(toPlay.source, AL_SOURCE_STATE, &source_state);
 		checkError();
@@ -355,20 +360,19 @@ namespace Sound
 		}
 		else
 		{
+			cout << "I LOVE JOHNNBI" << endl;
 			alBufferData(toPlay.buffer, toPlay.format, (ALvoid*)toPlay.songBuf, (ALsizei)toPlay.dataSize, (ALsizei)toPlay.sampleRate);
 			checkError();
+
 
 			alSourcei(toPlay.source, AL_BUFFER, toPlay.buffer);
 			checkError();
 			alSourcePlay(toPlay.source);
 		}
-
-
-		alBufferData(toPlay.buffer, toPlay.format, (ALvoid*)toPlay.songBuf, (ALsizei)toPlay.dataSize, (ALsizei)toPlay.sampleRate);
-		checkError();
-
-		alSourcei(toPlay.source, AL_BUFFER, toPlay.buffer);
-		checkError();
-		alSourcePlay(toPlay.source);
 	} 
+	void stopSound(ALuint a)
+	{
+		alSourceStop(a);
+	}
+
 } 

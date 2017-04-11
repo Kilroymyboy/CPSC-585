@@ -1,6 +1,7 @@
 #include "Aventador.h"
 #include "Game.h"
 #include "PowerUp.h"
+#include "Sound.h"
 #include <glm\gtx\projection.hpp>
 
 using namespace std;
@@ -207,6 +208,7 @@ void Aventador::updateFriction() {
 			}
 			else {
 				if (Keyboard::keyDown(aventadorId ? GLFW_KEY_UP : GLFW_KEY_W)) {
+					Sound::playSound(2);
 					PxRigidBodyExt::addLocalForceAtLocalPos(*actor,
 						PxVec3(sin(wheelA) * aventadorData.force, 0, cos(wheelA) *  aventadorData.force),
 						Util::g2p(wheelPos[i] - vec3(0, aventadorData.dimensionHeight, 0)), PxForceMode::eFORCE);
@@ -335,6 +337,7 @@ void Aventador::updateDrift() {
 
 void Aventador::updateBraking() {
 	if (Keyboard::keyDown(aventadorId ? GLFW_KEY_RIGHT_CONTROL : GLFW_KEY_LEFT_CONTROL)) {
+		Sound::stopSound(2);
 		brakeForce = min(brakeForce + aventadorData.brakeSpeed, aventadorData.maxBrakeForce);
 	}
 	if (aventadorId == 0) {

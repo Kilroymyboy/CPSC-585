@@ -49,7 +49,7 @@ int main(int argc, char *argv[])
 			PhysicsManager::update(1);
 		}*/
 		Sound::playSound(1);
-		Sound::playSound(2);
+		//Sound::playSound(2);
 		Sound::updateSources();
 		Sound::updateListener();
 

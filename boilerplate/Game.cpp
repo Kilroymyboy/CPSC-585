@@ -48,7 +48,7 @@ namespace Game {
 
 	void update() {
 		glfwPollEvents();
-
+		addPowerUp();
 		for (auto it = entities.begin(); it != entities.end(); it++) {
 			if (it->get()->alive) {
 				it->get()->update(mat4(1));
@@ -67,8 +67,8 @@ namespace Game {
 			entities.clear();
 			init();
 		}
-		addPowerUp();
-		checkDistance();
+
+		//checkDistance();
 	}
 
 	//adding more power ups into the scene
