@@ -10,6 +10,9 @@ namespace Resources {
 	Graphics::MyGeometry gridLines;
 	Graphics::MyTexture gridTexture;
 
+
+	Graphics::MyGeometry allmenu;
+
 	void init() {
 		Graphics::loadGeometry(&aventadorBody, "models/aventador_body.obj");
 		Graphics::loadGeometry(&aventadorBodyGlow, "models/aventador_body_glow.obj");
@@ -22,6 +25,7 @@ namespace Resources {
 		Graphics::loadGeometry(&centeredCube, "models/cube_center.obj");
 		Graphics::loadGeometry(&powerUpBubble, "models/smallSphere.obj");
 
+		Graphics::loadGeometry(&allmenu, "models/texts/all.obj");
 
 		Geometry::initPlaneGeometry(&gridLines, 1000, 1000, 500);
 		Graphics::InitializeShaders(&standardShader, "vertex.glsl", "fragment.glsl");

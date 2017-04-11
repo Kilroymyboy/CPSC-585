@@ -5,6 +5,7 @@
 #include "Path.h"
 #include "PowerUpList.h"
 #include "Skybox.h"
+#include "Menu.h"
 
 using namespace std;
 using namespace glm;
@@ -39,6 +40,8 @@ namespace Game {
 
 		entities.push_back(unique_ptr<Plane>(new Plane));
 		entities.push_back(unique_ptr<Skybox>(new Skybox(1000)));
+
+		entities.push_back(unique_ptr<Menu::All>(new Menu::All));
 	}
 
 	void update() {

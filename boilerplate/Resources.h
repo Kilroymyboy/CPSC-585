@@ -31,4 +31,6 @@ namespace Resources {
 	extern Graphics::Material pathMaterial;
 
 	extern Graphics::Material planeMaterial;
+
+	extern Graphics::MyGeometry allmenu;
 }
