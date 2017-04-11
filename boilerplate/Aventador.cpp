@@ -588,9 +588,8 @@ void PowerUpBubble::render(glm::mat4 parentTransform) {
 	else if(powerUpType == 4)
 		Graphics::RenderInstanced(&Resources::powerUpBubble, &Resources::teal, parentTransform*tempTransform);
 	else if(powerUpType == 5)
-		Graphics::RenderInstanced(&Resources::powerUpBubble, &Resources::olivedrab, parentTransform*tempTransform);
+		Graphics::RenderInstanced(&Resources::powerUpBubble, &Resources::olive, parentTransform*tempTransform);
 	else
 		Graphics::RenderInstanced(&Resources::powerUpBubble, &Resources::salmon, parentTransform*tempTransform);
-
 
 }

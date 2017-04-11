@@ -24,7 +24,7 @@ namespace Resources {
 	extern Graphics::Material brown;
 	extern Graphics::Material pink;
 	extern Graphics::Material teal;
-	extern Graphics::Material olivedrab;
+	extern Graphics::Material olive;
 	extern Graphics::Material brightgray;
 	extern Graphics::Material salmon;
 
