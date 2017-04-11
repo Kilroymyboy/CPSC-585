@@ -4,24 +4,29 @@
 
 namespace Resources {
 	extern Graphics::MyGeometry aventadorBody, aventadorBodyGlow, aventadorUnder, aventadorWheel, aventadorWheelGlow;
-	extern Graphics::MyGeometry plane, cube, centeredCube;
+	extern Graphics::MyGeometry plane, cube, centeredCube, powerUpBubble;
 	extern Graphics::MyShader standardShader;
+	extern Graphics::MyGeometry gridLines;
+
+	extern Graphics::MyTexture gridTexture;
 
 	void init();
 
-	void nullMaterial();
+	extern Graphics::Material defaultMaterial;
+	extern Graphics::Material darkGreyMaterial;
+	extern Graphics::Material emmisiveMaterial;
+	extern Graphics::Material pureBlackMaterial;
 
-	void defaultMaterial();
+	extern Graphics::Material coralMaterial;
+	extern Graphics::Material paleGreenMaterial;
+	//http://cloford.com/resources/colours/500col.htm
+	extern Graphics::Material beet;
+	extern Graphics::Material brown;
+	extern Graphics::Material pink;
+	extern Graphics::Material teal;
+	extern Graphics::Material olive;
+	extern Graphics::Material brightgray;
+	extern Graphics::Material salmon;
 
-	void darkGreyMaterial();
-
-	void pureBlackMaterial();
-
-	void coralMaterial();
-
-	void paleGreenMaterial();
-
-	void emmisiveBlueMaterial();
-
-	void emmisiveMaterial();
+	extern Graphics::Material planeMaterial;
 }

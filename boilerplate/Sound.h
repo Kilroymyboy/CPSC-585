@@ -7,6 +7,7 @@
 #include <direct.h>
 #include <cstdlib>
 #include <iostream>
+#include "Game.h"
 
 namespace Sound
 {
@@ -29,9 +30,10 @@ namespace Sound
 	void setListener();
 	void list_audio_devices(const ALCchar *devices);
 	void playSound(ALuint a);
+	void updateSources();
+	void updateListener();
 
 	extern ALCdevice device;
 	extern ALCcontext *ctx;
 	
 };
-

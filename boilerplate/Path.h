@@ -1,25 +1,30 @@
 #pragma once
 
 #include "Graphics.h"
-#include "Game.h"
+#include "Aventador.h"
 
 class Path :public Entity {
 	Graphics::MyGeometry geometry;
 	std::vector<glm::vec3> positions;
 	std::vector<glm::vec3> normals;
-	std::vector<glm::vec3> currentpts;
-	Aventador *frontAventador;
+	std::vector<glm::vec2> uvs;
+
+	float offset=1;
 	int size;
 	double cooldown;
 	double nextGenTime;
+	Aventador* aventador;
 
-	int wheel0;
-	int wheel1;
 
-	void genBuffer();
+	// generate the geometry again
+	void generate();
+	void updateOffset(float &offset);
 public:
 	void update(glm::mat4 parentTransform)override;
 	void render(glm::mat4 parentTransform)override;
-	Path(int geometrySize, int wheel0, int wheel1);
-	std::vector<glm::vec3> getPathPoints();
+	Path(int geometrySize);
+	bool pointInPath(float x, float y);
+	void setCenterPoints();
+
+	std::vector<PxVec3> centerPoints;
 };
