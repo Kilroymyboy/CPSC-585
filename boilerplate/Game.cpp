@@ -20,7 +20,7 @@ namespace Game {
 	vector<PowerUp*> aiPowerUps;
 
 
-	double spawnCoolDown = 15;
+	double spawnCoolDown = 20;
 	double powerUpSpawnTime = Time::time += spawnCoolDown;
 
 	float impulse = 100;

@@ -42,7 +42,7 @@ namespace Graphics {
 
 	bool SPLIT_SCREEN = 1;
 	// 0 horizontal/side by side, 1 vertical/stacked
-	int SPLIT_SCREEN_ORIENTATION = 0;
+	int SPLIT_SCREEN_ORIENTATION = 1;
 
 	bool SHADOW = 1;
 	int SOFT_SHADOW = 1;
@@ -960,7 +960,7 @@ namespace Viewport {
 
 	void update(int id) {
 		double splitscreenRatio = Graphics::SPLIT_SCREEN ? (Graphics::SPLIT_SCREEN_ORIENTATION ? 2 : 0.5) : 1;
-		projection[id] = perspective(PI / 3, (double)WINDOW_WIDTH / WINDOW_HEIGHT * splitscreenRatio, 0.1, 2000.0);
+		projection[id] = perspective(PI / 3, (double)WINDOW_WIDTH / WINDOW_HEIGHT * splitscreenRatio, 0.1, 2500.0);
 		transform[id] = lookAt(position[id], target[id], vec3(0, 1, 0));
 		glUniformMatrix4fv(VIEW_LOCATION, 1, false, &transform[id][0][0]);
 		glUniformMatrix4fv(PROJECTION_LOCATION, 1, false, &projection[id][0][0]);

@@ -91,14 +91,16 @@ void Aventador::update(glm::mat4 parentTransform) {
 	updateColour();
 	updateCurrentPowerUp(bubbleType);
 
-	//if (!aventadorData.isFront)
-		//updateFuel();
+	if (!aventadorData.isFront)
+		updateFuel();
 
 
 	updateLightCamera();
 	usePowerUp();
 
 	for (int i = 0; i < wheel.size(); i++) {
+		wheel[i].get()->material.color = material.color;
+		wheel[i].get()->material.emmisiveColor = material.emmisiveColor;
 		wheel[i].get()->update(tempTransform);
 	}
 	if (hasPowerUp()) {
@@ -581,7 +583,7 @@ void AventadorWheel::renderShadowMap(glm::mat4 parentTransform) {
 
 void AventadorWheel::render(glm::mat4 parentTransform) {
 	Graphics::RenderInstanced(&Resources::aventadorWheel, &Resources::darkGreyMaterial, parentTransform*tempTransform);
-	Graphics::RenderInstanced(&Resources::aventadorWheelGlow, &Resources::emmisiveMaterial, parentTransform*tempTransform);
+	Graphics::RenderInstanced(&Resources::aventadorWheelGlow, &material, parentTransform*tempTransform);
 }
 
 void PowerUpBubble::update(glm::mat4 parentTransform) {

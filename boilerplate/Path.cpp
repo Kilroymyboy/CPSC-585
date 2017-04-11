@@ -64,7 +64,7 @@ void Path::updateOffset(float &offset) {
 		offset = 0;
 	}
 	else {
-		offset += 0.001;
+		offset += 0;
 	}
 }
 

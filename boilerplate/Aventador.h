@@ -56,6 +56,7 @@ public:
 	float rotateInverse;
 	float facingAngle = 0;
 	float height;
+	Graphics::Material material;
 	glm::mat4 tempTransform;
 	void update(glm::mat4 parentTransform)override;
 	void renderShadowMap(glm::mat4 parentTransform)override;
