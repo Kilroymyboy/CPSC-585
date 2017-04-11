@@ -11,8 +11,11 @@ class PowerUp : public Entity {
 	double deleteTime;
 	PxVec3 direction;
 	PxTransform t;
+	Graphics::Material *colour;
 
 	int pseudoRand();
+	void pickedUp();
+	void erasePowerUp();
 
 public:
 	PowerUp();

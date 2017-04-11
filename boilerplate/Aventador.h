@@ -69,7 +69,7 @@ class PowerUpBubble : public Entity {
 public:
 	void update(glm::mat4 parentTransform)override;
 	void render(glm::mat4 parentTransform)override;
-	int powerUpType;
+	Graphics::Material *material;
 };
 
 class Aventador : public Entity {

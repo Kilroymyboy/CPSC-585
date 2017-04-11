@@ -529,10 +529,21 @@ void Aventador::usePowerUp() {
 	}
 }
 
-void Aventador::updateCurrentPowerUp(int t) {
+void Aventador::updateCurrentPowerUp(int type) {
 	if (createBubble) {
 		currentPowerUp.push_back(std::unique_ptr<PowerUpBubble>(new PowerUpBubble));
-		currentPowerUp[0]->powerUpType = t;
+		if (type == 1)
+			currentPowerUp[0]->material = &Resources::beet;
+		else if (type == 2)
+			currentPowerUp[0]->material = &Resources::brown;
+		else if (type == 3)
+			currentPowerUp[0]->material = &Resources::pink;
+		else if (type == 4)
+			currentPowerUp[0]->material = &Resources::teal;
+		else if (type == 5)
+			currentPowerUp[0]->material = &Resources::olive;
+		else
+			currentPowerUp[0]->material = &Resources::salmon;
 		createBubble = false;
 	}
 	if (!hasPowerUp()) {
@@ -579,17 +590,5 @@ void PowerUpBubble::update(glm::mat4 parentTransform) {
 }
 
 void PowerUpBubble::render(glm::mat4 parentTransform) {
-	if(powerUpType == 1)
-		Graphics::RenderInstanced(&Resources::powerUpBubble, &Resources::beet, parentTransform*tempTransform);
-	else if(powerUpType == 2)
-		Graphics::RenderInstanced(&Resources::powerUpBubble, &Resources::brown, parentTransform*tempTransform);
-	else if(powerUpType == 3)
-		Graphics::RenderInstanced(&Resources::powerUpBubble, &Resources::pink, parentTransform*tempTransform);
-	else if(powerUpType == 4)
-		Graphics::RenderInstanced(&Resources::powerUpBubble, &Resources::teal, parentTransform*tempTransform);
-	else if(powerUpType == 5)
-		Graphics::RenderInstanced(&Resources::powerUpBubble, &Resources::olive, parentTransform*tempTransform);
-	else
-		Graphics::RenderInstanced(&Resources::powerUpBubble, &Resources::salmon, parentTransform*tempTransform);
-
+	Graphics::RenderInstanced(&Resources::powerUpBubble, material, parentTransform*tempTransform);
 }
