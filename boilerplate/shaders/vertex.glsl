@@ -33,7 +33,6 @@ layout(location = 12) uniform vec3 AmbientLight;
 layout(location = 13) uniform mat4 shadowMVP;
 layout(location = 14) uniform int softShadow;
 
-layout(location = 15) uniform float useEmissiveTexture;
 
 out vec3 Normal;
 out vec2 TexCoord;

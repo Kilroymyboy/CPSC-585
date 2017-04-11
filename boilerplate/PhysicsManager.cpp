@@ -111,12 +111,21 @@ namespace PhysicsManager {
 	PxRigidDynamic* createDynamic(const PxTransform& t, const PxVec3& dimensions, const PxVec3& velocity)
 	{
 		PxBoxGeometry geometry(dimensions);
+
 		PxRigidDynamic* dynamic = PxCreateDynamic(*mPhysics, t, geometry, *mMaterial, 1.0f);
-		//actor = PxCreateDynamic(*PhysicsManager::mPhysics, t, geometry, *PhysicsManager::mPhysics->createMaterial(0.1f, 0.1f, 0.5f), PxReal(1.0f));
-		
+
 		dynamic->setAngularDamping(0.2f);
 
 		dynamic->setLinearVelocity(velocity);
+		mScene->addActor(*dynamic);
+		return dynamic;
+	}
+
+	PxRigidDynamic* createDynamic2(const PxTransform& t, const PxVec3& dimensions)
+	{
+		PxBoxGeometry geometry(dimensions);
+		PxRigidDynamic* dynamic = PxCreateDynamic(*mPhysics, t, geometry, *mMaterial, 1.0f);
+
 		mScene->addActor(*dynamic);
 		return dynamic;
 	}
@@ -129,6 +138,7 @@ namespace PhysicsManager {
 		shape->release();
 	}
 
+	//triggers at any kind of contact
 	void attachTriggerShape(PxRigidDynamic *actor, const PxVec3& dimensions) {
 		//exclusion means that the shape is not shared among objects
 		PxShape *shape = PxGetPhysics().createShape(PxBoxGeometry(dimensions), *mMaterial, true);
@@ -171,12 +181,12 @@ namespace PhysicsManager {
 		}
 
 		// Generate a default contact report
-		pairFlags |= PxPairFlag::eCONTACT_DEFAULT | PxPairFlag::eMODIFY_CONTACTS;
+		pairFlags |= PxPairFlag::eCONTACT_DEFAULT;
 
 		//check if the filter group and mask match
 		if ((filterData0.word0 & filterData1.word1) && (filterData1.word0 & filterData0.word1))
 		{
-			pairFlags |= PxPairFlag::eNOTIFY_TOUCH_FOUND;
+			pairFlags |= PxPairFlag::eNOTIFY_TOUCH_FOUND | PxPairFlag::eMODIFY_CONTACTS;
 		}
 
 		// Add the Continuous Collision Detection (CCD) flag, so that
@@ -192,8 +202,6 @@ namespace PhysicsManager {
 	}
 }
 
-/******************************************************************************************************************************/
-
 void ContactBehaviourCallback::onContact(const PxContactPairHeader& pairHeader, const PxContactPair* pairs, PxU32 nbPairs) {
 	for (PxU32 i = 0; i < nbPairs; i++)
 	{
@@ -203,64 +211,95 @@ void ContactBehaviourCallback::onContact(const PxContactPairHeader& pairHeader, 
 		{
 			PxRigidActor* a0 = Game::aventador0->actor;
 			PxRigidActor* a1 = Game::aventador1->actor;
+
+			const char* name0 = "powerup0";
+			const char* name1 = "powerup1";
+
 			bool isAventador0 = pairHeader.actors[0] == a0 || pairHeader.actors[1] == a0;
 			bool isAventador1 = pairHeader.actors[0] == a1 || pairHeader.actors[1] == a1;
-			bool isPowerUp = pairHeader.actors[0]->getName() == "powerup" || pairHeader.actors[1]->getName() == "powerup";
+			bool isPowerUp0 = pairHeader.actors[0]->getName() == name0 || pairHeader.actors[1]->getName() == name0;
+			bool isPowerUp1 = pairHeader.actors[0]->getName() == name1 || pairHeader.actors[1]->getName() == name1;
 
-			/*swtiching the front/back roles
-				setName() is not allowed here. Need to figure out another way
-			*/
 			if (isAventador0 && isAventador1) {
-				std::cout << "Aventador made contact with another aventador\n";
-
-				/*
-				if (a0->getName() == "front") {
-					a0->setName("back");
-					a1->setName("front");
-				}
-				else {
-					a0->setName("front");
-					a1->setName("back");
-				}
-				*/
-
-				//for testing: force one of the actors to change positions.
-				//	-causes an overwrite error
-				PxTransform pose(PxVec3(0, 1, 0));
-				a0->setGlobalPose(pose);
-				
+				//Role swtiching is determined in Game.cpp
+				//Game::switchRole();
 				break;
 			}
-			else if (isPowerUp) {
+			else if (isPowerUp0 && isAventador0) {
+				Aventador* a = Game::aventador0.get();
 				//remove the power up from the scene
-				PxRigidActor* pickedUp = (pairHeader.actors[0]->getName() == "powerup") ? pairHeader.actors[0] : pairHeader.actors[1];
-				PxRigidActor* aventador = (pairHeader.actors[0]->getName() == "powerup") ? pairHeader.actors[1] : pairHeader.actors[0];
-				auto power = find_if(Game::entities.begin(), Game::entities.end(), [&](std::shared_ptr<Entity>toFind) {
-					PowerUp* power = static_cast<PowerUp*>(toFind.get());
-					return power->getActor() == pickedUp; });
+				PxRigidActor* pickedUp = (pairHeader.actors[0]->getName() == name0) ? pairHeader.actors[0] : pairHeader.actors[1];
 
-				if (power != Game::entities.end()) {
-					Game::entities.erase(power);
+				for (std::list<std::shared_ptr<Entity>>::iterator itr = Game::entities.begin(); itr != Game::entities.end(); ++itr) {
+					if (static_cast<PowerUp*>(itr->get())->getActor() == pickedUp) {
+						if (a->isFront()) { //change powerUp to the other type
+							static_cast<PowerUp*>(itr->get())->powerId = 1;
+							pickedUp->setName(name1);	//may cause some issues
+							break;
+						}
+						else {
+							//ERROR: appears that the memory is still accessible after erase
+							//workaround: change the name of the power up so that it cannot be contacted after erase has been called
+							pickedUp->setName("erased");
+							itr = Game::entities.erase(itr);
+							break;
+						}
+					}
+				}
+				//have aventador hold the power up. Holds one power up at a time
+				if (!a->hasPowerUp()) {
+					if((a->isFront()) == true){
+						int random = rand() % 3 + 1;
+						a->setPowerUpStatus(random);
+						std::cout << "Front Powerup value " << random << std::endl;
+					}
+					else if ((a->isFront()) == false){
+						int random = rand() % 3 + 3;
+						a->setPowerUpStatus(random);
+						std::cout << "Back Powerup value " << random << std::endl;
+					}
+				}
+				break;
+			}
+			else if (isPowerUp1 && isAventador1) {
+				std::cout << "picked up powerup\n";
+				Aventador* a = Game::aventador1.get();
+				//remove the power up from the scene
+				PxRigidActor* pickedUp = (pairHeader.actors[0]->getName() == name1) ? pairHeader.actors[0] : pairHeader.actors[1];
+
+				for (std::list<std::shared_ptr<Entity>>::iterator itr = Game::entities.begin(); itr != Game::entities.end(); ++itr) {
+					if (static_cast<PowerUp*>(itr->get())->getActor() == pickedUp) {
+						if (a->isFront()) { //change powerUp to the other type
+							static_cast<PowerUp*>(itr->get())->powerId = 0;
+							pickedUp->setName(name0);	//may cause some issues
+							break;
+						}
+						else {
+							//ERROR: appears that the memory is still accessible after erase
+							//workaround: change the name of the power up so that it cannot be contacted after erase has been called
+							pickedUp->setName("erased");
+							itr = Game::entities.erase(itr);
+							break;
+						}
+					}
 				}
 
-				if (isAventador0) {
-					std::cout << "aventador0 contacted a power up\n";
-					//have aventador hold the power up. Holds one power up at a time
-					Aventador* a = Game::aventador0.get();
-					if (!a->hasPowerUp()) {
-						a->setPowerUpStatus(true);
+				std::cout << "aventador1 contacted a power up\n";
+
+				//have aventador hold the power up. Holds one power up at a time
+				if (!a->hasPowerUp()) {
+					if ((a->isFront()) == true) {
+						int random = rand() % 3 + 1;
+						a->setPowerUpStatus(random);
+						std::cout << "Front Powerup value " << random << std::endl;
 					}
-					break;
-				}
-				else if (isAventador1) {
-					std::cout << "aventador0 contacted a power up\n";
-					//have aventador hold the power up. Holds one power up at a time
-					Aventador* a = Game::aventador1.get();
-					if (!a->hasPowerUp()) {
-						a->setPowerUpStatus(true);
+					else if ((a->isFront()) == false) {
+						int random = rand() % 3 + 3;
+						a->setPowerUpStatus(random);
+						std::cout << "Back Powerup value " << random << std::endl;
 					}
-					break;
 				}
+				break;
 			}
 		}
 	}
@@ -272,13 +311,6 @@ static void ignoreContacts(PxContactModifyPair& pair) {
 	}
 }
 
-static void setTargetVelocity(PxContactModifyPair& pair, const PxVec3& targetVelocity) {
-	for (PxU32 i = 0; i < pair.contacts.size(); ++i)
-	{
-		pair.contacts.setTargetVelocity(i, targetVelocity);
-	}
-}
-
 void ContactModifyCallback::onContactModify(PxContactModifyPair* const pairs, PxU32 count) {
 
 	for (PxU32 i = 0; i < count; i++) {
@@ -286,14 +318,6 @@ void ContactModifyCallback::onContactModify(PxContactModifyPair* const pairs, Px
 
 		if (flags & ContactModFlags::eIGNORE_CONTACT) {
 			ignoreContacts(pairs[i]);
-		}
-
-		//increase the speed of the back car?
-		//doesn't work yet
-		const PxVec3 targetVelocity(0.f, 0.f, 100.f);
-		bool isBackAventator = pairs->actor[0] == Game::aventador1->actor || pairs->actor[1] == Game::aventador1->actor;
-		if ((flags & ContactModFlags::eTARGET_VELOCITY)){
-			setTargetVelocity(pairs[i],targetVelocity);
 		}
 	}
 }

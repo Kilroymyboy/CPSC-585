@@ -1,30 +1,33 @@
 #include "PowerUp.h"
+#include "Game.h"
 using namespace std;
 using namespace glm;
 using namespace physx;
 
 PowerUp::PowerUp() {
 	powerId = pseudoRand() % 2; //0 or 1;
-	PxTransform t(getRandLocation(), PxQuat::createIdentity());
+	deleteTime = Time::time += countDown;
 	PxVec3 dimensions(0.5f, 0.5f, 0.5f);
-	actor = PhysicsManager::createDynamic(t, dimensions);
-	actor->setName("powerup");
-
-	/*
-		note:	eIGNORE_CONACT causes the cubes to fall through the infinite ground plane
-					-eDISABLE_GRAVITY is a work around for this
-				This flag does not have the same effect for a aventators for some reason
-					-possibly because of the wheels?
-	*/
-	actor->userData = (void*)ContactModFlags::eIGNORE_CONTACT;
-	actor->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, true);
-	//PhysicsManager::attachTriggerShape(actor, dimensions);
-	PhysicsManager::attachSimulationShape(actor, dimensions, 0);
+	
 	if (powerId == 0) {
-		PhysicsManager::setContactFilter(actor, FilterGroup::ePowerUp0, FilterGroup::eAventador0);
+		t = PxTransform(Game::aventador0->actor->getGlobalPose());
 	}
 	else {
-		PhysicsManager::setContactFilter(actor, FilterGroup::ePowerUp1, FilterGroup::eAventador1);
+		t = PxTransform(Game::aventador1->actor->getGlobalPose());
+	}
+
+	PxTransform r(getRandLocation(), PxQuat::createIdentity());
+	t.operator*=(r);
+	actor = PhysicsManager::createDynamic(t, dimensions);
+	actor->userData = (void*)ContactModFlags::eIGNORE_CONTACT;
+	PhysicsManager::attachSimulationShape(actor, dimensions, 0);
+	PhysicsManager::setContactFilter(actor, FilterGroup::ePowerUp, FilterGroup::eAventador);
+
+	if (powerId == 0) {
+		actor->setName("powerup0");
+	}
+	else {
+		actor->setName("powerup1");
 	}
 }
 
@@ -37,6 +40,13 @@ void PowerUp::update(mat4 parentTransform) {
 	transform = m;
 
 	Light::renderShadowMap(&Resources::centeredCube, transform);
+
+	// power up time out
+	if (Time::time > deleteTime) {
+		alive = false;
+		actor->setName("erased");
+	}
+	
 }
 
 void PowerUp::render(mat4 parentTransform) {
@@ -54,12 +64,17 @@ physx::PxRigidDynamic *const PowerUp::getActor() {
 
 PxVec3 PowerUp::getRandLocation() {
 	float x, y, z;
-	x = (float)(pseudoRand() %20) - 10; //random number between -10 to 9
-	y = 1.0f;
-	z = (float)(pseudoRand() %20);
-	
+	x = (float)(pseudoRand() %30) - 15;
+	y = 2.0f;
+	z = (float)(pseudoRand() %50) + 100;	
 	return PxVec3(x, y, z);
 }
+
+void PowerUp::use()
+{
+	printf("POWERUP ERROR\n");
+}
+
 
 int PowerUp::pseudoRand() {
 	// our initial starting seed is 5323

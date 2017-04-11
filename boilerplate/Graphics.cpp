@@ -919,7 +919,7 @@ namespace Graphics {
 				}
 				ivec3 tv(vertexIndex[0] - 1, vertexIndex[1] - 1, vertexIndex[2] - 1);
 				bufferVertices.push_back(vertices[tv.x]);
-				bufferVertices.push_back(vertices[tv.y]);
+ 				bufferVertices.push_back(vertices[tv.y]);
 				bufferVertices.push_back(vertices[tv.z]);
 				ivec3 tn(normalIndex[0] - 1, normalIndex[1] - 1, normalIndex[2] - 1);
 				bufferNormals.push_back(normals[tn.x]);

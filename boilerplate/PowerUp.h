@@ -5,9 +5,13 @@
 #include "Graphics.h"
 #include "FilterGroup.h"
 
-class PowerUp :public Entity {
+class PowerUp : public Entity {
 	physx::PxRigidDynamic *actor;
-	int powerId;
+	double countDown = 15.0;
+	double deleteTime;
+	PxVec3 direction;
+	PxTransform t;
+
 	int pseudoRand();
 
 public:
@@ -15,5 +19,8 @@ public:
 	void update(glm::mat4 parentTransform)override;
 	void render(glm::mat4 parentTransform)override;
 	physx::PxRigidDynamic *const getActor();
-	PxVec3 PowerUp::getRandLocation();
+	PxVec3 getRandLocation();
+	virtual void use();
+
+	int powerId;
 };

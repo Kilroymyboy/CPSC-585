@@ -5,7 +5,7 @@
 
 namespace Resources {
 	Graphics::MyGeometry aventadorBody, aventadorBodyGlow, aventadorUnder, aventadorWheel, aventadorWheelGlow;
-	Graphics::MyGeometry plane, cube, centeredCube;
+	Graphics::MyGeometry plane, cube, centeredCube, powerup;
 	Graphics::MyShader standardShader;
 	Graphics::MyGeometry gridLines;
 	Graphics::MyTexture gridTexture;
