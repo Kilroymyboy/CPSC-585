@@ -46,4 +46,6 @@ namespace Resources {
 	Graphics::Material teal(glm::vec3(0.5), glm::vec3(0.36, 1.22, 1.22));
 	Graphics::Material olive(glm::vec3(0.5), glm::vec3(1.05, 1.05, 0.25));
 	Graphics::Material salmon(glm::vec3(0.5), glm::vec3(1.50, 0.20, 0.20));
+
+	Graphics::Material pathMaterial(glm::vec3(1), glm::vec3(0.8, 1.5, 2.8));
 }

@@ -28,5 +28,7 @@ namespace Resources {
 	extern Graphics::Material brightgray;
 	extern Graphics::Material salmon;
 
+	extern Graphics::Material pathMaterial;
+
 	extern Graphics::Material planeMaterial;
 }
