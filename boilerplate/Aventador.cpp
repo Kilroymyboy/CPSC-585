@@ -3,6 +3,7 @@
 #include "PowerUp.h"
 #include "Sound.h"
 #include <glm\gtx\projection.hpp>
+#include <math.h>
 
 using namespace std;
 using namespace glm;
@@ -43,7 +44,7 @@ Aventador::Aventador(int id) {
 	wheel[3].get()->rotateInverse = -1;
 
 
-	PxTransform t(PxVec3(0, 5, 0), PxQuat::createIdentity());
+	PxTransform t(PxVec3(10, 5, 0), PxQuat::createIdentity());
 	PxVec3 dimensions(aventadorData.dimensionWidth, aventadorData.dimensionHeight, aventadorData.dimensionLength);
 
 	actor = PhysicsManager::createDynamic(t, dimensions);
@@ -248,12 +249,17 @@ void Aventador::updateFriction() {
 			vec3 forwardv = proj(Util::p2g(wspeed), wheeld); forwardv.y = 0;
 			vec3 frictionv = Util::p2g(wspeed) - forwardv;
 			vec3 frictiond = -normalize(frictionv); frictiond.y = 0;
+
 			PxVec3 sideFriction = Util::g2p(frictiond / (1 + tireHeat[i]))*min(wspeed.magnitude() * aventadorData.wheelSideFriction, aventadorData.wheelSideMaxFriction),
 				brakeFriction = Util::g2p(-normalize(forwardv)*brakeForce);
 
-			PxRigidBodyExt::addForceAtPos(*actor, sideFriction + brakeFriction,
-				Util::g2p(transform*vec4(wheelPos[i] - vec3(0, aventadorData.dimensionHeight, 0), 1)), PxForceMode::eFORCE);
-			tireHeat[i] += length(frictionv) *aventadorData.tireHeatIncrease[i];
+			if (!isnan((sideFriction + brakeFriction).magnitude()))
+			{
+
+				PxRigidBodyExt::addForceAtPos(*actor, sideFriction + brakeFriction,
+					Util::g2p(transform*vec4(wheelPos[i] - vec3(0, aventadorData.dimensionHeight, 0), 1)), PxForceMode::eFORCE);
+				tireHeat[i] += length(frictionv) *aventadorData.tireHeatIncrease[i];
+			}
 		}
 	}
 }

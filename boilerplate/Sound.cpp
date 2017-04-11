@@ -165,10 +165,10 @@ namespace Sound
 
 	void checkError()
 	{
-		ALCenum error;
-		error = alGetError();
-		if (error != AL_NO_ERROR)
-			perror("CHECK ERROR");
+	//	ALCenum error;
+	//	error = alGetError();
+	//	if (error != AL_NO_ERROR)
+	//		perror("CHECK ERROR");
 	}
 
 
