@@ -42,7 +42,7 @@ namespace Graphics {
 
 	bool SPLIT_SCREEN = 1;
 	// 0 horizontal/side by side, 1 vertical/stacked
-	int SPLIT_SCREEN_ORIENTATION = 1;
+	int SPLIT_SCREEN_ORIENTATION = 0;
 
 	bool SHADOW = 1;
 	int SOFT_SHADOW = 1;
@@ -469,6 +469,7 @@ namespace Graphics {
 		instancedGeometry.push_back(&Resources::aventadorWheelGlow);
 		instancedGeometry.push_back(&Resources::gridLines);
 		instancedGeometry.push_back(&Resources::centeredCube);
+		instancedGeometry.push_back(&Resources::powerUpBubble);
 	}
 
 	int init() {

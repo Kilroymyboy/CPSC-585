@@ -27,13 +27,13 @@ void HUDobj::render(glm::mat4 parentTransform) {
 	Graphics::Render(&Resources::plane, &Resources::emmisiveMaterial, parentTransform*transform);
 }
 
-void Cube::update(glm::mat4 parentTransform) {
-	Light::renderShadowMap(&Resources::cube, parentTransform*transform);
-}
+//void Cube::update(glm::mat4 parentTransform) {
+//	Light::renderShadowMap(&Resources::cube, parentTransform*transform);
+//}
 
-void Cube::render(glm::mat4 parentTransform) {
-	Graphics::Render(&Resources::cube, &Resources::defaultMaterial, parentTransform*transform);
-}
+//void Cube::render(glm::mat4 parentTransform) {
+//	Graphics::Render(&Resources::cube, &Resources::defaultMaterial, parentTransform*transform);
+//}
 
 CenteredCube::CenteredCube(vec3 position) {
 	PxTransform t(PxVec3(position.x, position.y, position.z), PxQuat::createIdentity());

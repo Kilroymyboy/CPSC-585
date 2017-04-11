@@ -27,7 +27,6 @@ namespace PhysicsManager {
 	void init()
 	{
 		printf("initializing PhysX\n");
-
 		// Physx Physics
 		static PxDefaultErrorCallback gDefaultErrorCallback;
 		static PxDefaultAllocator gDefaultAllocatorCallback;
@@ -220,27 +219,28 @@ void ContactBehaviourCallback::onContact(const PxContactPairHeader& pairHeader, 
 			bool isPowerUp0 = pairHeader.actors[0]->getName() == name0 || pairHeader.actors[1]->getName() == name0;
 			bool isPowerUp1 = pairHeader.actors[0]->getName() == name1 || pairHeader.actors[1]->getName() == name1;
 
-			if (isAventador0 && isAventador1) {
-				//Role swtiching is determined in Game.cpp
-				//Game::switchRole();
-				break;
-			}
-			else if (isPowerUp0 && isAventador0) {
+			if (isPowerUp0 && isAventador0) {
 				Aventador* a = Game::aventador0.get();
 				//remove the power up from the scene
 				PxRigidActor* pickedUp = (pairHeader.actors[0]->getName() == name0) ? pairHeader.actors[0] : pairHeader.actors[1];
 
+				if (VS_AI) { //aventador0 is hardcoded to be the ai
+					for (int i = 0; i < Game::aiPowerUps.size(); i++) {
+						if (pickedUp == Game::aiPowerUps[i]->getActor()) {
+							Game::aiPowerUps.erase(Game::aiPowerUps.begin() + i);
+							break;
+						}
+					}
+				}
+
 				for (std::list<std::shared_ptr<Entity>>::iterator itr = Game::entities.begin(); itr != Game::entities.end(); ++itr) {
 					if (static_cast<PowerUp*>(itr->get())->getActor() == pickedUp) {
 						if (a->isFront()) { //change powerUp to the other type
-							static_cast<PowerUp*>(itr->get())->powerId = 1;
-							pickedUp->setName(name1);	//may cause some issues
+							static_cast<PowerUp*>(itr->get())->changeType = true;
 							break;
 						}
 						else {
-							//ERROR: appears that the memory is still accessible after erase
-							//workaround: change the name of the power up so that it cannot be contacted after erase has been called
-							pickedUp->setName("erased");
+							static_cast<PowerUp*>(itr->get())->contactErase = true;
 							itr = Game::entities.erase(itr);
 							break;
 						}
@@ -248,16 +248,19 @@ void ContactBehaviourCallback::onContact(const PxContactPairHeader& pairHeader, 
 				}
 				//have aventador hold the power up. Holds one power up at a time
 				if (!a->hasPowerUp()) {
+					a->createBubble = true;
+					int random;
 					if((a->isFront()) == true){
-						int random = rand() % 3 + 1;
+						random = rand() % 3 + 1;
 						a->setPowerUpStatus(random);
 						std::cout << "Front Powerup value " << random << std::endl;
 					}
 					else if ((a->isFront()) == false){
-						int random = rand() % 3 + 3;
+						random = rand() % 3 + 3;
 						a->setPowerUpStatus(random);
 						std::cout << "Back Powerup value " << random << std::endl;
 					}
+					a->bubbleType = random;
 				}
 				break;
 			}
@@ -270,14 +273,14 @@ void ContactBehaviourCallback::onContact(const PxContactPairHeader& pairHeader, 
 				for (std::list<std::shared_ptr<Entity>>::iterator itr = Game::entities.begin(); itr != Game::entities.end(); ++itr) {
 					if (static_cast<PowerUp*>(itr->get())->getActor() == pickedUp) {
 						if (a->isFront()) { //change powerUp to the other type
-							static_cast<PowerUp*>(itr->get())->powerId = 0;
-							pickedUp->setName(name0);	//may cause some issues
+							static_cast<PowerUp*>(itr->get())->changeType = true;
+							if (VS_AI) {	//AI is hardcoded to be aventador0
+								Game::aiPowerUps.push_back(static_cast<PowerUp*>(itr->get()));
+							}
 							break;
 						}
 						else {
-							//ERROR: appears that the memory is still accessible after erase
-							//workaround: change the name of the power up so that it cannot be contacted after erase has been called
-							pickedUp->setName("erased");
+							static_cast<PowerUp*>(itr->get())->contactErase = true;
 							itr = Game::entities.erase(itr);
 							break;
 						}
@@ -288,16 +291,19 @@ void ContactBehaviourCallback::onContact(const PxContactPairHeader& pairHeader, 
 
 				//have aventador hold the power up. Holds one power up at a time
 				if (!a->hasPowerUp()) {
+					a->createBubble = true;
+					int random;
 					if ((a->isFront()) == true) {
-						int random = rand() % 3 + 1;
+						random = rand() % 3 + 1;
 						a->setPowerUpStatus(random);
 						std::cout << "Front Powerup value " << random << std::endl;
 					}
 					else if ((a->isFront()) == false) {
-						int random = rand() % 3 + 3;
+						random = rand() % 3 + 3;
 						a->setPowerUpStatus(random);
 						std::cout << "Back Powerup value " << random << std::endl;
 					}
+					a->bubbleType = random;
 				}
 				break;
 			}

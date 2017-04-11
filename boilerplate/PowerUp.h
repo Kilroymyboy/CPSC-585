@@ -7,12 +7,17 @@
 
 class PowerUp : public Entity {
 	physx::PxRigidDynamic *actor;
-	double countDown = 15.0;
+
+	double countDown = 20.0;
+
 	double deleteTime;
 	PxVec3 direction;
 	PxTransform t;
+	Graphics::Material *colour;
 
 	int pseudoRand();
+	void pickedUp();
+	void erasePowerUp();
 
 public:
 	PowerUp();
@@ -23,4 +28,6 @@ public:
 	virtual void use();
 
 	int powerId;
+	bool changeType = false;
+	bool contactErase = false;
 };

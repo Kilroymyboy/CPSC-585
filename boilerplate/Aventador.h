@@ -24,7 +24,7 @@ public:
 	float wheelTurnRate = 0.5;
 	float wheelReurnRate = 0.85;
 
-	float force = 30;
+	float force = 45;
 	float wheelSideFriction = 6.25;
 	float wheelSideMaxFriction = 25;
 	float topSpeedFriction = 0.8;
@@ -39,9 +39,8 @@ public:
 
 
 	int powerStatus = 0;
-	int fuel;
-	int tankSize = 1000;
-
+	int tankSize = 500;
+	int fuel = tankSize;
 
 	bool isAI = false;
 	bool hasLost = false;
@@ -63,6 +62,15 @@ public:
 	void render(glm::mat4 parentTransform)override;
 };
 
+class PowerUpBubble : public Entity {
+	glm::mat4 tempTransform;
+	glm::vec3 above = glm::vec3(0.0, 1.8, 0.0);
+public:
+	void update(glm::mat4 parentTransform)override;
+	void render(glm::mat4 parentTransform)override;
+	Graphics::Material *material;
+};
+
 class Aventador : public Entity {
 	int aventadorId;
 
@@ -80,7 +88,9 @@ class Aventador : public Entity {
 	void updateTopSpeed();
 	void updateDrift();
 	void updateBraking();
+	void updateColour();
 	void updateFuel();
+	void updateCurrentPowerUp(int colour);
 
 	void updateLightCamera();
 
@@ -91,11 +101,23 @@ class Aventador : public Entity {
 	float brakeForce;
 	std::vector<float> tireHeat;
 
+	glm::vec3 fullHealthColor;
+	glm::vec3 noHealthColor;
+	Graphics::Material material;
+	float flashCooldown = 2.5, nextFlashTime=0;
+	float positionTightness = .3, targetTightness = .9;
+
+	float forceFront = 45;
+	float forceBack = 55;
+
 public:
 	physx::PxRigidDynamic *actor;
 	// 0: front right, 1: front left, 2: rear left, 3: rear right
 	std::vector<std::unique_ptr<AventadorWheel> > wheel;
 	std::vector<glm::vec3> wheelPos;
+	std::vector<std::unique_ptr<PowerUpBubble>> currentPowerUp;
+	bool createBubble = false;
+	int bubbleType = 0;
 	void update(glm::mat4 parentTransform)override;
 	void renderShadowMap(glm::mat4 parentTransform)override;
 	void render(glm::mat4 parentTransform)override;

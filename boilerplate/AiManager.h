@@ -7,7 +7,9 @@ using namespace physx;
 
 namespace AiManager 
 {
-	void aiInit(bool &setIsAi, bool &setIsFront);
+	void aiInit(bool &setIsAi);
 	void aiSteering(float &wheelAngle, bool isFront, PxTransform globalPos);
-	void moveTo(glm::vec2 origin, glm::vec2 target, float &wheelAngle, float turnRate);
+	void moveTo(PxTransform origin, PxTransform target, float &wheelAngle);
+	float getDist(PxVec3 a, PxVec3 b);
+	bool isNearPowerUp(PxTransform origin, PxTransform &powerUpLoc, float d);
 };

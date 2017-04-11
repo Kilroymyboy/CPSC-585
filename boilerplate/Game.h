@@ -25,6 +25,7 @@ namespace Game {
 	extern std::shared_ptr<Aventador> aventador1;
 	extern std::shared_ptr<Path> path;
 	extern std::shared_ptr<HUDobj> hud;
+	extern std::vector<PowerUp*> aiPowerUps;
 	extern bool isGameOver;
 
 	void init();
@@ -35,11 +36,12 @@ namespace Game {
 	//void endScreen();
 
 	void addPowerUp();
-	void checkDistance();
+	void checkForSwap();
 	double getDist();
 	Aventador * getFront();
 	Aventador * getBack();
 	void setGameOverFlag(bool flag);
+	bool didSwitchOccur();
 
 }
 
