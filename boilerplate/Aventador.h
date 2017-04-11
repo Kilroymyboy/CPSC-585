@@ -65,6 +65,7 @@ public:
 
 class PowerUpBubble : public Entity {
 	glm::mat4 tempTransform;
+	glm::vec3 above = glm::vec3(0.0, 1.8, 0.0);
 public:
 	void update(glm::mat4 parentTransform)override;
 	void render(glm::mat4 parentTransform)override;

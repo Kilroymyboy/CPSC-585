@@ -46,6 +46,22 @@ void PowerUp::update(mat4 parentTransform) {
 
 	Light::renderShadowMap(&Resources::centeredCube, transform);
 
+	if (changeType) {
+		if (powerId == 0) {
+			powerId = 1;
+			actor->setName("powerup1");
+		}
+		else {
+			powerId = 0;
+			actor->setName("powerup0");
+		}
+		changeType = false;
+	}
+
+	if (contactErase) {
+		actor->setName("erased");
+	}
+
 	if (Time::time > deleteTime) {
 		if (powerId == 0 && VS_AI) {
 			Game::aiPowerUps.erase(remove(Game::aiPowerUps.begin(), Game::aiPowerUps.end(), this), Game::aiPowerUps.end());

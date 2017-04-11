@@ -23,4 +23,6 @@ public:
 	virtual void use();
 
 	int powerId;
+	bool changeType = false;
+	bool contactErase = false;
 };

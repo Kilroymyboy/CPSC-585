@@ -573,7 +573,7 @@ void AventadorWheel::render(glm::mat4 parentTransform) {
 }
 
 void PowerUpBubble::update(glm::mat4 parentTransform) {
-	tempTransform = translate(transform, vec3(0.0f, 2.0, 0.0f));
+	tempTransform = translate(transform, above);
 }
 
 void PowerUpBubble::render(glm::mat4 parentTransform) {

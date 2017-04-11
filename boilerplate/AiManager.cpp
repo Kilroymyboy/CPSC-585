@@ -51,18 +51,15 @@ namespace AiManager {
 			float maxDist = 25.0f;				//max range
 
 			if (distance < 15) {	//if the front is nearby, predict where the front is heading and move there
-				std::cout << "predicting\n";
 				PxTransform predict = frontPos;
 				PxTransform ahead(PxVec3(0, 0, 5), PxQuat::createIdentity()); //look ahead by 5 units
 				predict.operator*(ahead);
 				moveTo(thisPos, predict, wheelAngle);
 			}
 			else if (Game::path->pointInPath(thisPos.p.x, thisPos.p.z) && isNearPowerUp(thisPos, powerLoc, 30)) { //attempt to pick up a power point
-				std::cout << "go to powerup\n";
 				moveTo(thisPos, powerLoc, wheelAngle);
 			}
 			else if (distance < 150) {	//find a point that is closest to the front car and near the back car
-				std::cout << "drive on path\n";
 				for (int i = 0; i < pathPoints.size() - 1; i++) {
 					thisDistToPoint = getDist(pathPoints[i], thisPos.p);
 					pointDistToFront = getDist(frontPos.p, pathPoints[i]);
@@ -76,7 +73,6 @@ namespace AiManager {
 				moveTo(thisPos, goToLoc, wheelAngle);
 			}
 			else {	//to straight to the front car
-				std::cout << "go straight to the front car\n";
 				moveTo(thisPos, frontPos, wheelAngle);
 			}
 		}
