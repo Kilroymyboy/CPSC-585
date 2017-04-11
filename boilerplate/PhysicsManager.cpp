@@ -239,8 +239,6 @@ void ContactBehaviourCallback::onContact(const PxContactPairHeader& pairHeader, 
 							break;
 						}
 						else {
-							//ERROR: appears that the memory is still accessible after erase
-							//workaround: change the name of the power up so that it cannot be contacted after erase has been called
 							static_cast<PowerUp*>(itr->get())->contactErase = true;
 							itr = Game::entities.erase(itr);
 							break;
@@ -249,17 +247,19 @@ void ContactBehaviourCallback::onContact(const PxContactPairHeader& pairHeader, 
 				}
 				//have aventador hold the power up. Holds one power up at a time
 				if (!a->hasPowerUp()) {
-					a->genPowerUp = true;
+					a->createBubble = true;
+					int random;
 					if((a->isFront()) == true){
-						int random = rand() % 3 + 1;
+						random = rand() % 3 + 1;
 						a->setPowerUpStatus(random);
 						std::cout << "Front Powerup value " << random << std::endl;
 					}
 					else if ((a->isFront()) == false){
-						int random = rand() % 3 + 3;
+						random = rand() % 3 + 3;
 						a->setPowerUpStatus(random);
 						std::cout << "Back Powerup value " << random << std::endl;
 					}
+					a->bubbleType = random;
 				}
 				break;
 			}
@@ -279,8 +279,6 @@ void ContactBehaviourCallback::onContact(const PxContactPairHeader& pairHeader, 
 							break;
 						}
 						else {
-							//ERROR: appears that the memory is still accessible after erase
-							//workaround: change the name of the power up so that it cannot be contacted after erase has been called
 							static_cast<PowerUp*>(itr->get())->contactErase = true;
 							itr = Game::entities.erase(itr);
 							break;
@@ -292,17 +290,19 @@ void ContactBehaviourCallback::onContact(const PxContactPairHeader& pairHeader, 
 
 				//have aventador hold the power up. Holds one power up at a time
 				if (!a->hasPowerUp()) {
-					a->genPowerUp = true;
+					a->createBubble = true;
+					int random;
 					if ((a->isFront()) == true) {
-						int random = rand() % 3 + 1;
+						random = rand() % 3 + 1;
 						a->setPowerUpStatus(random);
 						std::cout << "Front Powerup value " << random << std::endl;
 					}
 					else if ((a->isFront()) == false) {
-						int random = rand() % 3 + 3;
+						random = rand() % 3 + 3;
 						a->setPowerUpStatus(random);
 						std::cout << "Back Powerup value " << random << std::endl;
 					}
+					a->bubbleType = random;
 				}
 				break;
 			}

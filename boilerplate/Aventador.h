@@ -69,6 +69,7 @@ class PowerUpBubble : public Entity {
 public:
 	void update(glm::mat4 parentTransform)override;
 	void render(glm::mat4 parentTransform)override;
+	int powerUpType;
 };
 
 class Aventador : public Entity {
@@ -90,7 +91,7 @@ class Aventador : public Entity {
 	void updateBraking();
 	void updateColour();
 	void updateFuel();
-	void updateCurrentPowerUp();
+	void updateCurrentPowerUp(int colour);
 
 	void updateLightCamera();
 
@@ -116,7 +117,8 @@ public:
 	std::vector<std::unique_ptr<AventadorWheel> > wheel;
 	std::vector<glm::vec3> wheelPos;
 	std::vector<std::unique_ptr<PowerUpBubble>> currentPowerUp;
-	bool genPowerUp;
+	bool createBubble = false;
+	int bubbleType = 0;
 	void update(glm::mat4 parentTransform)override;
 	void renderShadowMap(glm::mat4 parentTransform)override;
 	void render(glm::mat4 parentTransform)override;

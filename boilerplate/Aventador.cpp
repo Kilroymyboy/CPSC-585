@@ -89,10 +89,10 @@ void Aventador::update(glm::mat4 parentTransform) {
 	updateDrift();
 	updateBraking();
 	updateColour();
-	updateCurrentPowerUp();
+	updateCurrentPowerUp(bubbleType);
 
-	if (!aventadorData.isFront)
-		updateFuel();
+	//if (!aventadorData.isFront)
+		//updateFuel();
 
 
 	updateLightCamera();
@@ -405,6 +405,7 @@ void Aventador::updateFuel() {
 bool Aventador::hasPowerUp() {
 	return aventadorData.powerStatus;
 }
+
 void Aventador::setPowerUpStatus(int status) {
 	aventadorData.powerStatus = status;
 }
@@ -528,10 +529,11 @@ void Aventador::usePowerUp() {
 	}
 }
 
-void Aventador::updateCurrentPowerUp() {
-	if (genPowerUp) {
+void Aventador::updateCurrentPowerUp(int t) {
+	if (createBubble) {
 		currentPowerUp.push_back(std::unique_ptr<PowerUpBubble>(new PowerUpBubble));
-		genPowerUp = false;
+		currentPowerUp[0]->powerUpType = t;
+		createBubble = false;
 	}
 	if (!hasPowerUp()) {
 		currentPowerUp.clear();
@@ -577,5 +579,18 @@ void PowerUpBubble::update(glm::mat4 parentTransform) {
 }
 
 void PowerUpBubble::render(glm::mat4 parentTransform) {
-	Graphics::RenderInstanced(&Resources::powerUpBubble, &Resources::coralMaterial, parentTransform*tempTransform);
+	if(powerUpType == 1)
+		Graphics::RenderInstanced(&Resources::powerUpBubble, &Resources::beet, parentTransform*tempTransform);
+	else if(powerUpType == 2)
+		Graphics::RenderInstanced(&Resources::powerUpBubble, &Resources::brown, parentTransform*tempTransform);
+	else if(powerUpType == 3)
+		Graphics::RenderInstanced(&Resources::powerUpBubble, &Resources::pink, parentTransform*tempTransform);
+	else if(powerUpType == 4)
+		Graphics::RenderInstanced(&Resources::powerUpBubble, &Resources::teal, parentTransform*tempTransform);
+	else if(powerUpType == 5)
+		Graphics::RenderInstanced(&Resources::powerUpBubble, &Resources::olivedrab, parentTransform*tempTransform);
+	else
+		Graphics::RenderInstanced(&Resources::powerUpBubble, &Resources::salmon, parentTransform*tempTransform);
+
+
 }
