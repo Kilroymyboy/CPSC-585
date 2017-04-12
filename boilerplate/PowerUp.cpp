@@ -32,7 +32,7 @@ PowerUp::PowerUp() {
 
 	if (powerId == 0) {
 		actor->setName("powerup0");
-		colour = &Resources::coralMaterial;
+		colour = &Resources::lightBlueMaterial;
 	}
 	else {
 		actor->setName("powerup1");
@@ -65,7 +65,7 @@ void PowerUp::pickedUp() {
 		else {
 			powerId = 0;
 			actor->setName("powerup0");
-			colour = &Resources::coralMaterial;
+			colour = &Resources::lightBlueMaterial;
 		}
 		changeType = false;
 	}

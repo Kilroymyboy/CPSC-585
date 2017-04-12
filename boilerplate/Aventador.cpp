@@ -56,7 +56,7 @@ Aventador::Aventador(int id) {
 		actor->setGlobalPose(PxTransform(0, 0, 15.0), true);
 		aventadorData.isFront = true;
 		aventadorData.force = forceFront;
-		colour = &Resources::coralMaterial;
+		colour = &Resources::lightBlueMaterial;
 		if (VS_AI) {	//If the player is versing AI
 			AiManager::aiInit(aventadorData.isAI);
 		}
