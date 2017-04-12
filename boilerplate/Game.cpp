@@ -16,11 +16,6 @@ namespace Game {
 	list<shared_ptr<Entity> > startGameEntities;
 	shared_ptr<Aventador> aventador0;
 	shared_ptr<Aventador> aventador1;
-	shared_ptr<PowerUp> rpu0;
-	shared_ptr<PowerUp> rpu1;
-
-	shared_ptr<PowerUp> gpu0;
-	shared_ptr<PowerUp> gpu1;
 
 	shared_ptr<Path> path;
 	shared_ptr<HUDobj> hud;

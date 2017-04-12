@@ -16,6 +16,7 @@ class Path :public Entity {
 	double cooldown;
 	double nextGenTime;
 	Aventador* aventador;
+	Graphics::Material *colour;
 
 
 	// generate the geometry again

@@ -56,16 +56,18 @@ Aventador::Aventador(int id) {
 		actor->setGlobalPose(PxTransform(0, 0, 15.0), true);
 		aventadorData.isFront = true;
 		aventadorData.force = forceFront;
+		colour = &Resources::coralMaterial;
 		if (VS_AI) {	//If the player is versing AI
 			AiManager::aiInit(aventadorData.isAI);
 		}
 	}
 	else {
+		colour = &Resources::paleGreenMaterial;
 		aventadorData.isFront = false;
 		aventadorData.force = forceBack;
 	}
 
-	fullHealthColor = id==0?vec3(1.8, 4.8, 12.6):vec3(3.75, 6.2, 3.75);
+	fullHealthColor = id==0?vec3(1.8, 4.8, 12.6):vec3(2.75, 5.8, 2.75);
 	noHealthColor = vec3(5.2, .8, .8);
 
 	material = Graphics::Material(vec3(1));

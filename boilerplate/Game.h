@@ -26,6 +26,7 @@ namespace Game {
 	extern std::shared_ptr<Path> path;
 	extern std::shared_ptr<HUDobj> hud;
 	extern std::vector<PowerUp*> aiPowerUps;
+
 	extern bool isGameOver;
 
 	void init();
@@ -37,6 +38,7 @@ namespace Game {
 
 	void addPowerUp();
 	void checkForSwap();
+	void createPowerUpList();
 	double getDist();
 	Aventador * getFront();
 	Aventador * getBack();

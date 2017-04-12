@@ -113,6 +113,7 @@ class Aventador : public Entity {
 
 public:
 	physx::PxRigidDynamic *actor;
+	Graphics::Material *colour;
 	// 0: front right, 1: front left, 2: rear left, 3: rear right
 	std::vector<std::unique_ptr<AventadorWheel> > wheel;
 	std::vector<glm::vec3> wheelPos;
@@ -127,6 +128,4 @@ public:
 	void changeRole();
 	bool isFront();
 	Aventador(int);
-
-	int Aventador::pseudoRand();
 };

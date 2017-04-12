@@ -19,7 +19,10 @@ namespace Resources {
 
 	extern Graphics::Material coralMaterial;
 	extern Graphics::Material paleGreenMaterial;
-	//http://cloford.com/resources/colours/500col.htm
+	
+	extern Graphics::Material blue;
+	extern Graphics::Material green;
+
 	extern Graphics::Material beet;
 	extern Graphics::Material brown;
 	extern Graphics::Material pink;

@@ -82,7 +82,7 @@ void Path::update(mat4 parentTransform) {
 	}
 
 	aventador = Game::getFront();
-
+	colour = aventador->colour;
 	//increasing the offset decreases the length
 	updateOffset(offset);
 	vec3 rightOffset = aventador->wheelPos[0] + vec3(-offset, 0, 0);
@@ -130,7 +130,7 @@ void Path::update(mat4 parentTransform) {
 }
 
 void Path::render(mat4 parentTransform) {
-	Graphics::Render(&geometry, &Resources::pathMaterial, parentTransform*transform);
+	Graphics::Render(&geometry, colour, parentTransform*transform);
 }
 
 float sign(vec2 point1, vec2 point2, vec2 point3) {

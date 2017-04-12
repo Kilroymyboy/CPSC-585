@@ -40,9 +40,12 @@ namespace Resources {
 	Graphics::Material darkGreyMaterial(glm::vec3(.15));
 	Graphics::Material emmisiveMaterial(glm::vec3(1), glm::vec3(1.8, 4.8, 12.6));
 	Graphics::Material pureBlackMaterial(glm::vec3(0));
-	Graphics::Material coralMaterial(glm::vec3(1), glm::vec3(1.5, 0.75, 0.45));
+	Graphics::Material coralMaterial(glm::vec3(1), glm::vec3(0.50, 0.75, 2.20));
 	Graphics::Material paleGreenMaterial(glm::vec3(1), glm::vec3(0.75, 1.2, 0.75));
 	Graphics::Material planeMaterial(glm::vec3(1));
+
+	Graphics::Material blue(glm::vec3(1), glm::vec3(1.8, 4.8, 12.6));
+	Graphics::Material green(glm::vec3(1), glm::vec3(1.8, 4.8, 12.6));
 
 	Graphics::Material beet(glm::vec3(0.5), glm::vec3(1.22, 0.36, 1.22));
 	Graphics::Material brown(glm::vec3(0.5), glm::vec3(1.39, 0.69, 0.19));
