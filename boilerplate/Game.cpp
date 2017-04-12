@@ -5,6 +5,7 @@
 #include "Path.h"
 #include "PowerUpList.h"
 #include "Skybox.h"
+#include "Menu.h"
 
 using namespace std;
 using namespace glm;
@@ -13,14 +14,20 @@ using namespace physx;
 namespace Game {
 	list<shared_ptr<Entity> > entities;
 	list<shared_ptr<Entity> > startGameEntities;
-
 	shared_ptr<Aventador> aventador0;
 	shared_ptr<Aventador> aventador1;
+	shared_ptr<PowerUp> rpu0;
+	shared_ptr<PowerUp> rpu1;
+
+	shared_ptr<PowerUp> gpu0;
+	shared_ptr<PowerUp> gpu1;
+
 	shared_ptr<Path> path;
-
 	shared_ptr<HUDobj> hud;
+	vector<PowerUp*> aiPowerUps;
 
-	double spawnCoolDown = 2;
+
+	double spawnCoolDown = 10;
 	double powerUpSpawnTime = Time::time += spawnCoolDown;
 
 	float impulse = 100;
@@ -37,13 +44,10 @@ namespace Game {
 		entities.push_back(aventador1);
 		entities.push_back(path);	//the path that gets drawn under the car
 
-
-	//	entities.push_back(shared_ptr<Path>(new Path(100, aventador0)));	//the path that gets drawn under the car
-
-		//entities.push_back(unique_ptr<Cube>(new Cube));
-		//entities.push_back(unique_ptr<CenteredCube>(new CenteredCube(vec3(0, 3, 0))));
 		entities.push_back(unique_ptr<Plane>(new Plane));
 		entities.push_back(unique_ptr<Skybox>(new Skybox(1000)));
+
+		entities.push_back(unique_ptr<Menu::All>(new Menu::All));
 	}
 
 	void update() {
@@ -61,14 +65,17 @@ namespace Game {
 		if (PRINT_ENTITIES) {
 			cout << entities.size() << endl;
 		}
+
 		//This is where a restart function would go
 		//currently doing something wrong as restarting must not actually delete as the program slows down after each restart
 		if ((controller1.GetButtonPressed(13)) || (Keyboard::keyPressed(GLFW_KEY_ENTER))) {
 			entities.clear();
+			aiPowerUps.clear();
 			init();
 		}
+		addPowerUp();
+		checkForSwap();
 
-		//checkDistance();
 	}
 
 	//adding more power ups into the scene
@@ -77,12 +84,15 @@ namespace Game {
 			powerUpSpawnTime += spawnCoolDown;
 
 			entities.push_back(unique_ptr<Entity>(new PowerUp()));
+			entities.push_back(unique_ptr<Entity>(new PowerUp()));
+			entities.push_back(unique_ptr<Entity>(new PowerUp()));
+			entities.push_back(unique_ptr<Entity>(new PowerUp()));
 
 		}
 	}
 
-	//check the distance between the aventators
-	void checkDistance() {
+	//swaps the roles if they are withing range
+	void checkForSwap() {
 		double dist = getDist();
 		if (dist < switchRange && !inSwtichRange) {
 			PxRigidBodyExt::addLocalForceAtLocalPos(*getBack()->actor,
@@ -122,11 +132,14 @@ namespace Game {
 		
 	}*/
 
-
 	double getDist() {
 		PxTransform pos0 = aventador0->actor->getGlobalPose();
 		PxTransform pos1 = aventador1->actor->getGlobalPose();
 		return sqrt(pow((pos0.p.x - pos1.p.x), 2) + pow((pos0.p.z - pos1.p.z), 2));
+	}
+
+	bool didSwitchOccur() {
+		return inSwtichRange;
 	}
 
 	Aventador* getFront() {

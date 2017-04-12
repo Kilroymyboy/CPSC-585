@@ -125,6 +125,10 @@ namespace Graphics {
 			glTexParameteri(texture->target, GL_TEXTURE_MIN_FILTER, filter);
 			glTexParameteri(texture->target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
+			GLfloat fl;
+			glGetFloatv(0x84FF, &fl);
+			glTexParameterf(GL_TEXTURE_2D, 0x84FE, fl);
+
 			// Clean up
 			glBindTexture(texture->target, 0);
 			stbi_image_free(data);
@@ -465,6 +469,7 @@ namespace Graphics {
 		instancedGeometry.push_back(&Resources::aventadorWheelGlow);
 		instancedGeometry.push_back(&Resources::gridLines);
 		instancedGeometry.push_back(&Resources::centeredCube);
+		instancedGeometry.push_back(&Resources::powerUpBubble);
 	}
 
 	int init() {
@@ -955,7 +960,7 @@ namespace Viewport {
 
 	void update(int id) {
 		double splitscreenRatio = Graphics::SPLIT_SCREEN ? (Graphics::SPLIT_SCREEN_ORIENTATION ? 2 : 0.5) : 1;
-		projection[id] = perspective(PI / 3, (double)WINDOW_WIDTH / WINDOW_HEIGHT * splitscreenRatio, 0.1, 2000.0);
+		projection[id] = perspective(PI / 3, (double)WINDOW_WIDTH / WINDOW_HEIGHT * splitscreenRatio, 0.1, 2500.0);
 		transform[id] = lookAt(position[id], target[id], vec3(0, 1, 0));
 		glUniformMatrix4fv(VIEW_LOCATION, 1, false, &transform[id][0][0]);
 		glUniformMatrix4fv(PROJECTION_LOCATION, 1, false, &projection[id][0][0]);

@@ -11,7 +11,6 @@ using namespace physx;
 
 Aventador::Aventador(int id) {
 	aventadorId = id;
-	aventadorData.fuel = aventadorData.tankSize;
 
 	wheel.resize(4);
 	wheelPos.resize(4);
@@ -52,37 +51,26 @@ Aventador::Aventador(int id) {
 	actor->setLinearDamping(0.5);
 	actor->userData = (void*)(ContactModFlags::eIGNORE_CONTACT);
 
-	PhysicsManager::attachSimulationShape(actor, dimensions,200);
+	PhysicsManager::attachSimulationShape(actor, dimensions, 200);
 	PhysicsManager::setContactFilter(actor, FilterGroup::eAventador, FilterGroup::eAventador | FilterGroup::ePowerUp);
 
 	if (aventadorId == 0) {
-
-
-		// JEREMY WHAT NEEDS TO STAY FROM HERE ********************************************************************************************
-		//PhysicsManager::setContactFilter(actor, FilterGroup::eAventador0, FilterGroup::eAventador1 | FilterGroup::ePowerUp0);
-		//actor->setName("front");
-		//aventadorData.isAI = true;
-		//aventadorData.force = 30;
-		//dChangeTime = Time::time += dCoolDown;
-
+		actor->setGlobalPose(PxTransform(0, 0, 15.0), true);
 		aventadorData.isFront = true;
-		//do we still want to adjust the force?
-		aventadorData.force = 30;
-		aventadorData.wheelTurnRate = 0.5;
-		actor->setGlobalPose(PxTransform(0, 0, 10.0),true);
-		aventadorData.force = 30;
-
-		if (VS_AI) {
-			//If the player is versing AI
-			AiManager::aiInit(aventadorData.isAI, aventadorData.isFront);
+		aventadorData.force = forceFront;
+		if (VS_AI) {	//If the player is versing AI
+			AiManager::aiInit(aventadorData.isAI);
 		}
-
-
 	}
 	else {
 		aventadorData.isFront = false;
+		aventadorData.force = forceBack;
 	}
 
+	fullHealthColor = id==0?vec3(1.8, 4.8, 12.6):vec3(3.75, 6.2, 3.75);
+	noHealthColor = vec3(5.2, .8, .8);
+
+	material = Graphics::Material(vec3(1));
 }
 
 void Aventador::update(glm::mat4 parentTransform) {
@@ -102,6 +90,8 @@ void Aventador::update(glm::mat4 parentTransform) {
 	updateTopSpeed();
 	updateDrift();
 	updateBraking();
+	updateColour();
+	updateCurrentPowerUp(bubbleType);
 
 	if (!aventadorData.isFront)
 		updateFuel();
@@ -111,21 +101,26 @@ void Aventador::update(glm::mat4 parentTransform) {
 	usePowerUp();
 
 	for (int i = 0; i < wheel.size(); i++) {
+		wheel[i].get()->material.color = material.color;
+		wheel[i].get()->material.emmisiveColor = material.emmisiveColor;
 		wheel[i].get()->update(tempTransform);
+	}
+	if (hasPowerUp()) {
+		currentPowerUp[0].get()->update(tempTransform);
 	}
 }
 
 void Aventador::updateLightCamera() {
 	vec3 pos = Util::p2g(actor->getGlobalPose().p);
 
-	float positionTightness = .3, targetTightness = .9;
-
-	Viewport::position[aventadorId] = mix(Viewport::position[aventadorId], vec3(transform* vec4(0, 1.25f, -5.5f, 1)), positionTightness);
+	vec3 targetViewportPos = vec3(transform* vec4(0, 1.25f, -5.5f, 1));
+	targetViewportPos.y = 1.3;
+	Viewport::position[aventadorId] = mix(Viewport::position[aventadorId], targetViewportPos, positionTightness);
 	Viewport::target[aventadorId] = mix(Viewport::target[aventadorId], vec3(transform* vec4(0, 1.25f, 0, 1)), targetTightness);
 	if (Keyboard::keyDown(GLFW_KEY_Q)) {
 		Viewport::position[aventadorId] = transform* vec4(5.5f, 1.25f, 0.0f, 1);
 	}
-	else	if (Keyboard::keyDown(GLFW_KEY_E)) {
+	else if (Keyboard::keyDown(GLFW_KEY_E)) {
 		Viewport::position[aventadorId] = transform* vec4(-5.5f, 1.25f, 0.0f, 1);
 	}
 
@@ -144,13 +139,36 @@ void Aventador::renderShadowMap(glm::mat4 parentTransform) {
 	}
 }
 
+void Aventador::updateColour() {
+	if (max(aventadorData.fuel, 0) * 4 < aventadorData.tankSize) {
+		if (Time::time > nextFlashTime) {
+			nextFlashTime = max(flashCooldown*(double)max(aventadorData.fuel, 0), 0.05) / aventadorData.tankSize + Time::time;
+			if (material.emmisiveColor == vec3(0)) {
+				material.emmisiveColor = mix(noHealthColor, fullHealthColor, (double)max(aventadorData.fuel, 0) / aventadorData.tankSize);
+			}
+			else {
+				material.emmisiveColor = vec3(0);
+			}
+		}
+	}
+	else {
+		material.emmisiveColor = mix(noHealthColor, fullHealthColor, (double)max(aventadorData.fuel, 0) / aventadorData.tankSize);
+	}
+	if (aventadorData.fuel < 0) {
+		material.emmisiveColor = vec3(0);
+	}
+}
+
 void Aventador::render(glm::mat4 parentTransform) {
 	Graphics::RenderInstanced(&Resources::aventadorBody, &Resources::darkGreyMaterial, tempTransform);
-	Graphics::RenderInstanced(&Resources::aventadorBodyGlow, &Resources::emmisiveMaterial, tempTransform);
+	Graphics::RenderInstanced(&Resources::aventadorBodyGlow, &material, tempTransform);
 	Graphics::RenderInstanced(&Resources::aventadorUnder, &Resources::pureBlackMaterial, tempTransform);
 
 	for (int i = 0; i < wheel.size(); i++) {
 		wheel[i].get()->render(tempTransform);
+	}
+	if (hasPowerUp()) {
+		currentPowerUp[0].get()->render(tempTransform);
 	}
 }
 
@@ -202,7 +220,7 @@ void Aventador::updateFriction() {
 		vec3 wheeld(sin(wheelA), 0, cos(wheelA));
 		wheeld = mat3(transform)*wheeld;
 		if (wheelHit[i]) {
-			if (aventadorData.isAI) {
+			if (aventadorData.isAI && aventadorData.fuel > 0) {
 				PxRigidBodyExt::addLocalForceAtLocalPos(*actor,
 					PxVec3(sin(wheelA) * aventadorData.force, 0, cos(wheelA) *  aventadorData.force),
 					Util::g2p(wheelPos[i] - vec3(0, aventadorData.dimensionHeight, 0)), PxForceMode::eFORCE);
@@ -219,7 +237,7 @@ void Aventador::updateFriction() {
 						PxVec3(sin(wheelA) * -aventadorData.force, 0, cos(wheelA) * -aventadorData.force),
 						Util::g2p(wheelPos[i] - vec3(0, aventadorData.dimensionHeight, 0)), PxForceMode::eFORCE);
 				}
-				if (aventadorId == 0){
+				if (aventadorId == 0) {
 					float amount = controller1.RightTrigger();
 					PxRigidBodyExt::addLocalForceAtLocalPos(*actor,
 						PxVec3(sin(wheelA) * (aventadorData.force*amount), 0, cos(wheelA) * (aventadorData.force*amount)),
@@ -265,10 +283,8 @@ void Aventador::updateFriction() {
 }
 
 void Aventador::updateSteering() {
-	//actor->setAngularDamping(actor->getAngularVelocity().y );	//invalid parameter : RigidDynamic::setAngularDamping: The angular damping must be nonnegative!
 	actor->addTorque(-actor->getAngularVelocity() * 20);
-
-	if (aventadorData.isAI) {
+	if (aventadorData.isAI && aventadorData.fuel > 0) {
 		AiManager::aiSteering(wheelAngle, aventadorData.isFront, actor->getGlobalPose());
 	}
 	else {
@@ -293,8 +309,8 @@ void Aventador::updateSteering() {
 		}
 		if (aventadorId == 0) {
 			float amount = -1 * controller1.LeftStick_X();
-			if((amount > 0.25)||(amount < -0.25)){
-				wheelAngle =+ (amount*aventadorData.wheelTurnRate);
+			if ((amount > 0.25) || (amount < -0.25)) {
+				wheelAngle = +(amount*aventadorData.wheelTurnRate);
 			}
 			else {
 				wheelAngle *= aventadorData.wheelReurnRate;
@@ -323,15 +339,15 @@ void Aventador::updateDrift() {
 	if (aventadorId == 0) {
 		if (controller1.GetButtonPressed(1)) {
 			PxVec3 v = actor->getLinearVelocity();
-			tireHeat[2] += aventadorData.manualTireHeatIncrease*v.magnitude()*2;
-			tireHeat[3] += aventadorData.manualTireHeatIncrease*v.magnitude()*2;
+			tireHeat[2] += aventadorData.manualTireHeatIncrease*v.magnitude() * 2;
+			tireHeat[3] += aventadorData.manualTireHeatIncrease*v.magnitude() * 2;
 		}
 	}
 	if (aventadorId == 1) {
 		if (controller2.GetButtonPressed(1)) {
 			PxVec3 v = actor->getLinearVelocity();
-			tireHeat[2] += aventadorData.manualTireHeatIncrease*v.magnitude()*2;
-			tireHeat[3] += aventadorData.manualTireHeatIncrease*v.magnitude()*2;
+			tireHeat[2] += aventadorData.manualTireHeatIncrease*v.magnitude() * 2;
+			tireHeat[3] += aventadorData.manualTireHeatIncrease*v.magnitude() * 2;
 		}
 	}
 
@@ -368,14 +384,23 @@ void Aventador::updateFuel() {
 	bool onPath = Game::path->pointInPath(actor->getGlobalPose().p.x, actor->getGlobalPose().p.z);
 	if (!onPath) {
 		aventadorData.fuel--;
+		PxVec3 dir;
 		if (aventadorData.fuel == 0) {
+			actor->addForce(PxVec3(0, 30, 0), PxForceMode::eIMPULSE);
+			dir = PxVec3(rand() % 250, 5, rand() % 250);
 			PxRigidBodyExt::addLocalForceAtLocalPos(*actor,
-				PxVec3(100, 50, 0), PxVec3(-0.5, 0, 0), PxForceMode::eIMPULSE);
+				dir, PxVec3(-0.5, 0, 0), PxForceMode::eIMPULSE);
 			PxRigidBodyExt::addLocalForceAtLocalPos(*actor,
-				PxVec3(0, -20, 0), PxVec3(0.5, 1, 0), PxForceMode::eIMPULSE);
+				PxVec3(0, -5, 0), PxVec3(0.5, 0, 0), PxForceMode::eIMPULSE);
+			positionTightness *= .1; targetTightness *= .08;
+		}
+		if (aventadorData.fuel <= 0 && aventadorData.fuel > -120) {
+
+			actor->addTorque(dir, PxForceMode::eIMPULSE);
 			//game over flag
-			if(aventadorData.fuel < -10)
+			if (aventadorData.fuel < -100) {
 				Game::setGameOverFlag(true);
+			}
 		}
 	}
 	else {
@@ -390,6 +415,7 @@ void Aventador::updateFuel() {
 bool Aventador::hasPowerUp() {
 	return aventadorData.powerStatus;
 }
+
 void Aventador::setPowerUpStatus(int status) {
 	aventadorData.powerStatus = status;
 }
@@ -513,9 +539,38 @@ void Aventador::usePowerUp() {
 	}
 }
 
+void Aventador::updateCurrentPowerUp(int type) {
+	if (createBubble) {
+		currentPowerUp.push_back(std::unique_ptr<PowerUpBubble>(new PowerUpBubble));
+		if (type == 1)
+			currentPowerUp[0]->material = &Resources::beet;
+		else if (type == 2)
+			currentPowerUp[0]->material = &Resources::brown;
+		else if (type == 3)
+			currentPowerUp[0]->material = &Resources::pink;
+		else if (type == 4)
+			currentPowerUp[0]->material = &Resources::teal;
+		else if (type == 5)
+			currentPowerUp[0]->material = &Resources::olive;
+		else
+			currentPowerUp[0]->material = &Resources::salmon;
+		createBubble = false;
+	}
+	if (!hasPowerUp()) {
+		currentPowerUp.clear();
+	}
+}
+
 void Aventador::changeRole() {
 	aventadorData.isFront = !aventadorData.isFront;
 	aventadorData.fuel = aventadorData.tankSize;
+	//jeremy changed the force speed too but i'm not sure where he puts it
+	if (aventadorData.isFront) {
+		aventadorData.force = forceFront;
+	}
+	else {
+		aventadorData.force = forceBack;
+	}
 }
 
 bool Aventador::isFront() {
@@ -537,5 +592,13 @@ void AventadorWheel::renderShadowMap(glm::mat4 parentTransform) {
 
 void AventadorWheel::render(glm::mat4 parentTransform) {
 	Graphics::RenderInstanced(&Resources::aventadorWheel, &Resources::darkGreyMaterial, parentTransform*tempTransform);
-	Graphics::RenderInstanced(&Resources::aventadorWheelGlow, &Resources::emmisiveMaterial, parentTransform*tempTransform);
+	Graphics::RenderInstanced(&Resources::aventadorWheelGlow, &material, parentTransform*tempTransform);
+}
+
+void PowerUpBubble::update(glm::mat4 parentTransform) {
+	tempTransform = translate(transform, above);
+}
+
+void PowerUpBubble::render(glm::mat4 parentTransform) {
+	Graphics::RenderInstanced(&Resources::powerUpBubble, material, parentTransform*tempTransform);
 }

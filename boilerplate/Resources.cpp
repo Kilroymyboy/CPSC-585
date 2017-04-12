@@ -5,10 +5,13 @@
 
 namespace Resources {
 	Graphics::MyGeometry aventadorBody, aventadorBodyGlow, aventadorUnder, aventadorWheel, aventadorWheelGlow;
-	Graphics::MyGeometry plane, cube, centeredCube, powerup;
+	Graphics::MyGeometry plane, cube, centeredCube, powerUpBubble;
 	Graphics::MyShader standardShader;
 	Graphics::MyGeometry gridLines;
 	Graphics::MyTexture gridTexture;
+
+
+	Graphics::MyGeometry allmenu;
 
 	void init() {
 		Graphics::loadGeometry(&aventadorBody, "models/aventador_body.obj");
@@ -18,9 +21,11 @@ namespace Resources {
 		Graphics::loadGeometry(&aventadorWheel, "models/aventador_wheel.obj");
 		Graphics::loadGeometry(&aventadorWheelGlow, "models/aventador_wheel_glow.obj");
 		Graphics::loadGeometry(&plane, "models/planea.obj");
-		Graphics::loadGeometry(&cube, "models/cube.obj");
+		Graphics::loadGeometry(&cube, "models/smallSphere.obj");
 		Graphics::loadGeometry(&centeredCube, "models/cube_center.obj");
+		Graphics::loadGeometry(&powerUpBubble, "models/smallSphere.obj");
 
+		Graphics::loadGeometry(&allmenu, "models/texts/all.obj");
 
 		Geometry::initPlaneGeometry(&gridLines, 1000, 1000, 500);
 		Graphics::InitializeShaders(&standardShader, "vertex.glsl", "fragment.glsl");
@@ -38,4 +43,13 @@ namespace Resources {
 	Graphics::Material coralMaterial(glm::vec3(1), glm::vec3(1.5, 0.75, 0.45));
 	Graphics::Material paleGreenMaterial(glm::vec3(1), glm::vec3(0.75, 1.2, 0.75));
 	Graphics::Material planeMaterial(glm::vec3(1));
+
+	Graphics::Material beet(glm::vec3(0.5), glm::vec3(1.22, 0.36, 1.22));
+	Graphics::Material brown(glm::vec3(0.5), glm::vec3(1.39, 0.69, 0.19));
+	Graphics::Material pink(glm::vec3(0.5), glm::vec3(1.075, 0.67, 0.725));
+	Graphics::Material teal(glm::vec3(0.5), glm::vec3(0.36, 1.22, 1.22));
+	Graphics::Material olive(glm::vec3(0.5), glm::vec3(1.05, 1.05, 0.25));
+	Graphics::Material salmon(glm::vec3(0.5), glm::vec3(1.50, 0.20, 0.20));
+
+	Graphics::Material pathMaterial(glm::vec3(1), glm::vec3(0.8, 1.5, 2.8));
 }
