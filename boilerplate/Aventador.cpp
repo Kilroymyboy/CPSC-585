@@ -567,6 +567,7 @@ void Aventador::changeRole() {
 }
 
 bool Aventador::isFront() {
+	if (!this)return 0;
 	return aventadorData.isFront;
 }
 

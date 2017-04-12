@@ -7,6 +7,8 @@
 #include "Skybox.h"
 #include "Menu.h"
 
+#include "GameExt.h"
+
 using namespace std;
 using namespace glm;
 using namespace physx;
@@ -21,6 +23,7 @@ namespace Game {
 	shared_ptr<HUDobj> hud;
 	vector<PowerUp*> aiPowerUps;
 
+	bool alive;
 
 	double spawnCoolDown = 10;
 	double powerUpSpawnTime = Time::time += spawnCoolDown;
@@ -32,17 +35,7 @@ namespace Game {
 
 	// we can customize this function as much as we want for now for debugging
 	void init() {
-		aventador0 = shared_ptr<Aventador>(new Aventador(0));
-		aventador1 = shared_ptr<Aventador>(new Aventador(1));
-		path = shared_ptr<Path>(new Path(150));
-		entities.push_back(aventador0);
-		entities.push_back(aventador1);
-		entities.push_back(path);	//the path that gets drawn under the car
-
-		entities.push_back(unique_ptr<Plane>(new Plane));
-		entities.push_back(unique_ptr<Skybox>(new Skybox(1000)));
-
-		entities.push_back(unique_ptr<Menu::All>(new Menu::All));
+		startMainMenu();
 	}
 
 	void update() {
@@ -55,7 +48,14 @@ namespace Game {
 			else {
 				it = entities.erase(it);
 			}
+			if (!alive)break;
 		}
+
+		if (!alive) {
+			
+		}
+
+		alive = 1;
 
 		if (PRINT_ENTITIES) {
 			cout << entities.size() << endl;
@@ -63,10 +63,8 @@ namespace Game {
 
 		//This is where a restart function would go
 		//currently doing something wrong as restarting must not actually delete as the program slows down after each restart
-		if ((controller1.GetButtonPressed(13)) || (Keyboard::keyPressed(GLFW_KEY_ENTER))) {
-			entities.clear();
-			aiPowerUps.clear();
-			init();
+		if ((controller1.GetButtonPressed(13)) || (Keyboard::keyPressed(GLFW_KEY_ESCAPE))) {
+			startMainMenu();
 		}
 
 		addPowerUp();
@@ -90,6 +88,7 @@ namespace Game {
 	void checkForSwap() {
 		double dist = getDist();
 		if (dist < switchRange && !inSwtichRange) {
+			if (!getBack())return;
 			PxRigidBodyExt::addLocalForceAtLocalPos(*getBack()->actor,
 				PxVec3(0, 0, impulse), PxVec3(0, 0, 0), PxForceMode::eIMPULSE);
 			switchRole();
@@ -128,6 +127,8 @@ namespace Game {
 	}*/
 
 	double getDist() {
+		if (!aventador0)return -1;
+		if (!aventador1)return -1;
 		PxTransform pos0 = aventador0->actor->getGlobalPose();
 		PxTransform pos1 = aventador1->actor->getGlobalPose();
 		return sqrt(pow((pos0.p.x - pos1.p.x), 2) + pow((pos0.p.z - pos1.p.z), 2));

@@ -140,6 +140,7 @@
     <ClCompile Include="Aventador.cpp" />
     <ClCompile Include="Entity.cpp" />
     <ClCompile Include="Game.cpp" />
+    <ClCompile Include="GameExt.cpp" />
     <ClCompile Include="Gamepad.cpp" />
     <ClCompile Include="Geometry.cpp" />
     <ClCompile Include="Graphics.cpp" />
@@ -162,6 +163,7 @@
     <ClInclude Include="FilterGroup.h" />
     <ClInclude Include="Entity.h" />
     <ClInclude Include="Game.h" />
+    <ClInclude Include="GameExt.h" />
     <ClInclude Include="Geometry.h" />
     <ClInclude Include="Graphics.h" />
     <ClInclude Include="HUD.h" />

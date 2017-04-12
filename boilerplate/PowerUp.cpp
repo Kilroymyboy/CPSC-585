@@ -7,6 +7,8 @@ using namespace glm;
 using namespace physx;
 
 PowerUp::PowerUp() {
+	if (!Game::aventador0)return;
+	if (!Game::aventador1)return;
 
 	powerId = (int)pseudoRand() % 2; //0 or 1;
 
@@ -41,6 +43,8 @@ PowerUp::PowerUp() {
 }
 
 void PowerUp::update(mat4 parentTransform) {
+	if (!Game::aventador0)return;
+	if (!Game::aventador1)return;
 
 	mat4 m = glm::translate(mat4(1), vec3(actor->getGlobalPose().p.x, actor->getGlobalPose().p.y, actor->getGlobalPose().p.z));
 	PxReal a; PxVec3 b;
@@ -86,6 +90,8 @@ void PowerUp::erasePowerUp() {
 }
 
 void PowerUp::render(mat4 parentTransform) {
+	if (!Game::aventador0)return;
+	if (!Game::aventador1)return;
 	Graphics::RenderInstanced(&Resources::centeredCube, colour, transform);
 }
 

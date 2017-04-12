@@ -20,6 +20,8 @@
 #define VS_AI 1
 
 namespace Game {
+	extern bool alive;
+
 	extern std::list<std::shared_ptr<Entity> > entities;
 	extern std::shared_ptr<Aventador> aventador0;
 	extern std::shared_ptr<Aventador> aventador1;
