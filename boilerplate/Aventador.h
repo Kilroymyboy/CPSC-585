@@ -129,7 +129,5 @@ public:
 	void setWindForce();
 	void setPowerDuration(double val); //sets the duration power length based off what power is being used
 
-	void getPlayerAI(); //A separate get to get if the car was the starting AI
-
 	Aventador(int);
 };

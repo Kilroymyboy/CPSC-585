@@ -220,6 +220,7 @@ void ContactBehaviourCallback::onContact(const PxContactPairHeader& pairHeader, 
 
 
 			if (isPowerUp0 && isAventador0) {
+				std::cout << "comment " << std::endl;
 				Aventador* a = Game::aventador0.get();
 				//remove the power up from the scene
 				PxRigidActor* pickedUp = (pairHeader.actors[0]->getName() == name0) ? pairHeader.actors[0] : pairHeader.actors[1];
@@ -258,7 +259,7 @@ void ContactBehaviourCallback::onContact(const PxContactPairHeader& pairHeader, 
 					}
 					else if ((a->isFront()) == false) {
 						int random = rand() % 3 + 4;
-						a->setPowerUpStatus(4);
+						a->setPowerUpStatus(random);
 					}
 				}
 				break;

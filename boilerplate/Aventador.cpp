@@ -103,7 +103,7 @@ void Aventador::update(glm::mat4 parentTransform) {
 		settingAutoPilot(false);
 	}
 
-	else if ((aventadorData.autoActive == true) && (Time::time < aventadorData.powerDuration)) {
+	else if ((aventadorData.autoActive == true) && (Time::time < aventadorData.powerDuration) && (aventadorData.playerAI == false)) {
 		settingAutoPilot(true);
 	}
 	else if (((aventadorData.windForce == true) && Time::time < aventadorData.powerDuration)){
@@ -119,7 +119,6 @@ void Aventador::update(glm::mat4 parentTransform) {
 
 	updateLightCamera();
 	usePowerUp();
-
 	for (int i = 0; i < wheel.size(); i++) {
 		wheel[i].get()->update(tempTransform);
 	}
@@ -370,10 +369,10 @@ void Aventador::settingTireHeat(bool val) {
 }
 
 void Aventador::settingAutoPilot(bool val) {
-	if (aventadorData.isFront == true) {
-		aventadorData.isAI = false;
-	}
 	aventadorData.isAI = val;
+	if ((VS_AI) && (aventadorId == 0)) {
+		aventadorData.isAI = true;
+	}
 }
 
 void Aventador::settingWind(bool val) {
@@ -459,42 +458,42 @@ void Aventador::removePower() {
 }
 
 void Aventador::setPowerUpStatus(int status) {
-	aventadorData.powerStatus = true;
-	if (status == 1) {
-		Wind *power = new Wind();
-		aventadorData.powerHeld.push_back(power);
-		cout << "pushing wind " << endl;
-	}
-	else if (status == 2) {
-		BlackIce *power = new BlackIce();
-		aventadorData.powerHeld.push_back(power);
-		cout << "pushing black ice" << endl;
-	}
-	else if (status == 3) {
-		BoostFront *power = new BoostFront();
-		aventadorData.powerHeld.push_back(power);
-		cout << "pushing boost front" << endl;
-	}
-	else if (status == 4) {
-		if (aventadorData.playerAI == true) {
-			aventadorData.powerStatus = false;
-			cout << "not pushing shit" << endl;
-		}
-		else {
-			AutoPilot *power = new AutoPilot();
+		aventadorData.powerStatus = true;
+		if (status == 1) {
+			Wind *power = new Wind();
 			aventadorData.powerHeld.push_back(power);
-			cout << "pushing auto pilot" << endl;
+			cout << "pushing wind " << endl;
 		}
-	}
-	else if (status == 5) {
-		Restore *power = new Restore();
-		aventadorData.powerHeld.push_back(power);
-		cout << "pushing restore" << endl;
-	}
-	else if (status == 6) {
-		BoostBack *power = new BoostBack();
-		aventadorData.powerHeld.push_back(power);
-		cout << "pushing boost back" << endl;
+		else if (status == 2) {
+			BlackIce *power = new BlackIce();
+			aventadorData.powerHeld.push_back(power);
+			cout << "pushing black ice" << endl;
+		}
+		else if (status == 3) {
+			BoostFront *power = new BoostFront();
+			aventadorData.powerHeld.push_back(power);
+			cout << "pushing boost front" << endl;
+		}
+		else if (status == 4) {
+			if (aventadorData.playerAI == true) {
+				aventadorData.powerStatus = false;
+			}
+			else {
+				AutoPilot *power = new AutoPilot();
+				aventadorData.powerHeld.push_back(power);
+				cout << "pushing auto pilot" << endl;
+			}
+		}
+		else if (status == 5) {
+			Restore *power = new Restore();
+			aventadorData.powerHeld.push_back(power);
+			cout << "pushing restore" << endl;
+		}
+		else if (status == 6) {
+			BoostBack *power = new BoostBack();
+			aventadorData.powerHeld.push_back(power);
+			cout << "pushing boost back" << endl;
+		
 	}
 }
 
