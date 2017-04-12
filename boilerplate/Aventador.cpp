@@ -59,7 +59,7 @@ Aventador::Aventador(int id) {
 		aventadorData.isFront = true;
 		aventadorData.force = forceFront;
 		colour = &Resources::lightBlueMaterial;
-		if (VS_AI) {	//If the player is versing AI
+		if (Game::vs_ai) {	//If the player is versing AI
 			AiManager::aiInit(aventadorData.isAI);
 		}
 	}

@@ -21,6 +21,22 @@ namespace Game {
 	void startSinglePlayer() {
 		clear();
 
+		Game::vs_ai = true;
+		aventador0 = shared_ptr<Aventador>(new Aventador(0));
+		aventador1 = shared_ptr<Aventador>(new Aventador(1));
+		path = shared_ptr<Path>(new Path(150));
+		entities.push_back(aventador0);
+		entities.push_back(aventador1);
+		entities.push_back(path);	//the path that gets drawn under the car
+
+		entities.push_back(unique_ptr<Plane>(new Plane));
+		entities.push_back(unique_ptr<Skybox>(new Skybox(1000)));
+	}
+
+	void startMultiPlayer() {
+		clear();
+
+		Game::vs_ai = false;
 		aventador0 = shared_ptr<Aventador>(new Aventador(0));
 		aventador1 = shared_ptr<Aventador>(new Aventador(1));
 		path = shared_ptr<Path>(new Path(150));
