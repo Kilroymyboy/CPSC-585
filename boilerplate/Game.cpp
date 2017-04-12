@@ -5,6 +5,7 @@
 #include "Path.h"
 #include "PowerUpList.h"
 #include "Skybox.h"
+#include "Menu.h"
 
 using namespace std;
 using namespace glm;
@@ -15,12 +16,13 @@ namespace Game {
 	list<shared_ptr<Entity> > startGameEntities;
 	shared_ptr<Aventador> aventador0;
 	shared_ptr<Aventador> aventador1;
+
 	shared_ptr<Path> path;
 	shared_ptr<HUDobj> hud;
 	vector<PowerUp*> aiPowerUps;
 
 
-	double spawnCoolDown = 2;
+	double spawnCoolDown = 10;
 	double powerUpSpawnTime = Time::time += spawnCoolDown;
 
 	double wallDespawn;
@@ -41,6 +43,8 @@ namespace Game {
 
 		entities.push_back(unique_ptr<Plane>(new Plane));
 		entities.push_back(unique_ptr<Skybox>(new Skybox(1000)));
+
+		entities.push_back(unique_ptr<Menu::All>(new Menu::All));
 	}
 
 	void update() {
@@ -59,13 +63,13 @@ namespace Game {
 			cout << entities.size() << endl;
 		}
 
-
 		//This is where a restart function would go
 		if ((controller2.GetButtonPressed(13)) || (controller1.GetButtonPressed(13)) || (Keyboard::keyPressed(GLFW_KEY_ENTER))) {
 			entities.clear();
 			aiPowerUps.clear();
 			init();
 		}
+
 		addPowerUp();
 		checkForSwap();
 	}
@@ -75,6 +79,9 @@ namespace Game {
 		if (Time::time > powerUpSpawnTime) {
 			powerUpSpawnTime += spawnCoolDown;
 
+			entities.push_back(unique_ptr<Entity>(new PowerUp()));
+			entities.push_back(unique_ptr<Entity>(new PowerUp()));
+			entities.push_back(unique_ptr<Entity>(new PowerUp()));
 			entities.push_back(unique_ptr<Entity>(new PowerUp()));
 
 		}

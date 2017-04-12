@@ -33,7 +33,8 @@ public:
 	float maxBrakeForce = 60;
 
 
-	std::vector<float> tireHeatIncrease{ 0.00f,0.00f,0.0f,0.0f }; 
+	std::vector<float> tireHeatIncrease{ 0.00f,0.00f,0.0f,0.0f };
+
 	float tireHeatDecrease = 0.45;
 	float tireHeatFastDecrease = 0.1;
 	float manualTireHeatIncrease = 0.5;
@@ -63,10 +64,20 @@ public:
 	float rotateInverse;
 	float facingAngle = 0;
 	float height;
+	Graphics::Material material;
 	glm::mat4 tempTransform;
 	void update(glm::mat4 parentTransform)override;
 	void renderShadowMap(glm::mat4 parentTransform)override;
 	void render(glm::mat4 parentTransform)override;
+};
+
+class PowerUpBubble : public Entity {
+	glm::mat4 tempTransform;
+	glm::vec3 above = glm::vec3(0.0, 1.8, 0.0);
+public:
+	void update(glm::mat4 parentTransform)override;
+	void render(glm::mat4 parentTransform)override;
+	Graphics::Material *material;
 };
 
 class Aventador : public Entity {
@@ -88,6 +99,7 @@ class Aventador : public Entity {
 	void updateBraking();
 	void updateColour();
 	void updateFuel();
+	void updateCurrentPowerUp(int colour);
 
 	void updateLightCamera();
 	 
@@ -109,9 +121,13 @@ class Aventador : public Entity {
 
 public:
 	physx::PxRigidDynamic *actor;
+	Graphics::Material *colour;
 	// 0: front right, 1: front left, 2: rear left, 3: rear right
 	std::vector<std::unique_ptr<AventadorWheel> > wheel;
 	std::vector<glm::vec3> wheelPos;
+	std::vector<std::unique_ptr<PowerUpBubble>> currentPowerUp;
+	bool createBubble = false;
+	int bubbleType = 0;
 	void update(glm::mat4 parentTransform)override;
 	void renderShadowMap(glm::mat4 parentTransform)override;
 	void render(glm::mat4 parentTransform)override;

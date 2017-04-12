@@ -7,7 +7,9 @@ using namespace glm;
 using namespace physx;
 
 PowerUp::PowerUp() {
+
 	powerId = (int)pseudoRand() % 2; //0 or 1;
+
 	deleteTime = Time::time += countDown;
 	PxVec3 dimensions(0.5f, 0.5f, 0.5f);
 	
@@ -30,9 +32,11 @@ PowerUp::PowerUp() {
 
 	if (powerId == 0) {
 		actor->setName("powerup0");
+		colour = &Resources::lightBlueMaterial;
 	}
 	else {
 		actor->setName("powerup1");
+		colour = &Resources::paleGreenMaterial;
 	}
 }
 
@@ -46,6 +50,32 @@ void PowerUp::update(mat4 parentTransform) {
 
 	Light::renderShadowMap(&Resources::centeredCube, transform);
 
+	pickedUp();
+	erasePowerUp();
+
+}
+
+void PowerUp::pickedUp() {
+	if (changeType) {
+		if (powerId == 0) {
+			powerId = 1;
+			actor->setName("powerup1");
+			colour = &Resources::paleGreenMaterial;
+		}
+		else {
+			powerId = 0;
+			actor->setName("powerup0");
+			colour = &Resources::lightBlueMaterial;
+		}
+		changeType = false;
+	}
+}
+
+void PowerUp::erasePowerUp() {
+	if (contactErase) {
+		actor->setName("erased");
+	}
+
 	if (Time::time > deleteTime) {
 		if (powerId == 0 && VS_AI) {
 			Game::aiPowerUps.erase(remove(Game::aiPowerUps.begin(), Game::aiPowerUps.end(), this), Game::aiPowerUps.end());
@@ -56,12 +86,7 @@ void PowerUp::update(mat4 parentTransform) {
 }
 
 void PowerUp::render(mat4 parentTransform) {
-	if (powerId == 0) {
-		Graphics::RenderInstanced(&Resources::centeredCube, &Resources::coralMaterial, transform);
-	}
-	else {
-		Graphics::RenderInstanced(&Resources::centeredCube, &Resources::paleGreenMaterial, transform);
-	}
+	Graphics::RenderInstanced(&Resources::centeredCube, colour, transform);
 }
 
 physx::PxRigidDynamic *const PowerUp::getActor() {

@@ -6,14 +6,17 @@
 class Path :public Entity {
 	Graphics::MyGeometry geometry;
 	std::vector<glm::vec3> positions;
+	std::vector<glm::vec3> rpositions;
 	std::vector<glm::vec3> normals;
 	std::vector<glm::vec2> uvs;
 
+	float displaceThickness = 0.25;
 	float offset=1;
 	int size;
 	double cooldown;
 	double nextGenTime;
 	Aventador* aventador;
+	Graphics::Material *colour;
 
 
 	// generate the geometry again

@@ -57,17 +57,19 @@ Aventador::Aventador(int id) {
 		actor->setGlobalPose(PxTransform(0, 0, 15.0), true);
 		aventadorData.isFront = true;
 		aventadorData.force = forceFront;
+		colour = &Resources::lightBlueMaterial;
 		if (VS_AI) {	//If the player is versing AI
 			AiManager::aiInit(aventadorData.isAI);
 			aventadorData.playerAI = true;
 		}
 	}
 	else {
+		colour = &Resources::paleGreenMaterial;
 		aventadorData.isFront = false;
 		aventadorData.force = forceBack;
 	}
 
-	fullHealthColor = vec3(1.8, 4.8, 12.6);
+	fullHealthColor = id==0?vec3(1.8, 4.8, 12.6):vec3(2.75, 5.8, 2.75);
 	noHealthColor = vec3(5.2, .8, .8);
 
 	material = Graphics::Material(vec3(1));
@@ -91,6 +93,7 @@ void Aventador::update(glm::mat4 parentTransform) {
 	updateDrift();
 	updateBraking();
 	updateColour();
+	updateCurrentPowerUp(bubbleType);
 
 	/*if (!aventadorData.isFront)
 		updateFuel();
@@ -120,7 +123,12 @@ void Aventador::update(glm::mat4 parentTransform) {
 	updateLightCamera();
 	usePowerUp();
 	for (int i = 0; i < wheel.size(); i++) {
+		wheel[i].get()->material.color = material.color;
+		wheel[i].get()->material.emmisiveColor = material.emmisiveColor;
 		wheel[i].get()->update(tempTransform);
+	}
+	if (hasPowerUp()) {
+		currentPowerUp[0].get()->update(tempTransform);
 	}
 }
 
@@ -181,6 +189,9 @@ void Aventador::render(glm::mat4 parentTransform) {
 	for (int i = 0; i < wheel.size(); i++) {
 		wheel[i].get()->render(tempTransform);
 	}
+	if (hasPowerUp()) {
+		currentPowerUp[0].get()->render(tempTransform);
+	}
 }
 
 void Aventador::raycastWheels() {
@@ -231,7 +242,7 @@ void Aventador::updateFriction() {
 		vec3 wheeld(sin(wheelA), 0, cos(wheelA));
 		wheeld = mat3(transform)*wheeld;
 		if (wheelHit[i]) {
-			if (aventadorData.isAI) {
+			if (aventadorData.isAI && aventadorData.fuel > 0) {
 				PxRigidBodyExt::addLocalForceAtLocalPos(*actor,
 					PxVec3(sin(wheelA) * aventadorData.force, 0, cos(wheelA) *  aventadorData.force),
 					Util::g2p(wheelPos[i] - vec3(0, aventadorData.dimensionHeight, 0)), PxForceMode::eFORCE);
@@ -288,9 +299,8 @@ void Aventador::updateFriction() {
 }
 
 void Aventador::updateSteering() {
-	//actor->setAngularDamping(actor->getAngularVelocity().y );	//invalid parameter : RigidDynamic::setAngularDamping: The angular damping must be nonnegative!
 	actor->addTorque(-actor->getAngularVelocity() * 20);
-	if (aventadorData.isAI) {
+	if (aventadorData.isAI && aventadorData.fuel > 0) {
 		AiManager::aiSteering(wheelAngle, aventadorData.isFront, actor->getGlobalPose());
 	}
 	else {
@@ -457,41 +467,30 @@ void Aventador::removePower() {
 	aventadorData.powerHeld.clear();
 }
 
-void Aventador::setPowerUpStatus(int status) {
+void Aventador::setPowerUpStatus(int status){
 		aventadorData.powerStatus = true;
 		if (status == 1) {
-			Wind *power = new Wind();
-			aventadorData.powerHeld.push_back(power);
+			aventadorData.powerHeld.push_back(new Wind());
 			cout << "pushing wind " << endl;
 		}
 		else if (status == 2) {
-			BlackIce *power = new BlackIce();
-			aventadorData.powerHeld.push_back(power);
+			aventadorData.powerHeld.push_back(new BlackIce());
 			cout << "pushing black ice" << endl;
 		}
 		else if (status == 3) {
-			BoostFront *power = new BoostFront();
-			aventadorData.powerHeld.push_back(power);
+			aventadorData.powerHeld.push_back(new BoostFront());
 			cout << "pushing boost front" << endl;
 		}
 		else if (status == 4) {
-			if (aventadorData.playerAI == true) {
-				aventadorData.powerStatus = false;
-			}
-			else {
-				AutoPilot *power = new AutoPilot();
-				aventadorData.powerHeld.push_back(power);
-				cout << "pushing auto pilot" << endl;
-			}
+			aventadorData.powerHeld.push_back(new Restore());
+			cout << "pushing restore" << endl;
 		}
 		else if (status == 5) {
-			Restore *power = new Restore();
-			aventadorData.powerHeld.push_back(power);
+			aventadorData.powerHeld.push_back(new Restore());
 			cout << "pushing restore" << endl;
 		}
 		else if (status == 6) {
-			BoostBack *power = new BoostBack();
-			aventadorData.powerHeld.push_back(power);
+			aventadorData.powerHeld.push_back(new BoostBack());
 			cout << "pushing boost back" << endl;
 		
 	}
@@ -570,6 +569,28 @@ void Aventador::setPowerDuration(double val) {
 	aventadorData.powerDuration = Time::time + val;
 }
 
+void Aventador::updateCurrentPowerUp(int type) {
+	if (createBubble) {
+		currentPowerUp.push_back(std::unique_ptr<PowerUpBubble>(new PowerUpBubble));
+		if (type == 1)
+			currentPowerUp[0]->material = &Resources::beet;
+		else if (type == 2)
+			currentPowerUp[0]->material = &Resources::brown;
+		else if (type == 3)
+			currentPowerUp[0]->material = &Resources::pink;
+		else if (type == 4)
+			currentPowerUp[0]->material = &Resources::teal;
+		else if (type == 5)
+			currentPowerUp[0]->material = &Resources::olive;
+		else
+			currentPowerUp[0]->material = &Resources::salmon;
+		createBubble = false;
+	}
+	if (!hasPowerUp()) {
+		currentPowerUp.clear();
+	}
+}
+
 void Aventador::changeRole() {
 	aventadorData.isFront = !aventadorData.isFront;
 	aventadorData.fuel = aventadorData.tankSize;
@@ -602,5 +623,13 @@ void AventadorWheel::renderShadowMap(glm::mat4 parentTransform) {
 
 void AventadorWheel::render(glm::mat4 parentTransform) {
 	Graphics::RenderInstanced(&Resources::aventadorWheel, &Resources::darkGreyMaterial, parentTransform*tempTransform);
-	Graphics::RenderInstanced(&Resources::aventadorWheelGlow, &Resources::emmisiveMaterial, parentTransform*tempTransform);
+	Graphics::RenderInstanced(&Resources::aventadorWheelGlow, &material, parentTransform*tempTransform);
+}
+
+void PowerUpBubble::update(glm::mat4 parentTransform) {
+	tempTransform = translate(transform, above);
+}
+
+void PowerUpBubble::render(glm::mat4 parentTransform) {
+	Graphics::RenderInstanced(&Resources::powerUpBubble, material, parentTransform*tempTransform);
 }

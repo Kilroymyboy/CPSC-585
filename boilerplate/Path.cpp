@@ -15,22 +15,31 @@ const std::vector<glm::vec3> displacements{
 	glm::vec3(-thickness,0,-thickness)
 };
 
+
 Path::Path(int geometrySize) {
 	size = geometrySize;
 	offset = 0.0f;
 	this->aventador = Game::getFront();
+
 	cooldown = 0.1;
 	nextGenTime = Time::time + cooldown;
 	for (int i = 0; i < (size + 1) * 6; i++) {
 		positions.push_back(vec3(0, 0.01, 0));
+		rpositions.push_back(vec3(0, 0.01, 0));
+		rpositions.push_back(vec3(0, 0.01, 0));
+		normals.push_back(vec3(0, 1, 0));
 		normals.push_back(vec3(0, 1, 0));
 		uvs.push_back(vec2(0, 0));
+		uvs.push_back(vec2(0, 0));
 	}
+
+
+
 	Graphics::initGeometry(&geometry);
-	geometry.elementCount = positions.size();
+	geometry.elementCount = rpositions.size();
 
 	glBindBuffer(GL_ARRAY_BUFFER, geometry.vertexBuffer);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vec3)*positions.size(), &positions[0], GL_DYNAMIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vec3)*rpositions.size(), &rpositions[0], GL_DYNAMIC_DRAW);
 
 	glBindBuffer(GL_ARRAY_BUFFER, geometry.textureBuffer);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vec2)*uvs.size(), &uvs[0], GL_STATIC_DRAW);
@@ -41,19 +50,20 @@ Path::Path(int geometrySize) {
 }
 
 void Path::generate() {
-	for (int i = 0; i < positions.size() - 6; i ++) {
+	for (int i = 0; i < positions.size() - 6; i++) {
 		positions[i] = positions[i + 6];
 	}
+	float increase = 0.0325;
 	for (int i = 0; i < positions.size(); i += 6) {
 		vec3 diff12 = positions[i + 1] - positions[i + 2];
-		positions[i + 1] += normalize(diff12)*0.02f;
-		positions[i + 2] -= normalize(diff12)*0.02f;
+		positions[i + 1] += normalize(diff12)*increase;
+		positions[i + 2] -= normalize(diff12)*increase;
 		vec3 diff34 = positions[i + 3] - positions[i + 4];
-		positions[i + 3] += normalize(diff34)*0.02f;
-		positions[i + 4] -= normalize(diff34)*0.02f;
+		positions[i + 3] += normalize(diff34)*increase;
+		positions[i + 4] -= normalize(diff34)*increase;
 
-		positions[i]+= normalize(diff34)*0.02f;
-		positions[i+5] += normalize(diff12)*0.02f;
+		positions[i] += normalize(diff34)*increase;
+		positions[i + 5] += normalize(diff12)*increase;
 	}
 }
 
@@ -62,7 +72,7 @@ void Path::updateOffset(float &offset) {
 		offset = 0;
 	}
 	else {
-		offset += 0.001;
+		offset += 0;
 	}
 }
 
@@ -72,11 +82,11 @@ void Path::update(mat4 parentTransform) {
 	}
 
 	aventador = Game::getFront();
-
+	colour = aventador->colour;
 	//increasing the offset decreases the length
 	updateOffset(offset);
-	vec3 rightOffset = aventador->wheelPos[0] + vec3(-offset,0,0);
-	vec3 leftOffset = aventador->wheelPos[1] + vec3(offset,0,0);
+	vec3 rightOffset = aventador->wheelPos[0] + vec3(-offset, 0, 0);
+	vec3 leftOffset = aventador->wheelPos[1] + vec3(offset, 0, 0);
 
 	vec4 frw(rightOffset, 1);
 	vec4 flw(leftOffset, 1);
@@ -95,15 +105,36 @@ void Path::update(mat4 parentTransform) {
 	positions[positions.size() - 2] = positions[positions.size() - 12 + 1];
 	positions[positions.size() - 1] = vec3(frw);
 
+	rpositions = positions;
+	auto trpositions = positions;
+	for (int i = 0; i < rpositions.size(); i += 6) {
+		vec3 diff12 = rpositions[i + 1] - rpositions[i + 2];
+		vec3 diff34 = rpositions[i + 3] - rpositions[i + 4];
+
+		rpositions[i + 1] = rpositions[i + 2] + diff12*(displaceThickness*((float)i / rpositions.size()));
+		rpositions[i + 4] = rpositions[i + 3] - diff34*(displaceThickness*((float)i / rpositions.size()));
+		rpositions[i + 5] = rpositions[i + 2] + diff12*(displaceThickness*((float)i / rpositions.size()));
+	}
+	for (int i = 0; i < trpositions.size(); i += 6) {
+		vec3 diff12 = trpositions[i + 1] - trpositions[i + 2];
+		vec3 diff34 = trpositions[i + 3] - trpositions[i + 4];
+
+		trpositions[i + 2] = trpositions[i + 1] - diff12*(displaceThickness*((float)i / trpositions.size()));
+		trpositions[i + 3] = trpositions[i + 4] + diff34*(displaceThickness*((float)i / trpositions.size()));
+		trpositions[i + 0] = trpositions[i + 4] + diff34*(displaceThickness*((float)i / trpositions.size()));
+	}
+
+	for (int i = 0; i < trpositions.size(); i++)rpositions.push_back(trpositions[i]);
+
 	glBindBuffer(GL_ARRAY_BUFFER, geometry.vertexBuffer);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vec3)*positions.size(), &positions[0], GL_DYNAMIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vec3)*rpositions.size(), &rpositions[0], GL_DYNAMIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 	setCenterPoints();
 }
 
 void Path::render(mat4 parentTransform) {
-	Graphics::Render(&geometry, &Resources::defaultMaterial, parentTransform*transform);
+	Graphics::Render(&geometry, colour, parentTransform*transform);
 }
 
 float sign(vec2 point1, vec2 point2, vec2 point3) {
@@ -154,9 +185,9 @@ void Path::setCenterPoints() {
 		point.y = 0.0f;
 		point.z = getCenter(positions[i].z, positions[i + 1].z, positions[i + 2].z);
 		centerPoints.push_back(point);
-		point.x = getCenter(positions[i+3].x, positions[i + 4].x, positions[i + 5].x);
+		point.x = getCenter(positions[i + 3].x, positions[i + 4].x, positions[i + 5].x);
 		point.y = 0.0f;
-		point.z = getCenter(positions[i+3].z, positions[i + 4].z, positions[i + 5].z);
+		point.z = getCenter(positions[i + 3].z, positions[i + 4].z, positions[i + 5].z);
 		centerPoints.push_back(point);
 
 		//get the center of the path
