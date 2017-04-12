@@ -8,7 +8,7 @@
 class PowerUp : public Entity {
 	physx::PxRigidDynamic *actor;
 
-	double countDown = 20.0;
+	double countDown = 10.0;
 
 	double deleteTime;
 	PxVec3 direction;

@@ -65,7 +65,7 @@ Aventador::Aventador(int id) {
 		aventadorData.force = forceBack;
 	}
 
-	fullHealthColor = vec3(1.8, 4.8, 12.6);
+	fullHealthColor = id==0?vec3(1.8, 4.8, 12.6):vec3(3.75, 6.2, 3.75);
 	noHealthColor = vec3(5.2, .8, .8);
 
 	material = Graphics::Material(vec3(1));
@@ -218,7 +218,7 @@ void Aventador::updateFriction() {
 		vec3 wheeld(sin(wheelA), 0, cos(wheelA));
 		wheeld = mat3(transform)*wheeld;
 		if (wheelHit[i]) {
-			if (aventadorData.isAI) {
+			if (aventadorData.isAI && aventadorData.fuel > 0) {
 				PxRigidBodyExt::addLocalForceAtLocalPos(*actor,
 					PxVec3(sin(wheelA) * aventadorData.force, 0, cos(wheelA) *  aventadorData.force),
 					Util::g2p(wheelPos[i] - vec3(0, aventadorData.dimensionHeight, 0)), PxForceMode::eFORCE);
@@ -276,7 +276,7 @@ void Aventador::updateFriction() {
 
 void Aventador::updateSteering() {
 	actor->addTorque(-actor->getAngularVelocity() * 20);
-	if (aventadorData.isAI) {
+	if (aventadorData.isAI && aventadorData.fuel > 0) {
 		AiManager::aiSteering(wheelAngle, aventadorData.isFront, actor->getGlobalPose());
 	}
 	else {
