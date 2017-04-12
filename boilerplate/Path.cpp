@@ -17,6 +17,9 @@ const std::vector<glm::vec3> displacements{
 
 
 Path::Path(int geometrySize) {
+
+	colour = &Resources::pink;
+
 	size = geometrySize;
 	offset = 0.0f;
 	this->aventador = Game::getFront();
@@ -79,6 +82,10 @@ void Path::updateOffset(float &offset) {
 void Path::update(mat4 parentTransform) {
 	if (Time::time > nextGenTime) {
 		generate();
+	}
+
+	if (Game::aventador0 == NULL || Game::aventador1 == NULL) {
+		return;
 	}
 
 	aventador = Game::getFront();

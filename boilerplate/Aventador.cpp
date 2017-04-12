@@ -98,6 +98,19 @@ void Aventador::update(glm::mat4 parentTransform) {
 	if (!aventadorData.isFront)
 		updateFuel();
 
+	if (((aventadorData.windForce == true) && Time::time < aventadorData.powerDuration)) {
+		setWindForce();
+		cout << "wind force" << endl;
+	}
+	if (((aventadorData.dragForce == true) && Time::time < aventadorData.powerDuration)) {
+		setDragForce();
+		cout << "drag force " << endl;
+	}
+	else if (Time::time >= aventadorData.powerDuration) {
+		aventadorData.windForce = false;
+		aventadorData.dragForce = false;
+		cout << "no power" << endl;
+	}
 
 	updateLightCamera();
 	usePowerUp();
@@ -412,6 +425,29 @@ void Aventador::updateFuel() {
 	}
 }
 
+
+void Aventador::setPowerDuration(double val) {
+	aventadorData.powerDuration = Time::time + val;
+}
+
+void Aventador::setWindForce() {
+	PxRigidBodyExt::addLocalForceAtLocalPos(*Game::getBack()->actor,
+		PxVec3(2, 0, 0), PxVec3(0, 0, 0), PxForceMode::eIMPULSE);
+}
+
+void Aventador::setDragForce() {
+	PxRigidBodyExt::addLocalForceAtLocalPos(*Game::getFront()->actor,
+		PxVec3(0, 0, -1.5), PxVec3(0, 0, 0), PxForceMode::eIMPULSE);
+}
+
+void Aventador::settingWind(bool val) {
+	aventadorData.windForce = true;
+}
+
+void Aventador::settingDrag(bool val) {
+	aventadorData.dragForce = true;
+}
+
 bool Aventador::hasPowerUp() {
 	return aventadorData.powerStatus;
 }
@@ -429,10 +465,8 @@ void Aventador::usePowerUp() {
 		}
 		else if (aventadorData.powerStatus == 2) {
 			cout << aventadorId << " is using power 2" << endl;
-			Game::getBack()->tireHeat[0] = 1000;
-			Game::getBack()->tireHeat[1] = 1000;
-			Game::getBack()->tireHeat[2] = 1000;
-			Game::getBack()->tireHeat[3] = 1000;
+			setPowerDuration(4);
+			settingWind(true);
 			aventadorData.powerStatus = 0;
 		}
 		else if (aventadorData.powerStatus == 3) {
@@ -449,7 +483,8 @@ void Aventador::usePowerUp() {
 		}
 		else if (aventadorData.powerStatus == 5) {
 			cout << aventadorId << " is using power 5" << endl;
-			Game::getFront()->actor->addForce(PxVec3(0, 0, -100), PxForceMode::eIMPULSE);
+			setPowerDuration(4);
+			settingDrag(true);
 			aventadorData.powerStatus = 0;
 		}
 	}
@@ -462,10 +497,8 @@ void Aventador::usePowerUp() {
 			}
 			else if (aventadorData.powerStatus == 2) {
 				cout << aventadorId << " is using power 2" << endl;
-				Game::getBack()->tireHeat[0] = 1000;
-				Game::getBack()->tireHeat[1] = 1000;
-				Game::getBack()->tireHeat[2] = 1000;
-				Game::getBack()->tireHeat[3] = 1000;
+				setPowerDuration(4);
+				settingWind(true);
 				aventadorData.powerStatus = 0;
 			}
 			else if (aventadorData.powerStatus == 3) {
@@ -482,7 +515,8 @@ void Aventador::usePowerUp() {
 			}
 			else if (aventadorData.powerStatus == 5) {
 				cout << aventadorId << " is using power 5" << endl;
-				Game::getFront()->actor->addForce(PxVec3(0, 0, -100), PxForceMode::eIMPULSE);
+				setPowerDuration(4);
+				settingDrag(true);
 				aventadorData.powerStatus = 0;
 			}
 		}
@@ -496,10 +530,8 @@ void Aventador::usePowerUp() {
 			}
 			else if (aventadorData.powerStatus == 2) {
 				cout << aventadorId << " is using power 2" << endl;
-				Game::getBack()->tireHeat[0] = 1000;
-				Game::getBack()->tireHeat[1] = 1000;
-				Game::getBack()->tireHeat[2] = 1000;
-				Game::getBack()->tireHeat[3] = 1000;
+				setPowerDuration(4);
+				settingWind(true);
 				aventadorData.powerStatus = 0;
 			}
 			else if (aventadorData.powerStatus == 3) {
@@ -515,8 +547,9 @@ void Aventador::usePowerUp() {
 				aventadorData.powerStatus = 0;
 			}
 			else if (aventadorData.powerStatus == 5) {
-				cout << aventadorId << " is using power 5" << endl;
-				Game::getFront()->actor->addForce(PxVec3(0, 0, -100), PxForceMode::eIMPULSE);
+				cout << aventadorId << " is using power 5" << endl;			
+				setPowerDuration(4);
+				settingDrag(true);
 				aventadorData.powerStatus = 0;
 			}
 		}

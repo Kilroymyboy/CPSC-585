@@ -42,6 +42,10 @@ public:
 	int tankSize = 500;
 	int fuel = tankSize;
 
+	bool windForce;
+	bool dragForce;
+	double powerDuration;
+
 	bool isAI = false;
 	bool hasLost = false;
 
@@ -127,5 +131,12 @@ public:
 	void setPowerUpStatus(int status);
 	void changeRole();
 	bool isFront();
+
+	void setWindForce();
+	void setDragForce();
+	void setPowerDuration(double val); //sets the duration power length based off what power is being used
+	void settingWind(bool val);
+	void settingDrag(bool val);
+
 	Aventador(int);
 };

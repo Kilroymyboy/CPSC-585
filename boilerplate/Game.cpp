@@ -67,7 +67,7 @@ namespace Game {
 			startMainMenu();
 		}
 		addPowerUp();
-		//checkForSwap();
+		checkForSwap();
 
 	}
 
