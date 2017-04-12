@@ -302,22 +302,23 @@ namespace Sound
 
 	void updateSources()
 	{
-		/*PxTransform frontPos = Game::aventador0->actor->getGlobalPose();
-		alSource3f(1, AL_POSITION, (ALfloat)frontPos.p.x, (ALfloat)frontPos.p.y, (ALfloat)frontPos.p.z);
+		PxTransform frontPos = Game::aventador0->actor->getGlobalPose();
+		PxTransform backPos = Game::aventador1->actor->getGlobalPose();
 
-		PxTransform Powerup = Game::aventador0->actor->getGlobalPose();
-		alSource3f(3, AL_POSITION, (ALfloat)frontPos.p.x, (ALfloat)frontPos.p.y, (ALfloat)frontPos.p.z);
+		//alSource3f(1, AL_POSITION, (ALfloat)frontPos.p.x, (ALfloat)frontPos.p.y, (ALfloat)frontPos.p.z);
 
+		//PxTransform Powerup = Game::aventador0->actor->getGlobalPose();
+		//alSource3f(3, AL_POSITION, (ALfloat)frontPos.p.x, (ALfloat)frontPos.p.y, (ALfloat)frontPos.p.z);
 
-		float dist = glm::distance(glm::vec3(frontPos.p.x, frontPos.p.y, frontPos.p.z), glm::vec3(1));
+		float dist = glm::distance(glm::vec3(frontPos.p.x, frontPos.p.y, frontPos.p.z), glm::vec3(backPos.p.x, backPos.p.y, backPos.p.z));
 
-		alDistanceModel(AL_INVERSE_DISTANCE);
+		alDistanceModel(AL_LINEAR_DISTANCE);
 		ALfloat vol = 4 / (4 +  2  * (dist)-4);
 
 
-
-		alGetSourcef(1, AL_GAIN, &vol);
-		alSourcef(1, AL_GAIN, vol + .6);
+		
+		//alGetSourcef(1, AL_GAIN, &vol);
+		alSourcef(2, AL_GAIN, vol);
 
 
 
@@ -332,10 +333,8 @@ namespace Sound
 		//checkError();
 
 
-
-		PxTransform backPos = Game::aventador0->actor->getGlobalPose();
-		alSource3f(2, AL_POSITION, backPos.p.x, backPos.p.y, backPos.p.z);
-		*/
+	alSource3f(2, AL_POSITION, frontPos.p.x, frontPos.p.y, frontPos.p.z);
+		
 	}
 
 	void updateListener()
