@@ -74,7 +74,7 @@ namespace Game {
 			init();
 		}
 		addPowerUp();
-		checkForSwap();
+		//checkForSwap();
 
 	}
 

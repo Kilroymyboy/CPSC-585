@@ -384,10 +384,9 @@ void Aventador::updateFuel() {
 	bool onPath = Game::path->pointInPath(actor->getGlobalPose().p.x, actor->getGlobalPose().p.z);
 	if (!onPath) {
 		aventadorData.fuel--;
-		PxVec3 dir;
+		PxVec3 dir = PxVec3(rand() % 250, 5, rand() % 250);
 		if (aventadorData.fuel == 0) {
 			actor->addForce(PxVec3(0, 30, 0), PxForceMode::eIMPULSE);
-			dir = PxVec3(rand() % 250, 5, rand() % 250);
 			PxRigidBodyExt::addLocalForceAtLocalPos(*actor,
 				dir, PxVec3(-0.5, 0, 0), PxForceMode::eIMPULSE);
 			PxRigidBodyExt::addLocalForceAtLocalPos(*actor,
@@ -395,7 +394,6 @@ void Aventador::updateFuel() {
 			positionTightness *= .1; targetTightness *= .08;
 		}
 		if (aventadorData.fuel <= 0 && aventadorData.fuel > -120) {
-
 			actor->addTorque(dir, PxForceMode::eIMPULSE);
 			//game over flag
 			if (aventadorData.fuel < -100) {
