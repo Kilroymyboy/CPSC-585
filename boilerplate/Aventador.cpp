@@ -238,35 +238,35 @@ void Aventador::updateFriction() {
 					Util::g2p(wheelPos[i] - vec3(0, aventadorData.dimensionHeight, 0)), PxForceMode::eFORCE);
 			}
 			else {
-				if (Keyboard::keyDown(aventadorId ? GLFW_KEY_UP : GLFW_KEY_W)) {
+				if (Keyboard::keyDown(aventadorId ? GLFW_KEY_W : GLFW_KEY_UP)) {
 					PxRigidBodyExt::addLocalForceAtLocalPos(*actor,
 						PxVec3(sin(wheelA) * aventadorData.force, 0, cos(wheelA) *  aventadorData.force),
 						Util::g2p(wheelPos[i] - vec3(0, aventadorData.dimensionHeight, 0)), PxForceMode::eFORCE);
 				}
-				else if (Keyboard::keyDown(aventadorId ? GLFW_KEY_DOWN : GLFW_KEY_S)) {
+				else if (Keyboard::keyDown(aventadorId ? GLFW_KEY_S : GLFW_KEY_DOWN)) {
 					PxRigidBodyExt::addLocalForceAtLocalPos(*actor,
 						PxVec3(sin(wheelA) * -aventadorData.force, 0, cos(wheelA) * -aventadorData.force),
 						Util::g2p(wheelPos[i] - vec3(0, aventadorData.dimensionHeight, 0)), PxForceMode::eFORCE);
 				}
-				if (aventadorId == 0) {
+				if (aventadorId == 1) {
 					float amount = controller1.RightTrigger();
 					PxRigidBodyExt::addLocalForceAtLocalPos(*actor,
 						PxVec3(sin(wheelA) * (aventadorData.force*amount), 0, cos(wheelA) * (aventadorData.force*amount)),
 						Util::g2p(wheelPos[i] - vec3(0, aventadorData.dimensionHeight, 0)), PxForceMode::eFORCE);
 				}
-				if (aventadorId == 1) {
+				if (aventadorId == 0) {
 					float amount = controller2.RightTrigger();
 					PxRigidBodyExt::addLocalForceAtLocalPos(*actor,
 						PxVec3(sin(wheelA) * (aventadorData.force*amount), 0, cos(wheelA) * (aventadorData.force*amount)),
 						Util::g2p(wheelPos[i] - vec3(0, aventadorData.dimensionHeight, 0)), PxForceMode::eFORCE);
 				}
-				if (aventadorId == 0) {
+				if (aventadorId == 1) {
 					float amount = controller1.LeftTrigger();
 					PxRigidBodyExt::addLocalForceAtLocalPos(*actor,
 						PxVec3(sin(wheelA) * (-aventadorData.force*amount), 0, cos(wheelA) * (-aventadorData.force*amount)),
 						Util::g2p(wheelPos[i] - vec3(0, aventadorData.dimensionHeight, 0)), PxForceMode::eFORCE);
 				}
-				if (aventadorId == 1) {
+				if (aventadorId == 0) {
 					float amount = controller2.LeftTrigger();
 					PxRigidBodyExt::addLocalForceAtLocalPos(*actor,
 						PxVec3(sin(wheelA) * (-aventadorData.force*amount), 0, cos(wheelA) * (-aventadorData.force*amount)),
@@ -295,17 +295,17 @@ void Aventador::updateSteering() {
 		AiManager::aiSteering(wheelAngle, aventadorData.isFront, actor->getGlobalPose());
 	}
 	else {
-		if (Keyboard::keyDown(aventadorId ? GLFW_KEY_LEFT : GLFW_KEY_A)) {
+		if (Keyboard::keyDown(aventadorId ? GLFW_KEY_A : GLFW_KEY_LEFT)) {
 			wheelAngle += aventadorData.wheelTurnRate;
 		}
-		if (Keyboard::keyDown(aventadorId ? GLFW_KEY_RIGHT : GLFW_KEY_D)) {
+		if (Keyboard::keyDown(aventadorId ? GLFW_KEY_D : GLFW_KEY_RIGHT)) {
 			wheelAngle -= aventadorData.wheelTurnRate;
 		}
-		if (!(Keyboard::keyDown(aventadorId ? GLFW_KEY_LEFT : GLFW_KEY_A)
-			|| Keyboard::keyDown(aventadorId ? GLFW_KEY_RIGHT : GLFW_KEY_D))) {
+		if (!(Keyboard::keyDown(aventadorId ? GLFW_KEY_A : GLFW_KEY_LEFT)
+			|| Keyboard::keyDown(aventadorId ? GLFW_KEY_D : GLFW_KEY_RIGHT))) {
 			wheelAngle *= aventadorData.wheelReurnRate;
 		}
-		if (aventadorId == 0) {
+		if (aventadorId == 1) {
 			float amount = -1 * controller1.LeftStick_X();
 
 			if ((amount > 0.25) || (amount < -0.25)) {
@@ -315,7 +315,7 @@ void Aventador::updateSteering() {
 				wheelAngle *= aventadorData.wheelReurnRate;
 			}
 		}	
-		if (aventadorId == 1) {
+		if (aventadorId == 0) {
 			float amount = -1 * controller2.LeftStick_X();
 			if ((amount > 0.2) || (amount < -0.2)) {
 				wheelAngle = +(amount*aventadorData.wheelTurnRate);
@@ -338,20 +338,20 @@ void Aventador::updateTopSpeed() {
 }
 
 void Aventador::updateDrift() {
-	if (Keyboard::keyDown(aventadorId ? GLFW_KEY_RIGHT_CONTROL : GLFW_KEY_LEFT_CONTROL)) {
+	if (Keyboard::keyDown(aventadorId ? GLFW_KEY_LEFT_CONTROL : GLFW_KEY_RIGHT_CONTROL)) {
 		// manually add heat to rear tires
 		PxVec3 v = actor->getLinearVelocity();
 		tireHeat[2] += aventadorData.manualTireHeatIncrease*v.magnitude();
 		tireHeat[3] += aventadorData.manualTireHeatIncrease*v.magnitude();
 	}
-	if (aventadorId == 0) {
+	if (aventadorId == 1) {
 		if (controller1.GetButtonPressed(1)) {
 			PxVec3 v = actor->getLinearVelocity();
 			tireHeat[2] += aventadorData.manualTireHeatIncrease*v.magnitude() * 2;
 			tireHeat[3] += aventadorData.manualTireHeatIncrease*v.magnitude() * 2;
 		}
 	}
-	if (aventadorId == 1) {
+	if (aventadorId == 0) {
 		if (controller2.GetButtonPressed(1)) {
 			PxVec3 v = actor->getLinearVelocity();
 			tireHeat[2] += aventadorData.manualTireHeatIncrease*v.magnitude() * 2;
@@ -359,7 +359,7 @@ void Aventador::updateDrift() {
 		}
 	}
 
-	if (Keyboard::keyDown(aventadorId ? GLFW_KEY_UP : GLFW_KEY_W))
+	if (Keyboard::keyDown(aventadorId ? GLFW_KEY_W : GLFW_KEY_UP))
 		for (int i = 0; i < tireHeat.size(); i++)tireHeat[i] *= aventadorData.tireHeatDecrease;
 	else
 		for (int i = 0; i < tireHeat.size(); i++)tireHeat[i] *= aventadorData.tireHeatFastDecrease;
@@ -390,10 +390,10 @@ void Aventador::setWindForce() {
 }
 
 void Aventador::updateBraking() {
-	if (Keyboard::keyDown(aventadorId ? GLFW_KEY_RIGHT_CONTROL : GLFW_KEY_LEFT_CONTROL)) {
+	if (Keyboard::keyDown(aventadorId ? GLFW_KEY_LEFT_CONTROL : GLFW_KEY_RIGHT_CONTROL)) {
 		brakeForce = min(brakeForce + aventadorData.brakeSpeed, aventadorData.maxBrakeForce);
 	}
-	if (aventadorId == 0) {
+	if (aventadorId == 1) {
 		if (controller1.GetButtonPressed(1)) {
 			brakeForce = min(brakeForce + aventadorData.brakeSpeed, aventadorData.maxBrakeForce);
 		}
@@ -401,7 +401,7 @@ void Aventador::updateBraking() {
 			brakeForce = 0;
 		}
 	}
-	else if (aventadorId == 1) {
+	else if (aventadorId == 0) {
 		if (controller2.GetButtonPressed(1)) {
 			brakeForce = min(brakeForce + aventadorData.brakeSpeed, aventadorData.maxBrakeForce);
 		}
@@ -499,7 +499,7 @@ void Aventador::setPowerUpStatus(int status) {
 }
 
 void Aventador::usePowerUp() {
-	if (Keyboard::keyDown(aventadorId ? GLFW_KEY_END : GLFW_KEY_F)) {
+	if (Keyboard::keyDown(aventadorId ? GLFW_KEY_F : GLFW_KEY_END)) {
 		if (aventadorData.powerStatus == true) {
 			aventadorData.powerHeld[0]->use();
 			for (PowerUp* p : aventadorData.powerHeld) {
@@ -509,7 +509,7 @@ void Aventador::usePowerUp() {
 			aventadorData.powerStatus = false;
 		}
 	}
-	if (aventadorId == 0) {
+	if (aventadorId == 1) {
 		if (controller1.GetButtonPressed(0)) {
 			if (aventadorData.powerStatus == true) {
 				aventadorData.powerHeld[0]->use();
@@ -537,7 +537,7 @@ void Aventador::usePowerUp() {
 			aventadorData.powerStatus = false;
 		}
 	}
-	if (aventadorId == 1) {
+	if (aventadorId == 0) {
 		if (controller2.GetButtonPressed(0)) {
 			if (aventadorData.powerStatus == true) {
 				aventadorData.powerHeld[0]->use();
