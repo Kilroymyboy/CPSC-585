@@ -6,11 +6,13 @@ wavInfo song;
 
 wavInfo PlayerFront;
 wavInfo PlayerBack;
+wavInfo Powerup;
 
 namespace Sound 
 {
 	string fileSong = "\\test.wav";
 	string fileEngine = "\\car_v.wav";
+	string filePowerup = "\\powerupPickup.wav";
 	ALuint setSource(ALuint source);
 	void checkError();
 	wavInfo openWavFile(string fileName, wavInfo toPlay);
@@ -72,6 +74,8 @@ namespace Sound
 		checkError();
 		alGenSources(1, &PlayerFront.source);
 		checkError();
+		alGenSources(1, &Powerup.source);
+		checkError();
 
 		song.source = setSource(song.source);
 		checkError();
@@ -79,23 +83,29 @@ namespace Sound
 		checkError();
 		PlayerFront.source = setSource(PlayerFront.source);
 		checkError();
+		Powerup.source = setSource(Powerup.source);
+		checkError();
 
 		/*Buffer Generation this holds the raw audio stream*/
 		alGenBuffers(1, &song.buffer);
 		alGenBuffers(1, &PlayerBack.buffer);
 		alGenBuffers(1, &PlayerFront.buffer);
+		alGenBuffers(1, &Powerup.buffer);
 		checkError();
 
 		char* curDir = _getcwd(NULL, 0);
 		string filename = curDir + fileSong;
 		song = openWavFile(filename, song);
-
 		song.format = formatSound(song.channels, song.bitsPerSample);
 
 		filename = curDir + fileEngine;
 		PlayerBack = openWavFile(filename, PlayerBack);
-
 		PlayerBack.format = formatSound(PlayerBack.channels, PlayerBack.bitsPerSample);
+
+		filename = curDir + filePowerup;
+		Powerup = openWavFile(filename, PlayerBack);
+		Powerup.format = formatSound(PlayerBack.channels, PlayerBack.bitsPerSample);
+
 
 
 	}
@@ -342,6 +352,10 @@ namespace Sound
 			break;
 		case 2:
 			toPlay = PlayerBack;
+			break;
+		case 3:
+			toPlay = Powerup;
+			break;
 
 		default:
 			break;
@@ -360,10 +374,8 @@ namespace Sound
 		}
 		else
 		{
-			cout << "I LOVE JOHNNBI" << endl;
 			alBufferData(toPlay.buffer, toPlay.format, (ALvoid*)toPlay.songBuf, (ALsizei)toPlay.dataSize, (ALsizei)toPlay.sampleRate);
 			checkError();
-
 
 			alSourcei(toPlay.source, AL_BUFFER, toPlay.buffer);
 			checkError();
