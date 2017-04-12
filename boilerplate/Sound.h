@@ -30,6 +30,7 @@ namespace Sound
 	void setListener();
 	void list_audio_devices(const ALCchar *devices);
 	void playSound(ALuint a);
+	void stopSound(ALuint a);
 	void updateSources();
 	void updateListener();
 

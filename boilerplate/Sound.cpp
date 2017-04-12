@@ -6,11 +6,13 @@ wavInfo song;
 
 wavInfo PlayerFront;
 wavInfo PlayerBack;
+wavInfo Powerup;
 
 namespace Sound 
 {
 	string fileSong = "\\test.wav";
 	string fileEngine = "\\car_v.wav";
+	string filePowerup = "\\powerupPickup.wav";
 	ALuint setSource(ALuint source);
 	void checkError();
 	wavInfo openWavFile(string fileName, wavInfo toPlay);
@@ -72,6 +74,8 @@ namespace Sound
 		checkError();
 		alGenSources(1, &PlayerFront.source);
 		checkError();
+		alGenSources(1, &Powerup.source);
+		checkError();
 
 		song.source = setSource(song.source);
 		checkError();
@@ -79,23 +83,29 @@ namespace Sound
 		checkError();
 		PlayerFront.source = setSource(PlayerFront.source);
 		checkError();
+		Powerup.source = setSource(Powerup.source);
+		checkError();
 
 		/*Buffer Generation this holds the raw audio stream*/
 		alGenBuffers(1, &song.buffer);
 		alGenBuffers(1, &PlayerBack.buffer);
 		alGenBuffers(1, &PlayerFront.buffer);
+		alGenBuffers(1, &Powerup.buffer);
 		checkError();
 
 		char* curDir = _getcwd(NULL, 0);
 		string filename = curDir + fileSong;
 		song = openWavFile(filename, song);
-
 		song.format = formatSound(song.channels, song.bitsPerSample);
 
 		filename = curDir + fileEngine;
 		PlayerBack = openWavFile(filename, PlayerBack);
-
 		PlayerBack.format = formatSound(PlayerBack.channels, PlayerBack.bitsPerSample);
+
+		filename = curDir + filePowerup;
+		Powerup = openWavFile(filename, PlayerBack);
+		Powerup.format = formatSound(PlayerBack.channels, PlayerBack.bitsPerSample);
+
 
 
 	}
@@ -165,10 +175,10 @@ namespace Sound
 
 	void checkError()
 	{
-		ALCenum error;
-		error = alGetError();
-		if (error != AL_NO_ERROR)
-			perror("CHECK ERROR");
+	//	ALCenum error;
+	//	error = alGetError();
+	//	if (error != AL_NO_ERROR)
+	//		perror("CHECK ERROR");
 	}
 
 
@@ -293,13 +303,22 @@ namespace Sound
 	void updateSources()
 	{
 		PxTransform frontPos = Game::aventador0->actor->getGlobalPose();
-		alSource3f(1, AL_POSITION, frontPos.p.x, frontPos.p.y, frontPos.p.z);
+		PxTransform backPos = Game::aventador1->actor->getGlobalPose();
 
-		float dist = glm::distance(glm::vec3(frontPos.p.x, frontPos.p.y, frontPos.p.z), glm::vec3(1));
+		//alSource3f(1, AL_POSITION, (ALfloat)frontPos.p.x, (ALfloat)frontPos.p.y, (ALfloat)frontPos.p.z);
 
-		alDistanceModel(AL_INVERSE_DISTANCE);
-		float vol = 4 / (4 +  2  * (dist)-4);
+		//PxTransform Powerup = Game::aventador0->actor->getGlobalPose();
+		//alSource3f(3, AL_POSITION, (ALfloat)frontPos.p.x, (ALfloat)frontPos.p.y, (ALfloat)frontPos.p.z);
 
+		float dist = glm::distance(glm::vec3(frontPos.p.x, frontPos.p.y, frontPos.p.z), glm::vec3(backPos.p.x, backPos.p.y, backPos.p.z));
+
+		alDistanceModel(AL_LINEAR_DISTANCE);
+		ALfloat vol = 4 / (4 +  2  * (dist)-4);
+
+
+		
+		//alGetSourcef(1, AL_GAIN, &vol);
+		alSourcef(2, AL_GAIN, vol);
 
 
 
@@ -307,17 +326,15 @@ namespace Sound
 		//checkError();
 
 
-		alSourcef(1, AL_GAIN, .2);
-		checkError();
+		//alSourcef(1, AL_GAIN, .2);
+		//checkError();
 
-		alSourcef(2, AL_GAIN, 2);
-		checkError();
+		//alSourcef(2, AL_GAIN, 2);
+		//checkError();
 
 
-
-		PxTransform backPos = Game::aventador0->actor->getGlobalPose();
-		alSource3f(2, AL_POSITION, backPos.p.x, backPos.p.y, backPos.p.z);
-
+	alSource3f(2, AL_POSITION, frontPos.p.x, frontPos.p.y, frontPos.p.z);
+		
 	}
 
 	void updateListener()
@@ -325,6 +342,9 @@ namespace Sound
 		PxTransform backPos = Game::aventador1->actor->getGlobalPose();
 
 		alListener3f(AL_POSITION, backPos.p.x, backPos.p.y, backPos.p.z);
+	
+		alSource3f(3, AL_POSITION, (ALfloat)backPos.p.x, (ALfloat)backPos.p.y, (ALfloat)backPos.p.z);
+
 	}
 
 
@@ -338,14 +358,19 @@ namespace Sound
 			break;
 		case 2:
 			toPlay = PlayerBack;
+			break;
+		case 3:
+			toPlay = Powerup;
+			break;
 
 		default:
 			break;
 
 		}
 
-
 		ALint source_state;
+
+
 
 		alGetSourcei(toPlay.source, AL_SOURCE_STATE, &source_state);
 		checkError();
@@ -362,13 +387,10 @@ namespace Sound
 			checkError();
 			alSourcePlay(toPlay.source);
 		}
-
-
-		alBufferData(toPlay.buffer, toPlay.format, (ALvoid*)toPlay.songBuf, (ALsizei)toPlay.dataSize, (ALsizei)toPlay.sampleRate);
-		checkError();
-
-		alSourcei(toPlay.source, AL_BUFFER, toPlay.buffer);
-		checkError();
-		alSourcePlay(toPlay.source);
 	} 
+	void stopSound(ALuint a)
+	{
+		alSourceStop(a);
+	}
+
 } 

@@ -19,3 +19,6 @@ dontSubmit/*
 !/dontSubmit/bin/Debug
 /dontSubmit/bin/Debug/*
 !/dontSubmit/bin/Debug/*.dll
+!/dontSubmit/bin/Release
+/dontSubmit/bin/Release/*
+!/dontSubmit/bin/Release/*.dll

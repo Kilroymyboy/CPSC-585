@@ -40,7 +40,7 @@ namespace Game {
 
 	void update() {
 		glfwPollEvents();
-
+		addPowerUp();
 		for (auto it = entities.begin(); it != entities.end(); it++) {
 			if (it->get()->alive) {
 				it->get()->update(mat4(1));
@@ -66,9 +66,9 @@ namespace Game {
 		if ((controller1.GetButtonPressed(13)) || (Keyboard::keyPressed(GLFW_KEY_ESCAPE))) {
 			startMainMenu();
 		}
-
 		addPowerUp();
-		checkForSwap();
+		//checkForSwap();
+
 	}
 
 	//adding more power ups into the scene

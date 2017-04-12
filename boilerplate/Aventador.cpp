@@ -1,7 +1,9 @@
 #include "Aventador.h"
 #include "Game.h"
 #include "PowerUp.h"
+#include "Sound.h"
 #include <glm\gtx\projection.hpp>
+#include <math.h>
 
 using namespace std;
 using namespace glm;
@@ -41,7 +43,7 @@ Aventador::Aventador(int id) {
 	wheel[3].get()->rotateInverse = -1;
 
 
-	PxTransform t(PxVec3(0, 5, 0), PxQuat::createIdentity());
+	PxTransform t(PxVec3(10, 5, 0), PxQuat::createIdentity());
 	PxVec3 dimensions(aventadorData.dimensionWidth, aventadorData.dimensionHeight, aventadorData.dimensionLength);
 
 	actor = PhysicsManager::createDynamic(t, dimensions);
@@ -227,6 +229,7 @@ void Aventador::updateFriction() {
 			}
 			else {
 				if (Keyboard::keyDown(aventadorId ? GLFW_KEY_UP : GLFW_KEY_W)) {
+					Sound::playSound(2);
 					PxRigidBodyExt::addLocalForceAtLocalPos(*actor,
 						PxVec3(sin(wheelA) * aventadorData.force, 0, cos(wheelA) *  aventadorData.force),
 						Util::g2p(wheelPos[i] - vec3(0, aventadorData.dimensionHeight, 0)), PxForceMode::eFORCE);
@@ -266,12 +269,17 @@ void Aventador::updateFriction() {
 			vec3 forwardv = proj(Util::p2g(wspeed), wheeld); forwardv.y = 0;
 			vec3 frictionv = Util::p2g(wspeed) - forwardv;
 			vec3 frictiond = -normalize(frictionv); frictiond.y = 0;
+
 			PxVec3 sideFriction = Util::g2p(frictiond / (1 + tireHeat[i]))*min(wspeed.magnitude() * aventadorData.wheelSideFriction, aventadorData.wheelSideMaxFriction),
 				brakeFriction = Util::g2p(-normalize(forwardv)*brakeForce);
 
-			PxRigidBodyExt::addForceAtPos(*actor, sideFriction + brakeFriction,
-				Util::g2p(transform*vec4(wheelPos[i] - vec3(0, aventadorData.dimensionHeight, 0), 1)), PxForceMode::eFORCE);
-			tireHeat[i] += length(frictionv) *aventadorData.tireHeatIncrease[i];
+			if (!isnan((sideFriction + brakeFriction).magnitude()))
+			{
+
+				PxRigidBodyExt::addForceAtPos(*actor, sideFriction + brakeFriction,
+					Util::g2p(transform*vec4(wheelPos[i] - vec3(0, aventadorData.dimensionHeight, 0), 1)), PxForceMode::eFORCE);
+				tireHeat[i] += length(frictionv) *aventadorData.tireHeatIncrease[i];
+			}
 		}
 	}
 }
@@ -353,6 +361,7 @@ void Aventador::updateDrift() {
 
 void Aventador::updateBraking() {
 	if (Keyboard::keyDown(aventadorId ? GLFW_KEY_RIGHT_CONTROL : GLFW_KEY_LEFT_CONTROL)) {
+		Sound::stopSound(2);
 		brakeForce = min(brakeForce + aventadorData.brakeSpeed, aventadorData.maxBrakeForce);
 	}
 	if (aventadorId == 0) {
@@ -377,10 +386,9 @@ void Aventador::updateFuel() {
 	bool onPath = Game::path->pointInPath(actor->getGlobalPose().p.x, actor->getGlobalPose().p.z);
 	if (!onPath) {
 		aventadorData.fuel--;
-		PxVec3 dir;
+		PxVec3 dir = PxVec3(rand() % 250, 5, rand() % 250);
 		if (aventadorData.fuel == 0) {
 			actor->addForce(PxVec3(0, 30, 0), PxForceMode::eIMPULSE);
-			dir = PxVec3(rand() % 250, 5, rand() % 250);
 			PxRigidBodyExt::addLocalForceAtLocalPos(*actor,
 				dir, PxVec3(-0.5, 0, 0), PxForceMode::eIMPULSE);
 			PxRigidBodyExt::addLocalForceAtLocalPos(*actor,
@@ -388,7 +396,6 @@ void Aventador::updateFuel() {
 			positionTightness *= .1; targetTightness *= .08;
 		}
 		if (aventadorData.fuel <= 0 && aventadorData.fuel > -120) {
-
 			actor->addTorque(dir, PxForceMode::eIMPULSE);
 			//game over flag
 			if (aventadorData.fuel < -100) {

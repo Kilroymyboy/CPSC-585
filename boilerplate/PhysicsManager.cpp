@@ -1,7 +1,7 @@
 #include "PhysicsManager.h"
 #include "Game.h"
 #include "extensions\PxRigidBodyExt.h"
-
+#include "Sound.h"
 
 namespace PhysicsManager {
 
@@ -213,6 +213,8 @@ void ContactBehaviourCallback::onContact(const PxContactPairHeader& pairHeader, 
 
 			const char* name0 = "powerup0";
 			const char* name1 = "powerup1";
+
+			Sound::playSound(3);
 
 			bool isAventador0 = pairHeader.actors[0] == a0 || pairHeader.actors[1] == a0;
 			bool isAventador1 = pairHeader.actors[0] == a1 || pairHeader.actors[1] == a1;
