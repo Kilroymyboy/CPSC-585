@@ -19,7 +19,7 @@ Y button- throw powerup away
 
 Keyboard:
 wasd and arrow keys for controls on the car
-Left and right control for hand brake 
+Left and right control for hand brake
 f and right shift key are for powerup use
 
 Currently included Features:
@@ -28,6 +28,12 @@ Powerups (simple powerups none of the complicated ones yet)
 Car driving physics
 Menu screens
 
+PowerUps
+There are 6 powerups 3 for back 3 for behind
+Front player has 3 powers
+A push on one back car, a wind force that blows the back car for a duration and a boost
+Back player has 3 powers
+Restores health for the back car, a drag force on the front car slowing it for a duration, also a boost
 
 Sound 
 Currently directional sound on one car and a sound track accompanying it.
