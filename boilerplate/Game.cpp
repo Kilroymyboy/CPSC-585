@@ -23,6 +23,7 @@ namespace Game {
 	vector<PowerUp*> aiPowerUps;
 
 	bool alive;
+	bool vs_ai;
 
 	double spawnCoolDown = 20;
 	double powerUpSpawnTime = Time::time += spawnCoolDown;

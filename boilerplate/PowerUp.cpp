@@ -17,7 +17,7 @@ PowerUp::PowerUp() {
 	
 	if (powerId == 0) {
 		t = Game::aventador0->actor->getGlobalPose();
-		if (VS_AI) {
+		if (Game::vs_ai) {
 			Game::aiPowerUps.push_back(this);
 		}
 	}
@@ -81,7 +81,7 @@ void PowerUp::erasePowerUp() {
 	}
 
 	if (Time::time > deleteTime) {
-		if (powerId == 0 && VS_AI) {
+		if (powerId == 0 && Game::vs_ai) {
 			Game::aiPowerUps.erase(remove(Game::aiPowerUps.begin(), Game::aiPowerUps.end(), this), Game::aiPowerUps.end());
 		}
 		alive = false;

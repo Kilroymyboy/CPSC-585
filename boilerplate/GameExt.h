@@ -8,4 +8,5 @@ namespace Game {
 	void startMainMenu();
 
 	void startSinglePlayer();
+	void startMultiPlayer();
 }

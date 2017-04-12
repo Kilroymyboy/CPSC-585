@@ -22,7 +22,7 @@ namespace Menu {
 			}
 			if (selection == 1) {
 				// start multiplayer here
-				Game::startSinglePlayer();
+				Game::startMultiPlayer();
 			}
 			if (selection == 2) {
 				exit(0);
