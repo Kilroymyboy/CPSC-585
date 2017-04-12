@@ -1,42 +1,39 @@
 Name: Path tracer
 
-Flags:
-Game.h
-VS_AI: 0 for no ai 1 for an ai opponent
-the player controls with the arrow keys or player 2 xbox controller
-Graphics.cpp
-SPLITSCREEN: 1 enables splitscreen 0 disables splitscreen
-SPLIT_SCREEN_ORIENTATION: 0 horizontal orientation, 1 vertical orientation
+Game is able to be run in release mode
 
 Controls:
+In menu screen arrow keys are to go to each option and enter to select
+Escape goes back to the menu screen once you are done with a round and want to play again.
+Note that pressing escape goes back to menu screen and resets the state of the game.
+
 Works with both keyboard and the xbox controller, however prefer using the controller as
-the car handles better and the powerups may have some issues with keyboard controls.
+
 Xbox controller:
 Right stick- controls car direction
 Right trigger- is gas
 Left trigger- is brake
-B button- hand brake (not very good at the moment just a weaker brake)
+B button- hand brake
 A button- use powerup
 Y button- throw powerup away
-Back button- reset the game
+
 Keyboard:
 wasd and arrow keys for controls on the car
 Left and right control for hand brake 
-f and left shift are for powerup use (may not work as intended)
+f and right shift key are for powerup use
 
 Currently included Features:
 Game rules (path generating and health for following car which is lost when not on the path)
 Powerups (simple powerups none of the complicated ones yet)
-Car driving physics (better with the controller though more range of motion with the 
-			keyboard which leads to some problems with control though)
-Sound (at the moment temp sound track and car driving sound)
+Car driving physics
+Menu screens
+
+
+Sound 
+Currently directional sound on one car and a sound track accompanying it.
+
 Split screen 2 player
+
 Ai for both front and back state of the car
 
-Still required:
-Complex powerups or better powerup system
-Game states from a start menu to a lose screen
-Other sound effects
-
-Wish list:
 

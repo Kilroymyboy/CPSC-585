@@ -465,7 +465,7 @@ void Aventador::usePowerUp() {
 		}
 		else if (aventadorData.powerStatus == 2) {
 			cout << aventadorId << " is using power 2" << endl;
-			setPowerDuration(4);
+			setPowerDuration(5);
 			settingWind(true);
 			aventadorData.powerStatus = 0;
 		}
@@ -483,7 +483,7 @@ void Aventador::usePowerUp() {
 		}
 		else if (aventadorData.powerStatus == 5) {
 			cout << aventadorId << " is using power 5" << endl;
-			setPowerDuration(4);
+			setPowerDuration(5);
 			settingDrag(true);
 			aventadorData.powerStatus = 0;
 		}
