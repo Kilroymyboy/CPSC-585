@@ -52,6 +52,7 @@ public:
 	std::vector<PowerUp*> powerHeld; //vector holding a single powerup object using poweruplist use()
 	bool slipActive; //if true the blackIce power has been used
 	bool autoActive; //if true the autopilot power has been used
+	bool windForce;
 	double powerDuration; //duration each powerup is used for
 };
 
@@ -104,7 +105,7 @@ class Aventador : public Entity {
 	float positionTightness = .3, targetTightness = .9;
 
 	float forceFront = 45;
-	float forceBack = 55;
+	float forceBack = 50;
 
 public:
 	physx::PxRigidDynamic *actor;
@@ -115,6 +116,7 @@ public:
 	void renderShadowMap(glm::mat4 parentTransform)override;
 	void render(glm::mat4 parentTransform)override;
 	bool hasPowerUp();
+	void removePower();
 	void setPowerUpStatus(int status);
 	void changeRole();
 	bool isFront();
@@ -122,7 +124,9 @@ public:
 	void setFuel(int increase); //used in the restore power to add fuel
 	void settingTireHeat(bool val); //sets blackIce power to true
 	void settingAutoPilot(bool val); //sets autoPilot power to true
+	void settingWind(bool val);
 	void setTireHeat(int heat); //set the tireheat if blackIce power is being used
+	void setWindForce();
 	void setPowerDuration(double val); //sets the duration power length based off what power is being used
 
 	void getPlayerAI(); //A separate get to get if the car was the starting AI

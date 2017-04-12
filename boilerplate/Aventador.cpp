@@ -59,6 +59,7 @@ Aventador::Aventador(int id) {
 		aventadorData.force = forceFront;
 		if (VS_AI) {	//If the player is versing AI
 			AiManager::aiInit(aventadorData.isAI);
+			aventadorData.playerAI = true;
 		}
 	}
 	else {
@@ -95,16 +96,24 @@ void Aventador::update(glm::mat4 parentTransform) {
 		updateFuel();
 		*/
 	if ((aventadorData.slipActive == true) && (Time::time < aventadorData.powerDuration)) {
-		setTireHeat(1000000);
+		setTireHeat(100000);
+	}
+	
+	if (aventadorData.isFront == true) {
+		settingAutoPilot(false);
 	}
 
 	else if ((aventadorData.autoActive == true) && (Time::time < aventadorData.powerDuration)) {
 		settingAutoPilot(true);
 	}
+	else if (((aventadorData.windForce == true) && Time::time < aventadorData.powerDuration)){
+		setWindForce();
+	}
 
 	else if (Time::time >= aventadorData.powerDuration) {
 		aventadorData.slipActive = false;
 		aventadorData.autoActive = false;
+		aventadorData.windForce = false;
 		settingAutoPilot(false);
 	}
 
@@ -113,13 +122,6 @@ void Aventador::update(glm::mat4 parentTransform) {
 
 	for (int i = 0; i < wheel.size(); i++) {
 		wheel[i].get()->update(tempTransform);
-	}
-
-	if (aventadorData.isFront) {
-		aventadorData.force = 30;
-	}
-	else {
-		aventadorData.force = 35;
 	}
 }
 
@@ -303,19 +305,19 @@ void Aventador::updateSteering() {
 			|| Keyboard::keyDown(aventadorId ? GLFW_KEY_RIGHT : GLFW_KEY_D))) {
 			wheelAngle *= aventadorData.wheelReurnRate;
 		}
-		if (aventadorId == 1) {
-			float amount = -1 * controller2.LeftStick_X();
-			if ((amount > 0.2) || (amount < -0.2)) {
+		if (aventadorId == 0) {
+			float amount = -1 * controller1.LeftStick_X();
+
+			if ((amount > 0.25) || (amount < -0.25)) {
 				wheelAngle = +(amount*aventadorData.wheelTurnRate);
 			}
 			else {
 				wheelAngle *= aventadorData.wheelReurnRate;
 			}
-		}
-		if (aventadorId == 0) {
-			float amount = -1 * controller1.LeftStick_X();
-
-			if ((amount > 0.25) || (amount < -0.25)) {
+		}	
+		if (aventadorId == 1) {
+			float amount = -1 * controller2.LeftStick_X();
+			if ((amount > 0.2) || (amount < -0.2)) {
 				wheelAngle = +(amount*aventadorData.wheelTurnRate);
 			}
 			else {
@@ -374,8 +376,17 @@ void Aventador::settingAutoPilot(bool val) {
 	aventadorData.isAI = val;
 }
 
+void Aventador::settingWind(bool val) {
+	aventadorData.windForce = true;
+}
+
 void Aventador::setTireHeat(int heat) {
 	tireHeat.assign(4, heat);
+}
+
+void Aventador::setWindForce() {
+		PxRigidBodyExt::addLocalForceAtLocalPos(*actor,
+			PxVec3(2, 0, 0), PxVec3(0, 0, 0), PxForceMode::eIMPULSE);
 }
 
 void Aventador::updateBraking() {
@@ -386,8 +397,11 @@ void Aventador::updateBraking() {
 		if (controller1.GetButtonPressed(1)) {
 			brakeForce = min(brakeForce + aventadorData.brakeSpeed, aventadorData.maxBrakeForce);
 		}
+		else {
+			brakeForce = 0;
+		}
 	}
-	if (aventadorId == 1) {
+	else if (aventadorId == 1) {
 		if (controller2.GetButtonPressed(1)) {
 			brakeForce = min(brakeForce + aventadorData.brakeSpeed, aventadorData.maxBrakeForce);
 		}
@@ -439,12 +453,17 @@ bool Aventador::hasPowerUp() {
 	return aventadorData.powerStatus;
 }
 
+void Aventador::removePower() {
+	aventadorData.powerStatus = false;
+	aventadorData.powerHeld.clear();
+}
+
 void Aventador::setPowerUpStatus(int status) {
 	aventadorData.powerStatus = true;
 	if (status == 1) {
-		Blind *power = new Blind();
+		Wind *power = new Wind();
 		aventadorData.powerHeld.push_back(power);
-		cout << "pushing blind " << endl;
+		cout << "pushing wind " << endl;
 	}
 	else if (status == 2) {
 		BlackIce *power = new BlackIce();
@@ -459,6 +478,7 @@ void Aventador::setPowerUpStatus(int status) {
 	else if (status == 4) {
 		if (aventadorData.playerAI == true) {
 			aventadorData.powerStatus = false;
+			cout << "not pushing shit" << endl;
 		}
 		else {
 			AutoPilot *power = new AutoPilot();
@@ -504,7 +524,6 @@ void Aventador::usePowerUp() {
 			for (PowerUp* p : aventadorData.powerHeld) {
 				delete p;
 			}
-			cout << "throwing away power" << endl;
 			aventadorData.powerHeld.clear();
 			aventadorData.powerStatus = false;
 		}
@@ -533,7 +552,6 @@ void Aventador::usePowerUp() {
 			for (PowerUp* p : aventadorData.powerHeld) {
 				delete p;
 			}
-			cout << "throwing away power" << endl;
 			aventadorData.powerHeld.clear();
 			aventadorData.powerStatus = false;
 		}
@@ -556,12 +574,13 @@ void Aventador::setPowerDuration(double val) {
 void Aventador::changeRole() {
 	aventadorData.isFront = !aventadorData.isFront;
 	aventadorData.fuel = aventadorData.tankSize;
-	//jeremy changed the force speed too but i'm not sure where he puts it
 	if (aventadorData.isFront) {
 		aventadorData.force = forceFront;
+		removePower();
 	}
 	else {
 		aventadorData.force = forceBack;
+		removePower();
 	}
 }
 

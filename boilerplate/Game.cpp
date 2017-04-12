@@ -23,10 +23,9 @@ namespace Game {
 	double spawnCoolDown = 2;
 	double powerUpSpawnTime = Time::time += spawnCoolDown;
 
-	double wallDespawn = Time::time;
+	double wallDespawn;
 
 	float impulse = 100;
-	float wallCount = 0;
 	double switchRange = 10.0;
 	bool inSwtichRange = false;
 	bool isGameOver = false;
@@ -60,12 +59,9 @@ namespace Game {
 			cout << entities.size() << endl;
 		}
 
-		/*if (Time::time > wallDespawn) {
-
-		}*/
 
 		//This is where a restart function would go
-		if ((controller1.GetButtonPressed(13)) || (Keyboard::keyPressed(GLFW_KEY_ENTER))) {
+		if ((controller2.GetButtonPressed(13)) || (controller1.GetButtonPressed(13)) || (Keyboard::keyPressed(GLFW_KEY_ENTER))) {
 			entities.clear();
 			aiPowerUps.clear();
 			init();
@@ -104,20 +100,14 @@ namespace Game {
 		aventador1->changeRole();
 	}
 
-	void createWall(glm::vec3 pos, double t) {
+	/*
+	void createWall(vec3 pos) {
 		for (int i = 0; i < 2; i++) {
-			for (int j = 0; j < 10; j++) {
-				entities.push_front(unique_ptr<Entity>(new CenteredCube(glm::vec3(pos.x + (j-5), i, pos.z+5))));
-				wallCount += 1;
+			for (int j = 0; j < 6; j++) {
+				entities.push_back(entities.push_back(unique_ptr<Entity>(CenteredCube)));
 			}
 		}
-		wallDespawn = Time::time + t;
-	}
-
-	//same as start screen but just after the race is over
-	void endScreen() {
-		
-	}
+	}*/
 
 	double getDist() {
 		PxTransform pos0 = aventador0->actor->getGlobalPose();

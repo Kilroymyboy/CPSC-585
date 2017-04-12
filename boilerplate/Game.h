@@ -36,7 +36,8 @@ namespace Game {
 	//void endScreen();
 
 	void addPowerUp();
-	void createWall(glm::vec3);
+	void setWallDespawn(float t);
+	void createWall(glm::vec3 pos);
 	void checkDistance();
 	void checkForSwap();
 	double getDist();
