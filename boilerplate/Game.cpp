@@ -62,7 +62,7 @@ namespace Game {
 
 		//This is where a restart function would go
 		//currently doing something wrong as restarting must not actually delete as the program slows down after each restart
-		if ((controller1.GetButtonPressed(13)) || (Keyboard::keyPressed(GLFW_KEY_ENTER))) {
+		if ((controller1.GetButtonPressed(13)) || (Keyboard::keyPressed(GLFW_KEY_ESCAPE))) {
 			startMainMenu();
 		}
 		addPowerUp();
