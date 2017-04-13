@@ -109,7 +109,6 @@ void Aventador::update(glm::mat4 parentTransform) {
 	else if (Time::time >= aventadorData.powerDuration) {
 		aventadorData.windForce = false;
 		aventadorData.dragForce = false;
-		cout << "no power" << endl;
 	}
 
 	updateLightCamera();
@@ -552,6 +551,37 @@ void Aventador::usePowerUp() {
 				settingDrag(true);
 				aventadorData.powerStatus = 0;
 			}
+		}
+	}
+	if (aventadorData.isAI == true) {
+		if (aventadorData.powerStatus == 1) {
+			cout << aventadorId << " is using power 1" << endl;
+			Game::getBack()->actor->addForce(PxVec3(100, 0, 100), PxForceMode::eIMPULSE);
+			aventadorData.powerStatus = 0;
+		}
+		else if (aventadorData.powerStatus == 2) {
+			cout << aventadorId << " is using power 2" << endl;
+			setPowerDuration(5);
+			settingWind(true);
+			aventadorData.powerStatus = 0;
+		}
+		else if (aventadorData.powerStatus == 3) {
+			cout << aventadorId << " is using power 3" << endl;
+			PxRigidBodyExt::addLocalForceAtLocalPos(*actor,
+				PxVec3(0, 0, 300), PxVec3(0, 0, 0), PxForceMode::eIMPULSE);
+			aventadorData.powerStatus = 0;
+		}
+		else if (aventadorData.powerStatus == 4) {
+			cout << aventadorId << " is using power 4" << endl;
+			aventadorData.fuel = aventadorData.fuel + 250;
+			cout << aventadorData.fuel << endl;
+			aventadorData.powerStatus = 0;
+		}
+		else if (aventadorData.powerStatus == 5) {
+			cout << aventadorId << " is using power 5" << endl;
+			setPowerDuration(5);
+			settingDrag(true);
+			aventadorData.powerStatus = 0;
 		}
 	}
 	if (Keyboard::keyDown(aventadorId ? GLFW_KEY_END : GLFW_KEY_T)) {
