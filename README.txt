@@ -1,6 +1,8 @@
 Name: Path tracer
 
-Game is able to be run in release mode
+Note: This game can be run in release mode, but it appears that the AI only works sometimes. 
+      The game may need to be rebuilt or clean to start working. 
+      AI appears to work everytime in debug mode.
 
 Controls:
 In menu screen arrow keys are to go to each option and enter to select
